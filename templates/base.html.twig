@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <title>{% block title %}UniBank+{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('fonts/icomoon/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/jquery-ui.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/owl.theme.default.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/jquery.fancybox.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap-datepicker.css') }}">
+    <link rel="stylesheet" href="{{ asset('fonts/flaticon/font/flaticon.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/aos.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    {% block stylesheets %}{% endblock %}
+  </head>
+  <body data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
+
+  <div id="overlayer"></div>
+  <div class="loader">
+    <div class="spinner-border text-primary" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+
+  <div class="site-wrap">
+
+    <div class="site-mobile-menu site-navbar-target">
+      <div class="site-mobile-menu-header">
+        <div class="site-mobile-menu-close mt-3">
+          <span class="icon-close2 js-menu-toggle"></span>
+        </div>
+      </div>
+      <div class="site-mobile-menu-body"></div>
+    </div>
+
+    <header class="site-navbar js-sticky-header site-navbar-target" role="banner">
+      <div class="container">
+        <div class="row align-items-center">
+
+          <div class="col-6 col-xl-2">
+            <h1 class="mb-0 site-logo"><a href="{{ path('app_home') }}" class="h2 mb-0">UniBank<span class="text-primary">+</span></a></h1>
+          </div>
+
+          <div class="col-12 col-md-10 d-none d-xl-block">
+            <nav class="site-navigation position-relative text-right" role="navigation">
+              <ul class="site-menu main-menu js-clone-nav mr-auto d-none d-lg-block">
+                <li><a href="{{ path('app_home') }}#home-section" class="nav-link">Accueil</a></li>
+                <li class="has-children">
+                  <a href="{{ path('app_home') }}#about-section" class="nav-link">A propos</a>
+                  <ul class="dropdown">
+                    <li><a href="{{ path('app_home') }}#team-section" class="nav-link">Equipe</a></li>
+                    <li><a href="{{ path('app_home') }}#pricing-section" class="nav-link">Tarifs</a></li>
+                    <li><a href="{{ path('app_home') }}#faq-section" class="nav-link">FAQ</a></li>
+                    <li><a href="{{ path('app_home') }}#gallery-section" class="nav-link">Galerie</a></li>
+                    <li><a href="{{ path('app_home') }}#services-section" class="nav-link">Services</a></li>
+                    <li><a href="{{ path('app_home') }}#testimonials-section" class="nav-link">Temoignages</a></li>
+                  </ul>
+                </li>
+                <li><a href="{{ path('app_home') }}#blog-section" class="nav-link">Blog</a></li>
+                <li><a href="{{ path('app_home') }}#contact-section" class="nav-link">Contact</a></li>
+                {% if app.user %}
+                  {% if is_granted('ROLE_AGENT') %}
+                    <li><a href="{{ path('app_admin_dashboard') }}" class="nav-link">Dashboard</a></li>
+                  {% elseif is_granted('ROLE_CLIENT') %}
+                    <li><a href="{{ path('app_client_dashboard') }}" class="nav-link">Mon espace</a></li>
+                  {% endif %}
+                  <li><a href="{{ path('app_logout') }}" class="nav-link">{{ app.user.prenom }} (Deconnexion)</a></li>
+                {% else %}
+                  <li><a href="{{ path('app_login') }}" class="nav-link">Connexion</a></li>
+                  <li><a href="{{ path('app_register') }}" class="nav-link btn btn-primary text-white px-3 ml-2" style="border-radius: 30px;">Inscription</a></li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+
+          <div class="col-6 d-inline-block d-xl-none ml-md-0 py-3" style="position: relative; top: 3px;">
+            <a href="#" class="site-menu-toggle js-menu-toggle float-right"><span class="icon-menu h3"></span></a>
+          </div>
+
+        </div>
+      </div>
+    </header>
+
+    {% set flashes = app.flashes %}
+    {% if flashes|length > 0 %}
+    <div id="flash-messages" style="position: fixed; top: 20px; right: 20px; z-index: 99999; max-width: 450px; width: 100%;">
+      {% for label, messages in flashes %}
+        {% for message in messages %}
+          <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} alert-dismissible fade show shadow-lg" role="alert" style="border-radius: 8px; border: none; margin-bottom: 10px;">
+            <div class="d-flex align-items-center">
+              {% if label == 'success' %}
+                <span class="mr-2" style="font-size: 20px;">&#10003;</span>
+              {% elseif label == 'error' or label == 'danger' %}
+                <span class="mr-2" style="font-size: 20px;">&#10007;</span>
+              {% else %}
+                <span class="mr-2" style="font-size: 20px;">&#9888;</span>
+              {% endif %}
+              <span>{{ message }}</span>
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+    <script>setTimeout(function(){var el=document.getElementById('flash-messages');if(el){el.style.transition='opacity 0.5s';el.style.opacity='0';setTimeout(function(){el.remove()},500);}},5000);</script>
+    {% endif %}
+
+    {% block body %}{% endblock %}
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              <div class="col-md-5">
+                <h2 class="footer-heading mb-4">A propos</h2>
+                <p>UniBank+ est votre partenaire bancaire de confiance. Nous offrons des solutions financieres modernes et securisees pour tous vos besoins.</p>
+              </div>
+              <div class="col-md-3 ml-auto">
+                <h2 class="footer-heading mb-4">Liens rapides</h2>
+                <ul class="list-unstyled">
+                  <li><a href="{{ path('app_home') }}#about-section" class="smoothscroll">A propos</a></li>
+                  <li><a href="{{ path('app_home') }}#services-section" class="smoothscroll">Services</a></li>
+                  <li><a href="{{ path('app_home') }}#testimonials-section" class="smoothscroll">Temoignages</a></li>
+                  <li><a href="{{ path('app_home') }}#contact-section" class="smoothscroll">Contact</a></li>
+                  <li><a href="{{ path('app_login') }}">Connexion</a></li>
+                  <li><a href="{{ path('app_register') }}">Inscription</a></li>
+                </ul>
+              </div>
+              <div class="col-md-3 footer-social">
+                <h2 class="footer-heading mb-4">Suivez-nous</h2>
+                <a href="#" class="pl-0 pr-3"><span class="icon-facebook"></span></a>
+                <a href="#" class="pl-3 pr-3"><span class="icon-twitter"></span></a>
+                <a href="#" class="pl-3 pr-3"><span class="icon-instagram"></span></a>
+                <a href="#" class="pl-3 pr-3"><span class="icon-linkedin"></span></a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <h2 class="footer-heading mb-4">Newsletter</h2>
+            <form action="#" method="post" class="footer-subscribe">
+              <div class="input-group mb-3">
+                <input type="text" class="form-control border-secondary text-white bg-transparent" placeholder="Votre email" aria-label="Votre email" aria-describedby="button-addon2">
+                <div class="input-group-append">
+                  <button class="btn btn-primary text-white" type="button" id="button-addon2">Envoyer</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="row pt-5 mt-5 text-center">
+          <div class="col-md-12">
+            <div class="border-top pt-5">
+              <p>Copyright &copy; <script>document.write(new Date().getFullYear());</script> UniBank+. Tous droits reserves.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
+  <script src="{{ asset('js/jquery-ui.js') }}"></script>
+  <script src="{{ asset('js/popper.min.js') }}"></script>
+  <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+  <script src="{{ asset('js/owl.carousel.min.js') }}"></script>
+  <script src="{{ asset('js/jquery.countdown.min.js') }}"></script>
+  <script src="{{ asset('js/jquery.easing.1.3.js') }}"></script>
+  <script src="{{ asset('js/aos.js') }}"></script>
+  <script src="{{ asset('js/jquery.fancybox.min.js') }}"></script>
+  <script src="{{ asset('js/jquery.sticky.js') }}"></script>
+  <script src="{{ asset('js/isotope.pkgd.min.js') }}"></script>
+  <script src="{{ asset('js/main.js') }}"></script>
+  <script src="{{ asset('js/password-toggle.js') }}"></script>
+  {% block javascripts %}{% endblock %}
+
+  </body>
+</html>

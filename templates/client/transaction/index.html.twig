@@ -1,0 +1,277 @@
+{% extends 'client/base.html.twig' %}
+{% block title %}Mes Transactions - UniBank+{% endblock %}
+{% block page_title %}Mes Transactions{% endblock %}
+
+{% block stylesheets %}
+<style>
+.field-error {
+    display: none;
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 600;
+}
+
+.field-error.is-visible {
+    display: block;
+}
+
+.form-control.input-error,
+textarea.input-error,
+select.input-error {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 0.12rem rgba(220, 38, 38, 0.12);
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-between mb-4" style="flex-wrap:wrap;gap:15px;">
+    <div>
+        <h4 style="font-weight:700;color:var(--primary-dark);margin:0;">Solde: <span style="color:var(--success);">{{ compte.solde|number_format(2, ',', ' ') }} DT</span></h4>
+        <small style="color:var(--text-secondary);">{{ compte.numeroCompte }} - {{ compte.typeCompte.value }}</small>
+    </div>
+</div>
+
+<div class="row mb-4" style="display:flex;gap:15px;flex-wrap:wrap;">
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-exchange-alt"></i></div><div class="stat-info"><div class="stat-label">Virements</div><div class="stat-value">{{ stats.virements }}</div></div></div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card"><div class="stat-icon red"><i class="fas fa-arrow-up"></i></div><div class="stat-info"><div class="stat-label">Retraits</div><div class="stat-value">{{ stats.retraits }}</div></div></div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-arrow-down"></i></div><div class="stat-info"><div class="stat-label">Depots</div><div class="stat-value">{{ stats.depots }}</div></div></div>
+    </div>
+</div>
+
+{% if not compte.estActif %}
+<div class="admin-card mb-4">
+    <div class="card-body" style="padding:30px;">
+        <div style="background:#FFF5E6;border-radius:12px;padding:20px;display:flex;align-items:center;gap:15px;">
+            <i class="fas fa-exclamation-triangle" style="font-size:24px;color:var(--warning);"></i>
+            <div>
+                <div style="font-weight:700;color:var(--primary-dark);">Compte desactive</div>
+                <div style="color:var(--text-secondary);font-size:13px;">Votre compte est actuellement desactive. Vous ne pouvez pas effectuer de transactions. Contactez le support.</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="admin-card mb-4">
+    <div class="card-header">
+        <h5><i class="fas fa-plus-circle mr-2" style="color:var(--primary);"></i>Nouvelle transaction</h5>
+    </div>
+    <div class="card-body" style="padding:25px;">
+        <form method="post" action="{{ path('app_client_transaction_submit') }}" id="transactionForm" novalidate data-inline-validate>
+            <div class="row" style="display:flex;gap:15px;flex-wrap:wrap;align-items:flex-end;">
+                <div style="flex:1;min-width:150px;">
+                    <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Type</label>
+                    <select name="type" id="txnType" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required>
+                        <option value="">Choisir...</option>
+                        <option value="VIREMENT">Virement</option>
+                        <option value="RETRAIT">Retrait</option>
+                    </select>
+                    <div class="field-error" data-error-for="type"></div>
+                </div>
+                <div style="flex:1;min-width:150px;">
+                    <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Montant (DT)</label>
+                    <input type="number" name="montant" step="0.01" min="0.01" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required placeholder="0.00">
+                    <div class="field-error" data-error-for="montant"></div>
+                </div>
+                <div id="destBox" style="flex:1;min-width:180px;display:none;">
+                    <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Compte destinataire</label>
+                    <input type="text" name="destination" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" placeholder="UB...">
+                    <div class="field-error" data-error-for="destination"></div>
+                </div>
+                <div style="flex:1;min-width:180px;">
+                    <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Description</label>
+                    <input type="text" name="description" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" placeholder="Motif (optionnel)">
+                </div>
+                <div>
+                    <button type="submit" class="btn-admin primary" style="height:44px;">Effectuer</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<div class="admin-card">
+    <div class="card-header" style="flex-wrap:wrap;gap:10px;">
+        <h5><i class="fas fa-history mr-2" style="color:var(--primary);"></i>Historique</h5>
+        <form method="get" action="{{ path('app_client_transactions') }}" id="filterForm" class="filter-bar">
+            <input type="date" name="from" value="{{ dateFrom }}" onchange="this.form.submit()" style="width:140px;">
+            <input type="date" name="to" value="{{ dateTo }}" onchange="this.form.submit()" style="width:140px;">
+            <select name="type" onchange="this.form.submit()">
+                <option value="all" {{ type == 'all' ? 'selected' : '' }}>Tous</option>
+                <option value="VIREMENT" {{ type == 'VIREMENT' ? 'selected' : '' }}>Virements</option>
+                <option value="RETRAIT" {{ type == 'RETRAIT' ? 'selected' : '' }}>Retraits</option>
+                <option value="DEPOT" {{ type == 'DEPOT' ? 'selected' : '' }}>Depots</option>
+            </select>
+            <input type="text" name="q" value="{{ search }}" placeholder="Rechercher..." oninput="clearTimeout(this.t);this.t=setTimeout(()=>this.form.submit(),400)" style="width:180px;">
+            <a href="{{ path('app_client_extrait', {from: dateFrom, to: dateTo}) }}" class="btn-admin outline" style="padding:8px 14px;font-size:13px;" title="Telecharger l'extrait PDF">
+                <i class="fas fa-file-pdf mr-1"></i>Extrait PDF
+            </a>
+        </form>
+    </div>
+    <div class="card-body">
+        {% if transactions|length > 0 %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Transaction</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th style="text-align:right;">Montant</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                {% set isOut = (t.type.value == 'RETRAIT') or (t.type.value == 'VIREMENT' and t.compteSource and t.compteSource.idCompte == compte.idCompte) %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center" style="gap:10px;">
+                            <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;
+                                {% if t.type.value == 'VIREMENT' %}background:#E7EDFF;color:var(--primary);
+                                {% elseif t.type.value == 'RETRAIT' %}background:#FFE8EB;color:#dc2626;
+                                {% else %}background:#E0F8EF;color:#16a34a;{% endif %}">
+                                {% if t.type.value == 'VIREMENT' %}<i class="fas fa-exchange-alt"></i>
+                                {% elseif t.type.value == 'RETRAIT' %}<i class="fas fa-arrow-up"></i>
+                                {% else %}<i class="fas fa-arrow-down"></i>{% endif %}
+                            </div>
+                            <div>
+                                <div style="font-weight:600;font-size:13px;">{{ t.type.value }}</div>
+                                {% if t.type.value == 'VIREMENT' %}
+                                    <div style="font-size:11px;color:var(--text-secondary);">
+                                        {% if isOut %}
+                                            Vers {{ t.compteDestination ? t.compteDestination.numeroCompte : '-' }}
+                                        {% else %}
+                                            De {{ t.compteSource ? t.compteSource.numeroCompte : '-' }}
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td style="color:var(--text-secondary);font-size:13px;">{{ t.description ?? '-' }}</td>
+                    <td style="font-size:13px;white-space:nowrap;">{{ t.dateCreation|date('d/m/Y') }}<br><small style="color:var(--text-secondary);">{{ t.dateCreation|date('H:i') }}</small></td>
+                    <td style="text-align:right;font-weight:700;font-size:14px;color:{{ isOut ? '#dc2626' : '#16a34a' }};">
+                        {{ isOut ? '-' : '+' }}{{ t.montant|number_format(2, ',', ' ') }} DT
+                    </td>
+                    <td>
+                        <a href="{{ path('app_client_receipt', {id: t.idTransaction}) }}" class="btn-action" title="Telecharger le recu" style="color:var(--primary);">
+                            <i class="fas fa-file-pdf"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>Aucune transaction trouvee</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function toggleDestinationField() {
+    var typeField = document.getElementById('txnType');
+    var destinationBox = document.getElementById('destBox');
+    var destinationInput = document.querySelector('#transactionForm [name="destination"]');
+
+    if (!typeField || !destinationBox || !destinationInput) {
+        return;
+    }
+
+    var isTransfer = typeField.value === 'VIREMENT';
+    destinationBox.style.display = isTransfer ? 'block' : 'none';
+    destinationInput.required = isTransfer;
+
+    if (!isTransfer) {
+        destinationInput.classList.remove('input-error');
+        var errorEl = document.querySelector('#transactionForm [data-error-for="destination"]');
+        if (errorEl) {
+            errorEl.textContent = '';
+            errorEl.classList.remove('is-visible');
+        }
+    }
+}
+
+function getTransactionValidationMessage(field) {
+    if (field.validity.valueMissing) {
+        if (field.name === 'destination') {
+            return 'Le compte destinataire est obligatoire.';
+        }
+        return 'Ce champ est obligatoire.';
+    }
+    if (field.validity.rangeUnderflow) {
+        return 'Le montant doit etre positif.';
+    }
+    return '';
+}
+
+function validateTransactionField(field, form) {
+    var errorEl = form.querySelector('[data-error-for="' + field.name + '"]');
+    if (!errorEl) {
+        return true;
+    }
+
+    var isValid = field.checkValidity();
+    var message = isValid ? '' : getTransactionValidationMessage(field);
+
+    field.classList.toggle('input-error', !isValid);
+    errorEl.textContent = message;
+    errorEl.classList.toggle('is-visible', !isValid);
+
+    return isValid;
+}
+
+var transactionForm = document.getElementById('transactionForm');
+var transactionFields = transactionForm ? transactionForm.querySelectorAll('input[name], select[name]') : [];
+
+if (transactionForm) {
+    transactionFields.forEach(function(field) {
+        field.addEventListener(field.tagName === 'SELECT' ? 'change' : 'input', function() {
+            validateTransactionField(field, transactionForm);
+        });
+    });
+
+    transactionForm.addEventListener('submit', function(event) {
+        var firstInvalid = null;
+        var valid = true;
+
+        transactionFields.forEach(function(field) {
+            if (!validateTransactionField(field, transactionForm)) {
+                valid = false;
+                if (!firstInvalid) {
+                    firstInvalid = field;
+                }
+            }
+        });
+
+        if (!valid) {
+            event.preventDefault();
+            if (firstInvalid) {
+                firstInvalid.focus();
+            }
+        }
+    });
+}
+
+document.getElementById('txnType').addEventListener('change', function() {
+    toggleDestinationField();
+    if (transactionForm) {
+        validateTransactionField(this, transactionForm);
+    }
+});
+
+toggleDestinationField();
+</script>
+{% endblock %}

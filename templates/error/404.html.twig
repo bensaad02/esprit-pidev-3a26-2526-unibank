@@ -1,0 +1,18 @@
+{% include 'error/_showcase.html.twig' with {
+    page_title: 'Page introuvable - UniBank+',
+    eyebrow: 'Navigation interrompue',
+    code: '404',
+    title: 'La route demandee est introuvable',
+    message: "La page que vous cherchez n'existe plus, a change d'adresse ou l'URL contient une erreur. Nous vous aidons a repartir dans la bonne direction.",
+    accent: '#79f0ff',
+    accent_strong: '#5b7cff',
+    accent_soft: 'rgba(121, 240, 255, 0.16)',
+    bg_one: '#07111f',
+    bg_two: '#102b4a',
+    bg_three: '#1c3f73',
+    tips: [
+        { title: "Verifier le lien", text: "Controlez l'URL, surtout les tirets, slashs et fautes de frappe." },
+        { title: "Revenir a l'accueil", text: "Repartez depuis la page principale pour retrouver rapidement la bonne section." },
+        { title: "Reprendre la navigation", text: "Le bouton precedent vous renvoie a votre derniere page utile." }
+    ]
+} %}

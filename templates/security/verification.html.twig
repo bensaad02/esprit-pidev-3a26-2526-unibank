@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Verification - UniBank+{% endblock %}
+
+{% block body %}
+<div class="site-section bg-light" style="min-height: 80vh; display: flex; align-items: center;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="bg-white p-5 rounded shadow">
+                    <div class="text-center mb-4">
+                        <div class="text-center mb-2">
+                            <img src="{{ asset('images/unibank-plus.png') }}" alt="UniBank+" style="height: 80px;">
+                        </div>
+                        <h2 class="h4 text-black">Verification du compte</h2>
+                        <p class="text-muted">Entrez le code de verification envoye a votre email</p>
+                    </div>
+
+                    <form method="post">
+                        <input type="hidden" name="email" value="{{ email }}">
+                        <div class="form-group">
+                            <label class="text-black" for="code">Code de verification</label>
+                            <input type="text" id="code" name="code" required autofocus
+                                   class="form-control text-center" placeholder="XXXXXX"
+                                   style="font-size: 24px; letter-spacing: 8px; font-weight: bold;"
+                                   maxlength="6">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block py-2">Verifier</button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted mb-2">Vous n'avez pas recu le code ?</p>
+                        <a href="{{ path('app_verification_resend', {email: email}) }}">Renvoyer le code</a>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a href="{{ path('app_login') }}">Retour a la connexion</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

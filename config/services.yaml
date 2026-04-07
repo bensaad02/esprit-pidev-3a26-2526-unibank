@@ -1,0 +1,32 @@
+
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Service\HCaptchaService:
+        arguments:
+            $hcaptchaSecretKey: '%env(HCAPTCHA_SECRET_KEY)%'
+            $hcaptchaSiteKey: '%env(HCAPTCHA_SITE_KEY)%'
+
+    App\Service\EmailService:
+        arguments:
+            $mailFromAddress: '%env(MAIL_FROM_ADDRESS)%'
+            $mailFromName: '%env(MAIL_FROM_NAME)%'
+
+    App\EventListener\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, priority: 10 }
+
+    App\EventListener\BannedUserListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 20 }
