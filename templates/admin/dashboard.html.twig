@@ -1,0 +1,97 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Tableau de bord - Admin UniBank+{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block body %}
+<div class="row mb-4" style="display:flex;gap:20px;flex-wrap:wrap;">
+    <div class="col" style="flex:1;min-width:200px;">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Total Clients</div>
+                <div class="stat-value">{{ totalClients }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:200px;">
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">En attente</div>
+                <div class="stat-value">{{ pendingClients }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:200px;">
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Approuves</div>
+                <div class="stat-value">{{ approvedClients }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:200px;">
+        <div class="stat-card">
+            <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Rejetes</div>
+                <div class="stat-value">{{ rejectedClients }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="card-header">
+        <h5><i class="fas fa-clock mr-2" style="color:var(--warning);"></i>Demandes recentes en attente</h5>
+        <a href="{{ path('app_admin_pending') }}" class="btn-admin primary" style="font-size:13px;padding:8px 18px;">Voir tout</a>
+    </div>
+    <div class="card-body">
+        {% if recentPending|length > 0 %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>CIN</th>
+                    <th>Offre</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in recentPending|slice(0, 5) %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">{{ client.prenom|first }}{{ client.nom|first }}</div>
+                            <div class="user-details">
+                                <div class="user-name">{{ client.prenom }} {{ client.nom }}</div>
+                                <div class="user-email">{{ client.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ client.cin }}</td>
+                    <td>{{ client.selectedOffer ?? '-' }}</td>
+                    <td>{{ client.dateCreation|date('d/m/Y') }}</td>
+                    <td>
+                        <button type="button" class="btn-action approve" title="Approuver" onclick="confirmSubmit('{{ path('app_admin_user_approve', {id: client.idUtilisateur}) }}', {type:'approve', title:'Approuver le client', message:'Approuver {{ client.prenom|e('js') }} {{ client.nom|e('js') }} et creer son compte bancaire ?', btnText:'Approuver'})">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button type="button" class="btn-action reject" title="Rejeter" onclick="confirmSubmit('{{ path('app_admin_user_reject', {id: client.idUtilisateur}) }}', {type:'reject', title:'Rejeter la demande', message:'Rejeter la demande de {{ client.prenom|e('js') }} {{ client.nom|e('js') }} ?', btnText:'Rejeter'})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>Aucune demande en attente</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

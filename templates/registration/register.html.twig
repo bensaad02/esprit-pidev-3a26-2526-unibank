@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription - UniBank+{% endblock %}
+
+{% block body %}
+<div class="site-section bg-light" style="min-height: 80vh;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-7">
+                <div class="bg-white p-5 rounded shadow">
+                    <div class="text-center mb-4">
+                        <div class="text-center mb-2">
+                            <img src="{{ asset('images/unibank-plus.png') }}" alt="UniBank+" style="height: 80px;">
+                        </div>
+                        <h2 class="h4 text-black">Creer un compte</h2>
+                        <p class="text-muted">Remplissez le formulaire pour ouvrir votre compte</p>
+                    </div>
+
+                    {{ form_start(registrationForm) }}
+
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            {{ form_row(registrationForm.nom) }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            {{ form_row(registrationForm.prenom) }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_row(registrationForm.email) }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            {{ form_row(registrationForm.telephone) }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            {{ form_row(registrationForm.cin) }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_row(registrationForm.dateNaissance) }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_row(registrationForm.adresse) }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            {{ form_row(registrationForm.plainPassword.first) }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            {{ form_row(registrationForm.plainPassword.second) }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="h-captcha" data-sitekey="{{ hcaptcha_site_key }}"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block py-2">S'inscrire</button>
+
+                    {{ form_end(registrationForm) }}
+
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Deja inscrit ? <a href="{{ path('app_login') }}"><strong>Se connecter</strong></a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+{% endblock %}

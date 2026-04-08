@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <title>{% block title %}Client - UniBank+{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="admin-body">
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('show');"></div>
+
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="{{ asset('images/unibank-icon.png') }}" alt="UniBank+">
+            <span>UniBank+</span>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">Menu principal</div>
+            <a href="{{ path('app_client_dashboard') }}" class="{% if app.request.get('_route') == 'app_client_dashboard' %}active{% endif %}">
+                <i class="fas fa-th-large"></i> Accueil
+            </a>
+            <a href="{{ path('app_client_compte') }}" class="{% if app.request.get('_route') == 'app_client_compte' %}active{% endif %}">
+                <i class="fas fa-wallet"></i> Mon Compte
+            </a>
+
+            <div class="nav-section">A venir</div>
+            <a href="{{ path('app_client_transactions') }}" class="{% if app.request.get('_route') starts with 'app_client_transaction' or app.request.get('_route') == 'app_client_extrait' %}active{% endif %}">
+                <i class="fas fa-exchange-alt"></i> Transactions
+            </a>
+            <a href="{{ path('app_client_credits') }}" class="{% if app.request.get('_route') starts with 'app_client_credit' %}active{% endif %}">
+                <i class="fas fa-hand-holding-usd"></i> Credits
+            </a>
+            <a href="#" class="disabled" style="opacity:0.4;pointer-events:none;">
+                <i class="fas fa-credit-card"></i> Cartes
+            </a>
+            <a href="#" class="disabled" style="opacity:0.4;pointer-events:none;">
+                <i class="fas fa-comment-alt"></i> Reclamations
+            </a>
+
+            <div class="nav-section">Compte</div>
+            <a href="{{ path('app_client_profile') }}" class="{% if app.request.get('_route') starts with 'app_client_profile' or app.request.get('_route') == 'app_client_password' %}active{% endif %}">
+                <i class="fas fa-user-cog"></i> Mon Profil
+            </a>
+            <a href="{{ path('app_logout') }}" class="text-danger">
+                <i class="fas fa-sign-out-alt"></i> Deconnexion
+            </a>
+        </nav>
+    </aside>
+
+    <header class="admin-topbar">
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn d-lg-none p-0 border-0" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('show');">
+                <i class="fas fa-bars" style="font-size:20px;color:var(--primary-dark);"></i>
+            </button>
+            <span class="page-title">{% block page_title %}Accueil{% endblock %}</span>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-user-info">
+                <div class="text-right d-none d-md-block">
+                    <div class="user-name">{{ app.user.prenom }} {{ app.user.nom }}</div>
+                    <div class="user-role">Client</div>
+                </div>
+                <div class="user-avatar" style="width:40px;height:40px;font-size:16px;">
+                    {{ app.user.prenom|first }}{{ app.user.nom|first }}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {% set flashes = app.flashes %}
+    {% if flashes|length > 0 %}
+    <div id="flash-messages" style="position:fixed;top:20px;right:20px;z-index:99999;max-width:450px;width:100%;">
+        {% for label, messages in flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} alert-dismissible fade show shadow-lg" role="alert" style="border-radius:10px;border:none;border-left:4px solid;margin-bottom:10px;font-size:14px;">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    <script>setTimeout(function(){var e=document.getElementById('flash-messages');if(e){e.style.transition='opacity .5s';e.style.opacity='0';setTimeout(function(){e.remove()},500);}},5000);</script>
+    {% endif %}
+
+    <main class="admin-content">
+        {% block body %}{% endblock %}
+    </main>
+
+    <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ asset('js/popper.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/password-toggle.js') }}"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Enum;
+
+enum TypeContrat: string
+{
+    case PRELEVEMENT_AUTOMATIQUE = 'PRELEVEMENT_AUTOMATIQUE';
+    case PAIEMENT_MENSUEL = 'PAIEMENT_MENSUEL';
+    case PAIEMENT_DIFFERE = 'PAIEMENT_DIFFERE';
+}

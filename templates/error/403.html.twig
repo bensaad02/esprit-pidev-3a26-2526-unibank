@@ -1,0 +1,18 @@
+{% include 'error/_showcase.html.twig' with {
+    page_title: 'Acces refuse - UniBank+',
+    eyebrow: 'Zone protegee',
+    code: '403',
+    title: "Vous n'avez pas acces a cette page",
+    message: "Cette section est reservee a un autre type de compte ou demande une autorisation supplementaire. Si cela vous semble anormal, contactez l'administrateur.",
+    accent: '#ff9a8c',
+    accent_strong: '#ff5c8a',
+    accent_soft: 'rgba(255, 92, 138, 0.15)',
+    bg_one: '#190b14',
+    bg_two: '#321226',
+    bg_three: '#5b1937',
+    tips: [
+        { title: "Verifier votre role", text: "Assurez-vous d'etre connecte avec le bon compte avant de reessayer." },
+        { title: "Retour securise", text: "Vous pouvez revenir a la page precedente sans perdre votre session actuelle." },
+        { title: "Besoin d'aide", text: "Si vous deviez voir cette page, le support pourra verifier vos permissions." }
+    ]
+} %}
