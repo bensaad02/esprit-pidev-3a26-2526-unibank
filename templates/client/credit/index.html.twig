@@ -1,9 +1,12 @@
 {% extends 'client/base.html.twig' %}
+{# Titre de l'onglet du navigateur #}
 {% block title %}Mes Credits - UniBank+{% endblock %}
+{# Titre affiche dans le layout client #}
 {% block page_title %}Mes Credits{% endblock %}
 
 {% block stylesheets %}
 <style>
+{# Zone qui affiche les messages d'erreur sous les champs #}
 .field-error {
     display: none;
     color: #dc2626;
@@ -26,29 +29,45 @@ select.input-error {
 {% endblock %}
 
 {% block body %}
+
+
+{# Lorsque le client veut faire une nouvelle demande de credit,  #}
+
+
+
 <div class="admin-card mb-4">
     <div class="card-header">
         <h5><i class="fas fa-calculator mr-2" style="color:var(--primary);"></i>Simulateur & Demande de credit</h5>
     </div>
     <div class="card-body" style="padding:25px;">
+        {# Formulaire POST envoye vers la route de creation d'un credit #}
         <form method="post" action="{{ path('app_client_credit_apply') }}" id="creditForm" novalidate data-inline-validate>
             <div class="row">
                 <div class="col-md-6 mb-3">
+                    {# Slider pour choisir le montant du credit #}
                     <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Montant du credit (DT)</label>
                     <input type="range" id="montantSlider" min="1000" max="500000" step="1000" value="50000" style="width:100%;" oninput="updateSimulation()">
+                    {# Valeur visuelle du slider montant #}
                     <div class="d-flex justify-content-between" style="font-size:12px;color:var(--text-secondary);"><span>1 000</span><span id="montantVal" style="font-weight:700;color:var(--primary);font-size:16px;">50 000 DT</span><span>500 000</span></div>
+                    {# Champ cache reellement envoye au serveur #}
                     <input type="hidden" name="montant" id="montantInput" value="50000">
+                    {# Emplacement du message d'erreur du montant #}
                     <div class="field-error" data-error-for="montant"></div>
                 </div>
                 <div class="col-md-6 mb-3">
+                    {# Slider pour choisir la duree en annees #}
                     <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Duree (annees)</label>
                     <input type="range" id="dureeSlider" min="1" max="25" step="1" value="5" style="width:100%;" oninput="updateSimulation()">
+                    {# Valeur visuelle du slider duree #}
                     <div class="d-flex justify-content-between" style="font-size:12px;color:var(--text-secondary);"><span>1 an</span><span id="dureeVal" style="font-weight:700;color:var(--primary);font-size:16px;">5 ans</span><span>25 ans</span></div>
+                    {# Champ cache reellement envoye au serveur #}
                     <input type="hidden" name="duree" id="dureeInput" value="5">
+                    {# Emplacement du message d'erreur de la duree #}
                     <div class="field-error" data-error-for="duree"></div>
                 </div>
             </div>
 
+            {# Lorsque le client choisit le montant et la duree, ce bloc affiche la simulation du credit #}
             <div style="background:var(--bg);border-radius:12px;padding:20px;margin:15px 0;display:flex;gap:30px;flex-wrap:wrap;justify-content:center;">
                 <div style="text-align:center;">
                     <div style="font-size:12px;color:var(--text-secondary);">Taux annuel</div>
@@ -68,6 +87,7 @@ select.input-error {
                 </div>
             </div>
 
+            {# Lorsque le client saisit son salaire, ce bloc indique s'il est eligible selon la regle des 33% #}
             <div id="capacityBox" style="background:#f8fafc;border-radius:10px;padding:15px;margin-bottom:15px;display:none;">
                 <div class="d-flex justify-content-between align-items-center" style="margin-bottom:8px;">
                     <span style="font-size:13px;font-weight:600;color:var(--primary-dark);">Capacite d'endettement (33% du salaire)</span>
@@ -84,22 +104,31 @@ select.input-error {
 
             <div class="row">
                 <div class="col-md-4 mb-3">
+                    {# Champ salaire obligatoire utilise aussi dans la simulation #}
                     <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Salaire mensuel (DT)</label>
                     <input type="number" name="salaire" id="salaireInput" step="0.01" min="1" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required placeholder="Ex: 2500" oninput="updateSimulation()">
                     <div class="field-error" data-error-for="salaire"></div>
                 </div>
                 <div class="col-md-8 mb-3">
+                    {# Champ texte pour expliquer le motif de la demande #}
                     <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Motif de la demande (min. 10 caracteres)</label>
                     <textarea name="motif" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" rows="2" required minlength="10" placeholder="Decrivez le motif de votre demande de credit..."></textarea>
                     <div class="field-error" data-error-for="motif"></div>
                 </div>
             </div>
+            {# Bouton d'envoi de la demande #}
+
             <button type="submit" class="btn-admin primary" id="submitBtn">Soumettre la demande</button>
         </form>
     </div>
 </div>
 
 {% if credits|length > 0 %}
+
+{# Lorsque le client consulte ses demandes existantes, ce bloc affiche la liste des credits deja crees #}
+
+
+
 <div class="admin-card">
     <div class="card-header">
         <h5><i class="fas fa-list mr-2" style="color:var(--primary);"></i>Mes demandes de credit ({{ credits|length }})</h5>
@@ -110,6 +139,7 @@ select.input-error {
                 <tr><th>Montant</th><th>Duree</th><th>Mensualite</th><th>Statut</th><th>Date</th><th>Actions</th></tr>
             </thead>
             <tbody>
+                {# Boucle sur chaque credit envoye par le controller #}
                 {% for c in credits %}
                 <tr>
                     <td style="font-weight:700;">{{ c.montant|number_format(2, ',', ' ') }} DT</td>
@@ -135,25 +165,54 @@ select.input-error {
                     <td style="font-size:13px;">{{ c.dateCreation|date('d/m/Y') }}</td>
                     <td style="white-space:nowrap;">
                         {% if c.statut.value == 'PENDING' %}
+
+
+                            {# Lorsque le client clique sur Modifier ou Annuler, il agit sur une demande encore en attente #}
+
+
                             <button type="button" class="btn-action edit" title="Modifier" onclick="openModifyModal({{ c.idCredit }}, {{ c.montant }}, {{ (c.dureeEnMois / 12)|round }}, {{ c.salaireMensuel }}, '{{ c.motifDemande|e('js') }}')">
                                 <i class="fas fa-pen"></i>
                             </button>
                             <form method="post" action="{{ path('app_client_credit_cancel', {id: c.idCredit}) }}" style="display:inline;">
-                                <button type="submit" class="btn-action delete" title="Annuler" onclick="return confirm('Annuler cette demande ?')"><i class="fas fa-times"></i></button>
+                            <button type="submit" class="btn-action delete" title="Annuler" onclick="return confirm('Annuler cette demande ?')"><i class="fas fa-times"></i></button>
+                            </form>
+                            {# Lorsque le client clique sur Supprimer, la demande est effacee definitivement avant verification admin #}
+                            <form method="post" action="{{ path('app_client_credit_delete', {id: c.idCredit}) }}" style="display:inline;">
+                                <button type="submit" class="btn-action delete" title="Supprimer" onclick="return confirm('Supprimer definitivement cette demande de credit ?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </form>
                         {% elseif c.statut.value == 'APPROVED' %}
+
+                            {# Lorsque le client clique sur Choisir contrat, il passe a l'etape de selection du type de contrat #}
+
+
                             <button type="button" class="btn-admin primary" style="padding:4px 12px;font-size:12px;" onclick="$('#contractModal{{ c.idCredit }}').modal('show')">
                                 <i class="fas fa-file-contract mr-1"></i>Choisir contrat
                             </button>
                         {% elseif c.statut.value == 'CONTRACT_PENDING' %}
+
+
+                            {# Lorsque le client reclique sur Modifier, il peut changer son type de contrat avant finalisation #}
+
+
+
                             <button type="button" class="btn-action edit" title="Modifier le type de contrat" onclick="$('#contractModal{{ c.idCredit }}').modal('show')">
                                 <i class="fas fa-pen"></i>
                             </button>
+                    
                         {% elseif c.statut.value == 'ACTIVE' %}
+
+
+                            {# Lorsque le credit est actif, le client peut telecharger le contrat en PDF #}
+
+
+
                             <a href="{{ path('app_client_credit_pdf', {id: c.idCredit}) }}" class="btn-action" title="Telecharger le contrat PDF" style="color:var(--primary);">
                                 <i class="fas fa-file-pdf"></i>
                             </a>
                         {% elseif c.statut.value == 'REJECTED' and c.motifRejet %}
+                            {# Si le credit est rejete, on affiche le motif dans une info-bulle/alerte #}
                             <button type="button" class="btn-action" style="color:var(--danger);" title="Motif: {{ c.motifRejet|e('html_attr') }}" onclick="alert('Motif du rejet:\n\n{{ c.motifRejet|e('js') }}')"><i class="fas fa-info-circle"></i></button>
                         {% endif %}
                     </td>
@@ -165,6 +224,10 @@ select.input-error {
     </div>
 </div>
 
+{# Lorsque le client clique sur Choisir contrat ou Modifier le type de contrat, cette modale s'affiche #}
+
+
+
 {% for c in credits %}
 {% if c.statut.value == 'APPROVED' or c.statut.value == 'CONTRACT_PENDING' %}
 <div class="modal fade modal-admin" id="contractModal{{ c.idCredit }}" tabindex="-1">
@@ -174,18 +237,22 @@ select.input-error {
                 <h5 style="color:#fff;font-weight:700;margin:0;"><i class="fas fa-file-contract mr-2"></i>Choisir le type de contrat</h5>
                 <small style="color:rgba(255,255,255,0.8);">Credit de {{ c.montant|number_format(2, ',', ' ') }} DT</small>
             </div>
+            {# Formulaire POST qui enregistre le type de contrat choisi #}
             <form method="post" action="{{ path('app_client_credit_contract', {id: c.idCredit}) }}" novalidate data-inline-validate>
                 <div style="padding:25px;">
+                    {# Option 1 : prelevement automatique #}
                     <label style="display:block;padding:15px;border:2px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:10px;">
                         <input type="radio" name="type_contrat" value="PRELEVEMENT_AUTOMATIQUE" required style="margin-right:10px;">
                         <strong>Prelevement automatique</strong>
                         <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Prelevement le 5 de chaque mois. Pas de majoration. Penalite: 1.5%</div>
                     </label>
+                    {# Option 2 : paiement mensuel #}
                     <label style="display:block;padding:15px;border:2px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:10px;">
                         <input type="radio" name="type_contrat" value="PAIEMENT_MENSUEL" style="margin-right:10px;">
                         <strong>Paiement mensuel</strong>
                         <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">Paiement avant le 10 de chaque mois. Pas de majoration. Penalite: 3.0%</div>
                     </label>
+                    {# Option 3 : paiement differe #}
                     <label style="display:block;padding:15px;border:2px solid var(--border);border-radius:10px;cursor:pointer;">
                         <input type="radio" name="type_contrat" value="PAIEMENT_DIFFERE" style="margin-right:10px;">
                         <strong>Paiement differe</strong>
@@ -205,32 +272,42 @@ select.input-error {
 {% endfor %}
 {% endif %}
 
+{# Lorsque le client clique sur Modifier, cette modale lui permet de changer les informations du credit #}
+
+
+
+
 <div class="modal fade modal-admin" id="modifyModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
         <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;">
             <div style="background:linear-gradient(135deg,var(--primary),#4C49ED);padding:20px 25px;">
                 <h5 style="color:#fff;font-weight:700;margin:0;"><i class="fas fa-pen mr-2"></i>Modifier la demande</h5>
             </div>
+            {# Le JS remplit cette modale avec les valeurs du credit selectionne #}
             <form id="modifyForm" method="post" novalidate data-inline-validate>
                 <div style="padding:25px;">
                     <div class="row">
                         <div class="col-6 form-group" style="margin-bottom:15px;">
+                            {# Nouveau montant #}
                             <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Montant (DT)</label>
                             <input type="number" name="montant" id="mod_montant" min="1000" max="500000" step="1000" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required>
                             <div class="field-error" data-error-for="montant"></div>
                         </div>
                         <div class="col-6 form-group" style="margin-bottom:15px;">
+                            {# Nouvelle duree #}
                             <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Duree (annees)</label>
                             <input type="number" name="duree" id="mod_duree" min="1" max="25" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required>
                             <div class="field-error" data-error-for="duree"></div>
                         </div>
                     </div>
                     <div class="form-group" style="margin-bottom:15px;">
+                        {# Nouveau salaire #}
                         <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Salaire mensuel (DT)</label>
                         <input type="number" name="salaire" id="mod_salaire" step="0.01" min="1" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required>
                         <div class="field-error" data-error-for="salaire"></div>
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
+                        {# Nouveau motif #}
                         <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Motif (min. 10 caracteres)</label>
                         <textarea name="motif" id="mod_motif" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" rows="2" required minlength="10"></textarea>
                         <div class="field-error" data-error-for="motif"></div>
@@ -248,15 +325,31 @@ select.input-error {
 
 {% block javascripts %}
 <script>
+
+
+// Lorsque la page se charge, ce script gere la simulation, la modification et la validation front
+// Taux de base envoye par Twig depuis le controller
+
+
 var tauxBase = {{ tauxBase }};
+
+// Recalcule et met a jour toute la simulation du credit
+
 function updateSimulation() {
+    // Valeurs actuelles choisies par l'utilisateur
     var m = document.getElementById('montantSlider').value;
     var d = document.getElementById('dureeSlider').value;
     var s = parseFloat(document.getElementById('salaireInput').value) || 0;
+
+    // Mise a jour des textes visibles et des champs caches envoyes au serveur
+
     document.getElementById('montantVal').textContent = parseInt(m).toLocaleString('fr-FR') + ' DT';
     document.getElementById('dureeVal').textContent = d + (d > 1 ? ' ans' : ' an');
     document.getElementById('montantInput').value = m;
     document.getElementById('dureeInput').value = d;
+
+    // Calcul de la mensualite, du total et du cout du credit
+
     var montant = parseFloat(m);
     var mois = parseInt(d) * 12;
     var tm = tauxBase / 100 / 12;
@@ -266,6 +359,9 @@ function updateSimulation() {
     document.getElementById('simTotal').textContent = total.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' DT';
     document.getElementById('simCout').textContent = (total - montant).toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' DT';
 
+    // Verification de la regle des 33% du salaire
+
+    
     var box = document.getElementById('capacityBox');
     if (s > 0) {
         box.style.display = 'block';
@@ -287,8 +383,11 @@ function updateSimulation() {
         document.getElementById('submitBtn').style.opacity = '1';
     }
 }
+
+// Lance une premiere simulation au chargement de la page
 updateSimulation();
 
+// Ouvre la modale de modification et remplit les champs avec les donnees du credit
 function openModifyModal(id, montant, duree, salaire, motif) {
     document.getElementById('modifyForm').action = '/client/credits/' + id + '/modify';
     document.getElementById('mod_montant').value = montant;
@@ -297,6 +396,9 @@ function openModifyModal(id, montant, duree, salaire, motif) {
     document.getElementById('mod_motif').value = motif;
     $('#modifyModal').modal('show');
 }
+
+// Retourne le message adapte selon l'erreur HTML de validation
+
 
 function getInlineValidationMessage(field) {
     if (field.validity.valueMissing) {
@@ -322,6 +424,7 @@ function getInlineValidationMessage(field) {
     return '';
 }
 
+// Valide un champ et affiche ou masque son message d'erreur
 function validateInlineField(field, form) {
     var targetName = field.name;
     var errorEl = form.querySelector('[data-error-for="' + targetName + '"]');
@@ -355,6 +458,7 @@ function validateInlineField(field, form) {
     return isValid;
 }
 
+// Active la validation en direct sur tous les champs d'un formulaire
 function setupInlineValidation(form) {
     if (!form) {
         return;
@@ -369,6 +473,7 @@ function setupInlineValidation(form) {
         });
     });
 
+    // Au submit, on bloque l'envoi si au moins un champ est invalide
     form.addEventListener('submit', function(event) {
         var firstInvalid = null;
         var valid = true;
@@ -391,6 +496,7 @@ function setupInlineValidation(form) {
     });
 }
 
+// Applique la validation a tous les formulaires qui demandent ce comportement
 document.querySelectorAll('form[data-inline-validate]').forEach(setupInlineValidation);
 </script>
 {% endblock %}

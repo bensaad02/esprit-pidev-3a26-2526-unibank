@@ -26,23 +26,33 @@ select.input-error {
 {% endblock %}
 
 {% block body %}
+{# Lorsque l'admin consulte la page, ce bloc affiche les statistiques principales des credits #}
 <div class="row mb-4" style="display:flex;gap:15px;flex-wrap:wrap;">
     <div class="col" style="flex:1;min-width:160px;">
+        {# Nombre de credits en attente app controle w calc f repo #}
         <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-clock"></i></div><div class="stat-info"><div class="stat-label">En attente</div><div class="stat-value">{{ stats.pending }}</div></div></div>
     </div>
     <div class="col" style="flex:1;min-width:160px;">
+        {# Nombre total de credits appl controle w calc f repo  #}
         <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-list"></i></div><div class="stat-info"><div class="stat-label">Total credits</div><div class="stat-value">{{ stats.total }}</div></div></div>
     </div>
     <div class="col" style="flex:1;min-width:160px;">
+        {# Montant total des credits approuves appl controle w calc f repo  #}
         <div class="stat-card"><div class="stat-icon green"><i class="fas fa-coins"></i></div><div class="stat-info"><div class="stat-label">Montant approuve</div><div class="stat-value" style="font-size:16px;">{{ stats.totalAmount|number_format(2, ',', ' ') }} DT</div></div></div>
     </div>
 </div>
 
+{# Lorsque l'admin veut filtrer ou rechercher des credits, il utilise ce bloc #}
+
+
 <div class="admin-card">
     <div class="card-header" style="flex-wrap:wrap;gap:10px;">
         <h5><i class="fas fa-hand-holding-usd mr-2" style="color:var(--primary);"></i>Credits ({{ credits|length }})</h5>
+        {# Formulaire GET pour filtrer et rechercher les credits aapl par path au controle #}
         <form method="get" action="{{ path('app_admin_credits') }}" class="filter-bar">
+            {# Liste des statuts disponibles pour le filtre #}
             <select name="status" onchange="this.form.submit()">
+                {# Option pour afficher tous les statuts #}
                 <option value="all" {{ status == 'all' ? 'selected' : '' }}>Tous les statuts</option>
                 <option value="PENDING" {{ status == 'PENDING' ? 'selected' : '' }}>En attente</option>
                 <option value="APPROVED" {{ status == 'APPROVED' ? 'selected' : '' }}>Approuve</option>
@@ -50,36 +60,59 @@ select.input-error {
                 <option value="REJECTED" {{ status == 'REJECTED' ? 'selected' : '' }}>Rejete</option>
                 <option value="ACTIVE" {{ status == 'ACTIVE' ? 'selected' : '' }}>Actif</option>
                 <option value="COMPLETED" {{ status == 'COMPLETED' ? 'selected' : '' }}>Termine</option>
+                {# Option pour filtrer les credits annules #}
                 <option value="CANCELLED" {{ status == 'CANCELLED' ? 'selected' : '' }}>Annule</option>
             </select>
+            {# Champ texte pour rechercher un client ou un montant change lorsque utilise chang montant #}
             <input type="text" name="q" value="{{ search }}" placeholder="Rechercher client, montant..." oninput="clearTimeout(this.t);this.t=setTimeout(()=>this.form.submit(),400)" style="width:200px;">
+            {# Affiche le bouton reset seulement s'il y a un filtre ou une recherche #}
             {% if status != 'all' or search %}
+                {# Lien pour revenir a la liste complete des credits #}
                 <a href="{{ path('app_admin_credits') }}" class="btn-admin outline" style="padding:8px 14px;font-size:13px;">Reset</a>
             {% endif %}
         </form>
     </div>
+
+    {# Lorsque l'admin consulte les resultats, ce bloc affiche le tableau des credits ou un message vide #}
+
+
+
     <div class="card-body">
+        {# Affiche le tableau seulement s'il existe au moins un credit #}
         {% if credits|length > 0 %}
+        {# Tableau principal des credits #}
         <table class="admin-table">
+            {# Entete des colonnes du tableau #}
             <thead>
                 <tr><th>Client</th><th>Montant</th><th>Duree</th><th>Mensualite</th><th>Salaire</th><th>Statut</th><th>Date</th><th>Actions</th></tr>
             </thead>
             <tbody>
                 {% for c in credits %}
                 <tr>
+                    {# Colonne des informations client #}
                     <td>
                         <div class="user-cell">
+                            {# Avatar du client avec les initiales prenom/nom #}
                             <div class="user-avatar">{{ c.client.prenom|first }}{{ c.client.nom|first }}</div>
+                            {# Bloc texte des informations du client #}
                             <div class="user-details">
+                                {# Nom complet du client #}
                                 <div class="user-name">{{ c.client.prenom }} {{ c.client.nom }}</div>
+                                {# Email du client #}
                                 <div class="user-email">{{ c.client.email }}</div>
                             </div>
                         </div>
                     </td>
+
+                    {# Montant du credit avec formatage numerique #}
                     <td style="font-weight:700;">{{ c.montant|number_format(2, ',', ' ') }} DT</td>
+                    {# Duree du credit en mois #}
                     <td>{{ c.dureeEnMois }} mois</td>
+                    {# Mensualite du credit ou tiret si absente #}
                     <td style="color:var(--success);font-weight:600;">{{ c.mensualite ? c.mensualite|number_format(2, ',', ' ') : '-' }} DT</td>
+                    {# Salaire mensuel du client ou tiret si absent #}
                     <td>{{ c.salaireMensuel ? c.salaireMensuel|number_format(2, ',', ' ') : '-' }} DT</td>
+                    {# de statut selon l'etat actuel du credit #}
                     <td>
                         {% if c.statut.value == 'PENDING' %}
                             <span class="badge-status pending">En attente</span>
@@ -97,20 +130,26 @@ select.input-error {
                             <span class="badge-status suspended">{{ c.statut.value }}</span>
                         {% endif %}
                     </td>
+                    {# Date de creation du credit #}
                     <td style="font-size:13px;">{{ c.dateCreation|date('d/m/Y') }}</td>
+                    {# Lorsque l'admin clique sur une action, il peut approuver, rejeter, finaliser ou telecharger le credit selon son statut #}
                     <td style="white-space:nowrap;">
                         {% if c.statut.value == 'PENDING' %}
+                            {# Bouton pour approuver le credit apres confirmation #}
                             <button type="button" class="btn-action approve" title="Approuver" onclick="confirmSubmit('{{ path('app_admin_credit_approve', {id: c.idCredit}) }}', {type:'approve', title:'Approuver le credit', message:'Approuver le credit de {{ c.montant|number_format(2, ',', ' ') }} DT pour {{ c.client.prenom|e('js') }} {{ c.client.nom|e('js') }} ?', btnText:'Approuver'})">
                                 <i class="fas fa-check"></i>
                             </button>
+                            {# Bouton pour ouvrir la modale de rejet #}
                             <button type="button" class="btn-action reject" title="Rejeter" onclick="$('#rejectModal{{ c.idCredit }}').modal('show')">
                                 <i class="fas fa-times"></i>
                             </button>
                         {% elseif c.statut.value == 'CONTRACT_PENDING' %}
+                            {# Bouton pour finaliser le contrat et activer le credit #}
                             <button type="button" class="btn-action approve" title="Finaliser contrat" onclick="confirmSubmit('{{ path('app_admin_credit_finalize', {id: c.idCredit}) }}', {type:'approve', title:'Finaliser le contrat', message:'Generer le contrat et activer le credit ?', btnText:'Finaliser'})">
                                 <i class="fas fa-file-contract"></i>
                             </button>
                         {% elseif c.statut.value == 'ACTIVE' %}
+                            {# Lien pour telecharger le contrat PDF #}
                             <a href="{{ path('app_admin_credit_pdf', {id: c.idCredit}) }}" class="btn-action" title="Telecharger contrat PDF" style="color:var(--primary);">
                                 <i class="fas fa-file-pdf"></i>
                             </a>
@@ -130,6 +169,12 @@ select.input-error {
     </div>
 </div>
 
+
+
+{# Lorsque l'admin clique sur Rejeter pour un credit pending, cette modale s'affiche pour saisir le motif #}
+
+
+
 {% for c in credits %}
 {% if c.statut.value == 'PENDING' %}
 <div class="modal fade modal-admin" id="rejectModal{{ c.idCredit }}" tabindex="-1">
@@ -138,17 +183,24 @@ select.input-error {
             <div style="background:#dc2626;padding:20px 25px;">
                 <h5 style="color:#fff;font-weight:700;margin:0;"><i class="fas fa-times-circle mr-2"></i>Rejeter le credit</h5>
             </div>
+            {# Lorsque l'admin confirme le rejet, ce formulaire envoie la demande au controller avec l'id du credit #}
             <form method="post" action="{{ path('app_admin_credit_reject', {id: c.idCredit}) }}" novalidate data-reject-form>
                 <div style="padding:25px;">
+                    {# Lorsque la modale s'affiche, ce texte rappelle le montant du credit et le nom du client #}
                     <p style="color:var(--text-secondary);font-size:14px;">Credit de <strong>{{ c.montant|number_format(2, ',', ' ') }} DT</strong> pour {{ c.client.prenom }} {{ c.client.nom }}</p>
                     <div class="form-group">
+                        {# Lorsque l'admin saisit le motif,  #}
                         <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Motif du rejet (obligatoire)</label>
+                        {# Lorsque l'admin ecrit ici, il donne la raison du rejet avant l'envoi du formulaire #}
                         <textarea name="motif" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" rows="3" required placeholder="Expliquez la raison du rejet..."></textarea>
+                        {# Lorsque le champ est invalide, le message d'erreur s'affiche ici #}
                         <div class="field-error" data-error-for="motif"></div>
                     </div>
                 </div>
                 <div style="padding:0 25px 25px;display:flex;gap:12px;justify-content:flex-end;">
+                    {# Lorsque l'admin clique sur Annuler, la modale se ferme sans envoyer le formulaire #}
                     <button type="button" class="btn-admin outline" data-dismiss="modal">Annuler</button>
+                    {# Lorsque l'admin clique sur Rejeter, le formulaire est envoye pour rejeter le credit #}
                     <button type="submit" class="btn-admin danger">Rejeter</button>
                 </div>
             </form>
@@ -161,34 +213,52 @@ select.input-error {
 
 {% block javascripts %}
 <script>
+// Lorsque l'admin saisit ou envoie le motif de rejet, ce script verifie le champ avant l'envoi
+// Cherche tous les formulaires de rejet presents sur la page
 document.querySelectorAll('form[data-reject-form]').forEach(function(form) {
+    // Recupere le champ motif dans le formulaire courant
     var motifField = form.querySelector('[name="motif"]');
+    // Recupere la zone ou afficher le message d'erreur
     var errorEl = form.querySelector('[data-error-for="motif"]');
 
+    // verifie si le champ motif est valide
     function validateRejectField() {
+        // Utilise la validation HTML native du champ
         var isValid = motifField.checkValidity();
+        // Message vide par defaut
         var message = '';
 
+        // Si le champ n'est pas valide, on choisit le bon message
         if (!isValid) {
+            // Cas ou le champ obligatoire est vide
             if (motifField.validity.valueMissing) {
                 message = 'Le motif du rejet est obligatoire.';
             } else {
+                // Cas d'une autre erreur de validation
                 message = 'Le motif saisi est invalide.';
             }
         }
 
+        // Ajoute ou retire la classe d'erreur sur le champ
         motifField.classList.toggle('input-error', !isValid);
+        // Place le texte de l'erreur dans la zone prevue
         errorEl.textContent = message;
+        // Affiche ou cache le bloc d'erreur selon l'etat du champ
         errorEl.classList.toggle('is-visible', !isValid);
 
+        // Retourne true si le champ est valide, sinon false
         return isValid;
     }
 
+    // Relance la validation pendant la saisie de l'admin
     motifField.addEventListener('input', validateRejectField);
 
+    // Verifie le champ au moment de l'envoi du formulaire
     form.addEventListener('submit', function(event) {
+        // Si le champ est invalide, on bloque l'envoi
         if (!validateRejectField()) {
             event.preventDefault();
+            // Replace le curseur dans le champ motif
             motifField.focus();
         }
     });

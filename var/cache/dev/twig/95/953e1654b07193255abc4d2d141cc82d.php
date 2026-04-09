@@ -387,7 +387,7 @@ $context["t"], "type", [], "any", false, false, false, 120), "value", [], "any",
             <form method=\"post\" action=\"";
             // line 145
             yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("app_client_compte_type");
-            yield "\" id=\"compteTypeForm\" novalidate data-inline-validate>
+            yield "\" id=\"compteTypeForm\"  data-inline-validate>
                 <div class=\"modal-body\" style=\"padding:25px;\">
                     <p style=\"color:var(--text-secondary);font-size:14px;\">Type actuel: <strong style=\"color:var(--primary-dark);\">";
             // line 147
@@ -659,7 +659,7 @@ select.input-error {
             <div style=\"background:linear-gradient(135deg,var(--primary),#4C49ED);padding:20px 25px;\">
                 <h5 style=\"color:#fff;font-weight:700;margin:0;\"><i class=\"fas fa-pen mr-2\"></i>Modifier le type de compte</h5>
             </div>
-            <form method=\"post\" action=\"{{ path('app_client_compte_type') }}\" id=\"compteTypeForm\" novalidate data-inline-validate>
+            <form method=\"post\" action=\"{{ path('app_client_compte_type') }}\" id=\"compteTypeForm\"  data-inline-validate>
                 <div class=\"modal-body\" style=\"padding:25px;\">
                     <p style=\"color:var(--text-secondary);font-size:14px;\">Type actuel: <strong style=\"color:var(--primary-dark);\">{{ compte.typeCompte.value }}</strong></p>
                     <div class=\"form-group\">

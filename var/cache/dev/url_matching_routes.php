@@ -96,8 +96,9 @@ return [
                         .')'
                         .'|modify(*:596)'
                         .'|pdf(*:607)'
+                        .'|delete(*:621)'
                     .')'
-                    .'|transactions/receipt/([^/]++)(*:645)'
+                    .'|transactions/receipt/([^/]++)(*:659)'
                 .')'
             .')/?$}sDu',
     ],
@@ -128,7 +129,8 @@ return [
         581 => [[['_route' => 'app_client_credit_cancel', '_controller' => 'App\\Controller\\Client\\CreditController::cancel'], ['id'], ['POST' => 0], null, false, false, null]],
         596 => [[['_route' => 'app_client_credit_modify', '_controller' => 'App\\Controller\\Client\\CreditController::modify'], ['id'], ['POST' => 0], null, false, false, null]],
         607 => [[['_route' => 'app_client_credit_pdf', '_controller' => 'App\\Controller\\Client\\CreditController::downloadPdf'], ['id'], null, null, false, false, null]],
-        645 => [
+        621 => [[['_route' => 'app_client_credit_delete', '_controller' => 'App\\Controller\\Client\\CreditController::delete'], ['id'], ['POST' => 0], null, false, false, null]],
+        659 => [
             [['_route' => 'app_client_receipt', '_controller' => 'App\\Controller\\Client\\TransactionPdfController::receipt'], ['id'], null, null, false, true, null],
             [null, null, null, null, false, false, 0],
         ],

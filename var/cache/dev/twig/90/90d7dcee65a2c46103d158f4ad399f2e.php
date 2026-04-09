@@ -61,7 +61,7 @@ class __TwigTemplate_a467fc577a736cc2881e4e39dc39cc6c extends Template
 
     }
 
-    // line 2
+    // line 3
     /**
      * @return iterable<null|scalar|\Stringable>
      */
@@ -84,7 +84,7 @@ class __TwigTemplate_a467fc577a736cc2881e4e39dc39cc6c extends Template
         yield from [];
     }
 
-    // line 3
+    // line 5
     /**
      * @return iterable<null|scalar|\Stringable>
      */
@@ -107,7 +107,7 @@ class __TwigTemplate_a467fc577a736cc2881e4e39dc39cc6c extends Template
         yield from [];
     }
 
-    // line 5
+    // line 7
     /**
      * @return iterable<null|scalar|\Stringable>
      */
@@ -120,151 +120,184 @@ class __TwigTemplate_a467fc577a736cc2881e4e39dc39cc6c extends Template
         $__internal_6f47bbe9983af81f1e7450e9a3e3768f = $this->extensions["Symfony\\Bridge\\Twig\\Extension\\ProfilerExtension"];
         $__internal_6f47bbe9983af81f1e7450e9a3e3768f->enter($__internal_6f47bbe9983af81f1e7450e9a3e3768f_prof = new \Twig\Profiler\Profile($this->getTemplateName(), "block", "body"));
 
-        // line 6
+        // line 9
         yield "<div class=\"row mb-4\" style=\"display:flex;gap:15px;flex-wrap:wrap;\">
     <div class=\"col\" style=\"flex:1;min-width:180px;\">
         <div class=\"stat-card\"><div class=\"stat-icon blue\"><i class=\"fas fa-file-contract\"></i></div><div class=\"stat-info\"><div class=\"stat-label\">Total contrats</div><div class=\"stat-value\">";
-        // line 8
-        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["totalContrats"]) || array_key_exists("totalContrats", $context) ? $context["totalContrats"] : (function () { throw new RuntimeError('Variable "totalContrats" does not exist.', 8, $this->source); })()), "html", null, true);
+        // line 11
+        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["totalContrats"]) || array_key_exists("totalContrats", $context) ? $context["totalContrats"] : (function () { throw new RuntimeError('Variable "totalContrats" does not exist.', 11, $this->source); })()), "html", null, true);
         yield "</div></div></div>
     </div>
     <div class=\"col\" style=\"flex:1;min-width:180px;\">
         <div class=\"stat-card\"><div class=\"stat-icon green\"><i class=\"fas fa-check-circle\"></i></div><div class=\"stat-info\"><div class=\"stat-label\">Contrats actifs</div><div class=\"stat-value\">";
-        // line 11
-        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["activeContrats"]) || array_key_exists("activeContrats", $context) ? $context["activeContrats"] : (function () { throw new RuntimeError('Variable "activeContrats" does not exist.', 11, $this->source); })()), "html", null, true);
+        // line 14
+        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["activeContrats"]) || array_key_exists("activeContrats", $context) ? $context["activeContrats"] : (function () { throw new RuntimeError('Variable "activeContrats" does not exist.', 14, $this->source); })()), "html", null, true);
         yield "</div></div></div>
     </div>
 </div>
 
+";
+        // line 19
+        yield "
+
+
 <div class=\"admin-card\">
     <div class=\"card-header\" style=\"flex-wrap:wrap;gap:10px;\">
         <h5><i class=\"fas fa-file-contract mr-2\" style=\"color:var(--primary);\"></i>Contrats (";
-        // line 17
-        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["contrats"]) || array_key_exists("contrats", $context) ? $context["contrats"] : (function () { throw new RuntimeError('Variable "contrats" does not exist.', 17, $this->source); })())), "html", null, true);
+        // line 24
+        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["contrats"]) || array_key_exists("contrats", $context) ? $context["contrats"] : (function () { throw new RuntimeError('Variable "contrats" does not exist.', 24, $this->source); })())), "html", null, true);
         yield ")</h5>
-        <form method=\"get\" action=\"";
-        // line 18
+        ";
+        // line 26
+        yield "        <form method=\"get\" action=\"";
         yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("app_admin_contrats");
         yield "\" class=\"filter-bar\">
-            <select name=\"status\" onchange=\"this.form.submit()\">
+            ";
+        // line 28
+        yield "            <select name=\"status\" onchange=\"this.form.submit()\">
                 <option value=\"all\" ";
-        // line 20
-        yield ((((isset($context["status"]) || array_key_exists("status", $context) ? $context["status"] : (function () { throw new RuntimeError('Variable "status" does not exist.', 20, $this->source); })()) == "all")) ? ("selected") : (""));
+        // line 29
+        yield ((((isset($context["status"]) || array_key_exists("status", $context) ? $context["status"] : (function () { throw new RuntimeError('Variable "status" does not exist.', 29, $this->source); })()) == "all")) ? ("selected") : (""));
         yield ">Tous les statuts</option>
                 <option value=\"ACTIVE\" ";
-        // line 21
-        yield ((((isset($context["status"]) || array_key_exists("status", $context) ? $context["status"] : (function () { throw new RuntimeError('Variable "status" does not exist.', 21, $this->source); })()) == "ACTIVE")) ? ("selected") : (""));
+        // line 30
+        yield ((((isset($context["status"]) || array_key_exists("status", $context) ? $context["status"] : (function () { throw new RuntimeError('Variable "status" does not exist.', 30, $this->source); })()) == "ACTIVE")) ? ("selected") : (""));
         yield ">Actif</option>
                 <option value=\"COMPLETED\" ";
-        // line 22
-        yield ((((isset($context["status"]) || array_key_exists("status", $context) ? $context["status"] : (function () { throw new RuntimeError('Variable "status" does not exist.', 22, $this->source); })()) == "COMPLETED")) ? ("selected") : (""));
+        // line 31
+        yield ((((isset($context["status"]) || array_key_exists("status", $context) ? $context["status"] : (function () { throw new RuntimeError('Variable "status" does not exist.', 31, $this->source); })()) == "COMPLETED")) ? ("selected") : (""));
         yield ">Termine</option>
                 <option value=\"CANCELLED\" ";
-        // line 23
-        yield ((((isset($context["status"]) || array_key_exists("status", $context) ? $context["status"] : (function () { throw new RuntimeError('Variable "status" does not exist.', 23, $this->source); })()) == "CANCELLED")) ? ("selected") : (""));
+        // line 32
+        yield ((((isset($context["status"]) || array_key_exists("status", $context) ? $context["status"] : (function () { throw new RuntimeError('Variable "status" does not exist.', 32, $this->source); })()) == "CANCELLED")) ? ("selected") : (""));
         yield ">Annule</option>
             </select>
-            <input type=\"text\" name=\"q\" value=\"";
-        // line 25
-        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["search"]) || array_key_exists("search", $context) ? $context["search"] : (function () { throw new RuntimeError('Variable "search" does not exist.', 25, $this->source); })()), "html", null, true);
+            ";
+        // line 35
+        yield "            <input type=\"text\" name=\"q\" value=\"";
+        yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape((isset($context["search"]) || array_key_exists("search", $context) ? $context["search"] : (function () { throw new RuntimeError('Variable "search" does not exist.', 35, $this->source); })()), "html", null, true);
         yield "\" placeholder=\"Rechercher client, N contrat...\" oninput=\"clearTimeout(this.t);this.t=setTimeout(()=>this.form.submit(),400)\" style=\"width:220px;\">
             ";
-        // line 26
-        if ((((isset($context["status"]) || array_key_exists("status", $context) ? $context["status"] : (function () { throw new RuntimeError('Variable "status" does not exist.', 26, $this->source); })()) != "all") || (isset($context["search"]) || array_key_exists("search", $context) ? $context["search"] : (function () { throw new RuntimeError('Variable "search" does not exist.', 26, $this->source); })()))) {
-            // line 27
+        // line 36
+        if ((((isset($context["status"]) || array_key_exists("status", $context) ? $context["status"] : (function () { throw new RuntimeError('Variable "status" does not exist.', 36, $this->source); })()) != "all") || (isset($context["search"]) || array_key_exists("search", $context) ? $context["search"] : (function () { throw new RuntimeError('Variable "search" does not exist.', 36, $this->source); })()))) {
+            // line 37
+            yield "                ";
+            // line 38
             yield "                <a href=\"";
             yield $this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("app_admin_contrats");
             yield "\" class=\"btn-admin outline\" style=\"padding:8px 14px;font-size:13px;\">Reset</a>
             ";
         }
-        // line 29
+        // line 40
         yield "        </form>
     </div>
     <div class=\"card-body\">
         ";
-        // line 32
-        if ((Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["contrats"]) || array_key_exists("contrats", $context) ? $context["contrats"] : (function () { throw new RuntimeError('Variable "contrats" does not exist.', 32, $this->source); })())) > 0)) {
-            // line 33
-            yield "        <table class=\"admin-table\">
+        // line 43
+        if ((Twig\Extension\CoreExtension::length($this->env->getCharset(), (isset($context["contrats"]) || array_key_exists("contrats", $context) ? $context["contrats"] : (function () { throw new RuntimeError('Variable "contrats" does not exist.', 43, $this->source); })())) > 0)) {
+            // line 44
+            yield "
+
+
+        ";
+            // line 48
+            yield "
+
+        
+        <table class=\"admin-table\">
             <thead>
                 <tr><th>N Contrat</th><th>Client</th><th>Montant</th><th>Mensualite</th><th>Duree</th><th>Periode</th><th>Statut</th><th></th></tr>
             </thead>
             <tbody>
                 ";
-            // line 38
+            // line 57
+            yield "                ";
             $context['_parent'] = $context;
-            $context['_seq'] = CoreExtension::ensureTraversable((isset($context["contrats"]) || array_key_exists("contrats", $context) ? $context["contrats"] : (function () { throw new RuntimeError('Variable "contrats" does not exist.', 38, $this->source); })()));
+            $context['_seq'] = CoreExtension::ensureTraversable((isset($context["contrats"]) || array_key_exists("contrats", $context) ? $context["contrats"] : (function () { throw new RuntimeError('Variable "contrats" does not exist.', 57, $this->source); })()));
             foreach ($context['_seq'] as $context["_key"] => $context["c"]) {
-                // line 39
+                // line 58
                 yield "                <tr>
-                    <td style=\"font-weight:700;color:var(--primary);font-family:monospace;\">";
-                // line 40
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "numeroContrat", [], "any", false, false, false, 40), "html", null, true);
+                    ";
+                // line 60
+                yield "                    <td style=\"font-weight:700;color:var(--primary);font-family:monospace;\">";
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "numeroContrat", [], "any", false, false, false, 60), "html", null, true);
                 yield "</td>
                     <td>
-                        <div class=\"user-cell\">
+                        ";
+                // line 63
+                yield "                        <div class=\"user-cell\">
                             <div class=\"user-avatar\">";
-                // line 43
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::first($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["c"], "client", [], "any", false, false, false, 43), "prenom", [], "any", false, false, false, 43)), "html", null, true);
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::first($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["c"], "client", [], "any", false, false, false, 43), "nom", [], "any", false, false, false, 43)), "html", null, true);
+                // line 64
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::first($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["c"], "client", [], "any", false, false, false, 64), "prenom", [], "any", false, false, false, 64)), "html", null, true);
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(Twig\Extension\CoreExtension::first($this->env->getCharset(), CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["c"], "client", [], "any", false, false, false, 64), "nom", [], "any", false, false, false, 64)), "html", null, true);
                 yield "</div>
                             <div class=\"user-details\">
                                 <div class=\"user-name\">";
-                // line 45
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["c"], "client", [], "any", false, false, false, 45), "prenom", [], "any", false, false, false, 45), "html", null, true);
+                // line 66
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["c"], "client", [], "any", false, false, false, 66), "prenom", [], "any", false, false, false, 66), "html", null, true);
                 yield " ";
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["c"], "client", [], "any", false, false, false, 45), "nom", [], "any", false, false, false, 45), "html", null, true);
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["c"], "client", [], "any", false, false, false, 66), "nom", [], "any", false, false, false, 66), "html", null, true);
                 yield "</div>
                                 <div class=\"user-email\">";
-                // line 46
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["c"], "client", [], "any", false, false, false, 46), "email", [], "any", false, false, false, 46), "html", null, true);
+                // line 67
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, CoreExtension::getAttribute($this->env, $this->source, $context["c"], "client", [], "any", false, false, false, 67), "email", [], "any", false, false, false, 67), "html", null, true);
                 yield "</div>
                             </div>
                         </div>
                     </td>
                     <td style=\"font-weight:700;\">";
-                // line 50
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Twig\Extension\CoreExtension']->formatNumber(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "montantCredit", [], "any", false, false, false, 50), 2, ",", " "), "html", null, true);
+                // line 71
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Twig\Extension\CoreExtension']->formatNumber(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "montantCredit", [], "any", false, false, false, 71), 2, ",", " "), "html", null, true);
                 yield " DT</td>
                     <td style=\"color:var(--success);font-weight:600;\">";
-                // line 51
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Twig\Extension\CoreExtension']->formatNumber(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "mensualite", [], "any", false, false, false, 51), 2, ",", " "), "html", null, true);
+                // line 72
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Twig\Extension\CoreExtension']->formatNumber(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "mensualite", [], "any", false, false, false, 72), 2, ",", " "), "html", null, true);
                 yield " DT</td>
                     <td>";
-                // line 52
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "dureeEnMois", [], "any", false, false, false, 52), "html", null, true);
+                // line 73
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "dureeEnMois", [], "any", false, false, false, 73), "html", null, true);
                 yield " mois</td>
-                    <td style=\"font-size:13px;\">";
-                // line 53
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Twig\Extension\CoreExtension']->formatDate(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "dateDebut", [], "any", false, false, false, 53), "d/m/Y"), "html", null, true);
+                    ";
+                // line 75
+                yield "                    <td style=\"font-size:13px;\">";
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Twig\Extension\CoreExtension']->formatDate(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "dateDebut", [], "any", false, false, false, 75), "d/m/Y"), "html", null, true);
                 yield "<br><small style=\"color:var(--text-secondary);\">au ";
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Twig\Extension\CoreExtension']->formatDate(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "dateFin", [], "any", false, false, false, 53), "d/m/Y"), "html", null, true);
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Twig\Extension\CoreExtension']->formatDate(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "dateFin", [], "any", false, false, false, 75), "d/m/Y"), "html", null, true);
                 yield "</small></td>
                     <td>
                         ";
-                // line 55
-                if ((CoreExtension::getAttribute($this->env, $this->source, $context["c"], "statut", [], "any", false, false, false, 55) == "ACTIVE")) {
-                    // line 56
+                // line 78
+                yield "                        ";
+                if ((CoreExtension::getAttribute($this->env, $this->source, $context["c"], "statut", [], "any", false, false, false, 78) == "ACTIVE")) {
+                    // line 79
                     yield "                            <span class=\"badge-status active\">Actif</span>
                         ";
-                } elseif ((CoreExtension::getAttribute($this->env, $this->source,                 // line 57
-$context["c"], "statut", [], "any", false, false, false, 57) == "COMPLETED")) {
-                    // line 58
+                } elseif ((CoreExtension::getAttribute($this->env, $this->source,                 // line 80
+$context["c"], "statut", [], "any", false, false, false, 80) == "COMPLETED")) {
+                    // line 81
                     yield "                            <span class=\"badge-status\" style=\"background:#E0F8EF;color:#1A9E6E;\">Termine</span>
                         ";
                 } else {
-                    // line 60
+                    // line 83
                     yield "                            <span class=\"badge-status suspended\">";
-                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "statut", [], "any", false, false, false, 60), "html", null, true);
+                    yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, $context["c"], "statut", [], "any", false, false, false, 83), "html", null, true);
                     yield "</span>
                         ";
                 }
-                // line 62
+                // line 85
                 yield "                    </td>
                     <td>
+
+
+                        ";
+                // line 90
+                yield "
+
+
+
                         <a href=\"";
-                // line 64
-                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("app_admin_contrat_pdf", ["id" => CoreExtension::getAttribute($this->env, $this->source, $context["c"], "idContrat", [], "any", false, false, false, 64)]), "html", null, true);
+                // line 94
+                yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape($this->extensions['Symfony\Bridge\Twig\Extension\RoutingExtension']->getPath("app_admin_contrat_pdf", ["id" => CoreExtension::getAttribute($this->env, $this->source, $context["c"], "idContrat", [], "any", false, false, false, 94)]), "html", null, true);
                 yield "\" class=\"btn-action\" title=\"Telecharger PDF\" style=\"color:var(--primary);\">
                             <i class=\"fas fa-file-pdf\"></i>
                         </a>
@@ -275,19 +308,27 @@ $context["c"], "statut", [], "any", false, false, false, 57) == "COMPLETED")) {
             $_parent = $context['_parent'];
             unset($context['_seq'], $context['_key'], $context['c'], $context['_parent']);
             $context = array_intersect_key($context, $_parent) + $_parent;
-            // line 70
+            // line 100
             yield "            </tbody>
         </table>
         ";
         } else {
-            // line 73
-            yield "        <div class=\"empty-state\">
+            // line 103
+            yield "
+
+
+        ";
+            // line 107
+            yield "
+
+
+        <div class=\"empty-state\">
             <i class=\"fas fa-inbox\"></i>
             <p>Aucun contrat trouve</p>
         </div>
         ";
         }
-        // line 78
+        // line 115
         yield "    </div>
 </div>
 ";
@@ -321,16 +362,19 @@ $context["c"], "statut", [], "any", false, false, false, 57) == "COMPLETED")) {
      */
     public function getDebugInfo(): array
     {
-        return array (  291 => 78,  284 => 73,  279 => 70,  267 => 64,  263 => 62,  257 => 60,  253 => 58,  251 => 57,  248 => 56,  246 => 55,  239 => 53,  235 => 52,  231 => 51,  227 => 50,  220 => 46,  214 => 45,  208 => 43,  202 => 40,  199 => 39,  195 => 38,  188 => 33,  186 => 32,  181 => 29,  175 => 27,  173 => 26,  169 => 25,  164 => 23,  160 => 22,  156 => 21,  152 => 20,  147 => 18,  143 => 17,  134 => 11,  128 => 8,  124 => 6,  111 => 5,  88 => 3,  65 => 2,  42 => 1,);
+        return array (  332 => 115,  322 => 107,  317 => 103,  312 => 100,  300 => 94,  294 => 90,  288 => 85,  282 => 83,  278 => 81,  276 => 80,  273 => 79,  270 => 78,  262 => 75,  258 => 73,  254 => 72,  250 => 71,  243 => 67,  237 => 66,  231 => 64,  228 => 63,  222 => 60,  219 => 58,  214 => 57,  204 => 48,  199 => 44,  197 => 43,  192 => 40,  186 => 38,  184 => 37,  182 => 36,  177 => 35,  172 => 32,  168 => 31,  164 => 30,  160 => 29,  157 => 28,  152 => 26,  148 => 24,  141 => 19,  134 => 14,  128 => 11,  124 => 9,  111 => 7,  88 => 5,  65 => 3,  42 => 1,);
     }
 
     public function getSourceContext(): Source
     {
         return new Source("{% extends 'admin/base.html.twig' %}
+{# Titre de l'onglet du navigateur #}
 {% block title %}Gestion Contrats - Admin UniBank+{% endblock %}
+{# Titre affiche dans le layout admin #}
 {% block page_title %}Gestion Contrats{% endblock %}
 
 {% block body %}
+{# Statistiques generales des contrats #}
 <div class=\"row mb-4\" style=\"display:flex;gap:15px;flex-wrap:wrap;\">
     <div class=\"col\" style=\"flex:1;min-width:180px;\">
         <div class=\"stat-card\"><div class=\"stat-icon blue\"><i class=\"fas fa-file-contract\"></i></div><div class=\"stat-info\"><div class=\"stat-label\">Total contrats</div><div class=\"stat-value\">{{ totalContrats }}</div></div></div>
@@ -340,33 +384,51 @@ $context["c"], "statut", [], "any", false, false, false, 57) == "COMPLETED")) {
     </div>
 </div>
 
+{# Carte principale contenant les filtres et la liste des contrats #}
+
+
+
 <div class=\"admin-card\">
     <div class=\"card-header\" style=\"flex-wrap:wrap;gap:10px;\">
         <h5><i class=\"fas fa-file-contract mr-2\" style=\"color:var(--primary);\"></i>Contrats ({{ contrats|length }})</h5>
+        {# Formulaire GET pour filtrer et rechercher les contrats #}
         <form method=\"get\" action=\"{{ path('app_admin_contrats') }}\" class=\"filter-bar\">
+            {# Filtre par statut du contrat #}
             <select name=\"status\" onchange=\"this.form.submit()\">
                 <option value=\"all\" {{ status == 'all' ? 'selected' : '' }}>Tous les statuts</option>
                 <option value=\"ACTIVE\" {{ status == 'ACTIVE' ? 'selected' : '' }}>Actif</option>
                 <option value=\"COMPLETED\" {{ status == 'COMPLETED' ? 'selected' : '' }}>Termine</option>
                 <option value=\"CANCELLED\" {{ status == 'CANCELLED' ? 'selected' : '' }}>Annule</option>
             </select>
+            {# Recherche rapide par client ou numero de contrat #}
             <input type=\"text\" name=\"q\" value=\"{{ search }}\" placeholder=\"Rechercher client, N contrat...\" oninput=\"clearTimeout(this.t);this.t=setTimeout(()=>this.form.submit(),400)\" style=\"width:220px;\">
             {% if status != 'all' or search %}
+                {# Bouton pour annuler les filtres et revenir a la liste complete #}
                 <a href=\"{{ path('app_admin_contrats') }}\" class=\"btn-admin outline\" style=\"padding:8px 14px;font-size:13px;\">Reset</a>
             {% endif %}
         </form>
     </div>
     <div class=\"card-body\">
         {% if contrats|length > 0 %}
+
+
+
+        {# Tableau des contrats affiches #}
+
+
+        
         <table class=\"admin-table\">
             <thead>
                 <tr><th>N Contrat</th><th>Client</th><th>Montant</th><th>Mensualite</th><th>Duree</th><th>Periode</th><th>Statut</th><th></th></tr>
             </thead>
             <tbody>
+                {# Boucle sur chaque contrat envoye par le controller #}
                 {% for c in contrats %}
                 <tr>
+                    {# Numero du contrat #}
                     <td style=\"font-weight:700;color:var(--primary);font-family:monospace;\">{{ c.numeroContrat }}</td>
                     <td>
+                        {# Informations du client lie au contrat #}
                         <div class=\"user-cell\">
                             <div class=\"user-avatar\">{{ c.client.prenom|first }}{{ c.client.nom|first }}</div>
                             <div class=\"user-details\">
@@ -378,8 +440,10 @@ $context["c"], "statut", [], "any", false, false, false, 57) == "COMPLETED")) {
                     <td style=\"font-weight:700;\">{{ c.montantCredit|number_format(2, ',', ' ') }} DT</td>
                     <td style=\"color:var(--success);font-weight:600;\">{{ c.mensualite|number_format(2, ',', ' ') }} DT</td>
                     <td>{{ c.dureeEnMois }} mois</td>
+                    {# Periode de debut et de fin du contrat #}
                     <td style=\"font-size:13px;\">{{ c.dateDebut|date('d/m/Y') }}<br><small style=\"color:var(--text-secondary);\">au {{ c.dateFin|date('d/m/Y') }}</small></td>
                     <td>
+                        {# Badge visuel selon le statut du contrat #}
                         {% if c.statut == 'ACTIVE' %}
                             <span class=\"badge-status active\">Actif</span>
                         {% elseif c.statut == 'COMPLETED' %}
@@ -389,6 +453,13 @@ $context["c"], "statut", [], "any", false, false, false, 57) == "COMPLETED")) {
                         {% endif %}
                     </td>
                     <td>
+
+
+                        {# Lien pour telecharger le contrat en PDF #}
+
+
+
+
                         <a href=\"{{ path('app_admin_contrat_pdf', {id: c.idContrat}) }}\" class=\"btn-action\" title=\"Telecharger PDF\" style=\"color:var(--primary);\">
                             <i class=\"fas fa-file-pdf\"></i>
                         </a>
@@ -398,6 +469,13 @@ $context["c"], "statut", [], "any", false, false, false, 57) == "COMPLETED")) {
             </tbody>
         </table>
         {% else %}
+
+
+
+        {# Message affiche s'il n'y a aucun contrat a montrer #}
+
+
+
         <div class=\"empty-state\">
             <i class=\"fas fa-inbox\"></i>
             <p>Aucun contrat trouve</p>

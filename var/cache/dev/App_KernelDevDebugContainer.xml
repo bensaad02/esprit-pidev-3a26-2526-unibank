@@ -568,7 +568,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag priority="-50" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.LvAvgWc"/>
+      <argument type="service" id=".service_locator.s9RPvpm"/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag priority="-100" name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">controller.argument_value_resolver</tag>
@@ -3475,7 +3475,7 @@
     </service>
     <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
       <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.LvAvgWc"/>
+      <argument type="service" id=".service_locator.s9RPvpm"/>
     </service>
     <service id="debug.log_processor" class="Symfony\Bridge\Monolog\Processor\DebugProcessor">
       <tag name="kernel.reset" method="reset"/>
@@ -7977,7 +7977,7 @@
         <argument key="captchaService" type="service_closure" id="App\Service\HCaptchaService"/>
       </argument>
     </service>
-    <service id=".service_locator.LvAvgWc" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.s9RPvpm" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Controller\Admin\AdminCompteController::depot" type="service_closure" id=".service_locator.FLoECBZ"/>
@@ -8007,6 +8007,7 @@
         <argument key="App\Controller\Client\CreditController::apply" type="service_closure" id=".service_locator.i1zRAnW"/>
         <argument key="App\Controller\Client\CreditController::cancel" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\Client\CreditController::contractChoice" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\Client\CreditController::delete" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\Client\CreditController::downloadPdf" type="service_closure" id=".service_locator.p8PxGsa"/>
         <argument key="App\Controller\Client\CreditController::index" type="service_closure" id=".service_locator.K45EsEU"/>
         <argument key="App\Controller\Client\CreditController::modify" type="service_closure" id=".service_locator.YAelVMf"/>
@@ -8053,6 +8054,7 @@
         <argument key="App\Controller\Client\CreditController:apply" type="service_closure" id=".service_locator.i1zRAnW"/>
         <argument key="App\Controller\Client\CreditController:cancel" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\Client\CreditController:contractChoice" type="service_closure" id=".service_locator.9kKwU2t"/>
+        <argument key="App\Controller\Client\CreditController:delete" type="service_closure" id=".service_locator.9kKwU2t"/>
         <argument key="App\Controller\Client\CreditController:downloadPdf" type="service_closure" id=".service_locator.p8PxGsa"/>
         <argument key="App\Controller\Client\CreditController:index" type="service_closure" id=".service_locator.K45EsEU"/>
         <argument key="App\Controller\Client\CreditController:modify" type="service_closure" id=".service_locator.YAelVMf"/>
@@ -10406,7 +10408,7 @@
     <service id="Psr\Log\LoggerInterface" alias="monolog.logger"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.w7.f4fT" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.LvAvgWc"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.s9RPvpm"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.KLVvNIq"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id=".Psr\Log\LoggerInterface $request.logger" alias="monolog.logger.request"/>
@@ -10446,7 +10448,7 @@
     <service id=".service_locator.bJ.4HC5" alias=".service_locator.w7.f4fT"/>
     <service id=".service_locator.pjKQs52" alias=".service_locator.K45EsEU"/>
     <service id=".service_locator.YESSydV" alias=".service_locator.gvcmIJJ"/>
-    <service id=".service_locator.T7mRLQ7" alias=".service_locator.LvAvgWc"/>
+    <service id=".service_locator.c3b2iQ5" alias=".service_locator.s9RPvpm"/>
     <service id=".service_locator.BFrsqsn" alias=".service_locator.F9PKc.7"/>
     <service id=".service_locator.yj07qm_" alias=".service_locator.ZyXYEQR"/>
     <service id=".service_locator.XtmiKbi" alias=".service_locator.MfxSDRP"/>

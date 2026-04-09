@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
+<!-- Configuration principale de PHPUnit pour ce projet -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          colors="true"
@@ -10,6 +11,7 @@
          bootstrap="tests/bootstrap.php"
          cacheDirectory=".phpunit.cache"
 >
+    <!-- Parametres PHP et variables d'environnement utilises pendant les tests -->
     <php>
         <ini name="display_errors" value="1" />
         <ini name="error_reporting" value="-1" />
@@ -17,12 +19,14 @@
         <server name="SHELL_VERBOSITY" value="-1" />
     </php>
 
+    <!-- Dossier dans lequel PHPUnit cherche les fichiers de test -->
     <testsuites>
         <testsuite name="Project Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
 
+    <!-- Code source a analyser pendant l'execution des tests -->
     <source ignoreSuppressionOfDeprecations="true"
             ignoreIndirectDeprecations="true"
             restrictNotices="true"
@@ -32,6 +36,7 @@
             <directory>src</directory>
         </include>
 
+        <!-- Fonctions et methodes considerees comme sources de deprecations -->
         <deprecationTrigger>
             <method>Doctrine\Deprecations\Deprecation::trigger</method>
             <method>Doctrine\Deprecations\Deprecation::delegateTriggerToBackend</method>
@@ -39,6 +44,7 @@
         </deprecationTrigger>
     </source>
 
+    <!-- Extensions PHPUnit supplementaires, videes ici -->
     <extensions>
     </extensions>
 </phpunit>

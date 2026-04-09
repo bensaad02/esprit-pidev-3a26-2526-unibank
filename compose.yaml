@@ -1,25 +1,33 @@
-
+# Fichier Docker Compose principal du projet
+# Il decrit les services necessaires pour executer l'application
 services:
 ###> doctrine/doctrine-bundle ###
+  # Service de base de donnees PostgreSQL utilise par le projet
   database:
+    # Image Docker utilisee pour lancer PostgreSQL
     image: postgres:${POSTGRES_VERSION:-16}-alpine
+    # Variables d'environnement de la base de donnees
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-app}
-      # You should definitely change the password in production
+      # Vous devez absolument changer le mot de passe en production
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
       POSTGRES_USER: ${POSTGRES_USER:-app}
+    # Verification que la base de donnees est bien prete
     healthcheck:
       test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
       timeout: 5s
       retries: 5
       start_period: 60s
+    # Volume utilise pour conserver les donnees de la base
     volumes:
       - database_data:/var/lib/postgresql/data:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # Vous pouvez utiliser a la place un dossier monte depuis l'hote pour reduire le risque de supprimer le volume et perdre les donnees
       # - ./docker/db/data:/var/lib/postgresql/data:rw
 ###< doctrine/doctrine-bundle ###
 
+# Volumes Docker utilises par les services
 volumes:
 ###> doctrine/doctrine-bundle ###
+  # Volume persistant pour stocker les donnees PostgreSQL
   database_data:
 ###< doctrine/doctrine-bundle ###

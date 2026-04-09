@@ -14,7 +14,11 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 class OrmConfig 
 {
     private $defaultEntityManager;
+    private $autoGenerateProxyClasses;
+    private $enableLazyGhostObjects;
     private $enableNativeLazyObjects;
+    private $proxyDir;
+    private $proxyNamespace;
     private $controllerResolver;
     private $entityManagers;
     private $resolveTargetEntities;
@@ -34,9 +38,37 @@ class OrmConfig
     }
 
     /**
+     * Auto generate mode possible values are: "NEVER", "ALWAYS", "FILE_NOT_EXISTS", "EVAL", "FILE_NOT_EXISTS_OR_CHANGED", this option is ignored when the "enable_native_lazy_objects" option is true
+     * @default false
+     * @param ParamConfigurator|mixed $value
+     * @return $this
+     */
+    public function autoGenerateProxyClasses($value): static
+    {
+        $this->_usedProperties['autoGenerateProxyClasses'] = true;
+        $this->autoGenerateProxyClasses = $value;
+
+        return $this;
+    }
+
+    /**
+     * Enables the new implementation of proxies based on lazy ghosts instead of using the legacy implementation
      * @default true
      * @param ParamConfigurator|bool $value
-     * @deprecated The "enable_native_lazy_objects" option is deprecated and will be removed in DoctrineBundle 4.0, as native lazy objects are now always enabled.
+     * @return $this
+     */
+    public function enableLazyGhostObjects($value): static
+    {
+        $this->_usedProperties['enableLazyGhostObjects'] = true;
+        $this->enableLazyGhostObjects = $value;
+
+        return $this;
+    }
+
+    /**
+     * Enables the new native implementation of PHP lazy objects instead of generated proxies
+     * @default false
+     * @param ParamConfigurator|bool $value
      * @return $this
      */
     public function enableNativeLazyObjects($value): static
@@ -48,7 +80,35 @@ class OrmConfig
     }
 
     /**
-     * @default {"enabled":true,"auto_mapping":false,"evict_cache":false}
+     * Configures the path where generated proxy classes are saved when using non-native lazy objects, this option is ignored when the "enable_native_lazy_objects" option is true
+     * @default '%kernel.build_dir%/doctrine/orm/Proxies'
+     * @param ParamConfigurator|mixed $value
+     * @return $this
+     */
+    public function proxyDir($value): static
+    {
+        $this->_usedProperties['proxyDir'] = true;
+        $this->proxyDir = $value;
+
+        return $this;
+    }
+
+    /**
+     * Defines the root namespace for generated proxy classes when using non-native lazy objects, this option is ignored when the "enable_native_lazy_objects" option is true
+     * @default 'Proxies'
+     * @param ParamConfigurator|mixed $value
+     * @return $this
+     */
+    public function proxyNamespace($value): static
+    {
+        $this->_usedProperties['proxyNamespace'] = true;
+        $this->proxyNamespace = $value;
+
+        return $this;
+    }
+
+    /**
+     * @default {"enabled":true,"auto_mapping":null,"evict_cache":false}
     */
     public function controllerResolver(array $value = []): \Symfony\Config\Doctrine\Orm\ControllerResolverConfig
     {
@@ -93,10 +153,34 @@ class OrmConfig
             unset($value['default_entity_manager']);
         }
 
+        if (array_key_exists('auto_generate_proxy_classes', $value)) {
+            $this->_usedProperties['autoGenerateProxyClasses'] = true;
+            $this->autoGenerateProxyClasses = $value['auto_generate_proxy_classes'];
+            unset($value['auto_generate_proxy_classes']);
+        }
+
+        if (array_key_exists('enable_lazy_ghost_objects', $value)) {
+            $this->_usedProperties['enableLazyGhostObjects'] = true;
+            $this->enableLazyGhostObjects = $value['enable_lazy_ghost_objects'];
+            unset($value['enable_lazy_ghost_objects']);
+        }
+
         if (array_key_exists('enable_native_lazy_objects', $value)) {
             $this->_usedProperties['enableNativeLazyObjects'] = true;
             $this->enableNativeLazyObjects = $value['enable_native_lazy_objects'];
             unset($value['enable_native_lazy_objects']);
+        }
+
+        if (array_key_exists('proxy_dir', $value)) {
+            $this->_usedProperties['proxyDir'] = true;
+            $this->proxyDir = $value['proxy_dir'];
+            unset($value['proxy_dir']);
+        }
+
+        if (array_key_exists('proxy_namespace', $value)) {
+            $this->_usedProperties['proxyNamespace'] = true;
+            $this->proxyNamespace = $value['proxy_namespace'];
+            unset($value['proxy_namespace']);
         }
 
         if (array_key_exists('controller_resolver', $value)) {
@@ -128,8 +212,20 @@ class OrmConfig
         if (isset($this->_usedProperties['defaultEntityManager'])) {
             $output['default_entity_manager'] = $this->defaultEntityManager;
         }
+        if (isset($this->_usedProperties['autoGenerateProxyClasses'])) {
+            $output['auto_generate_proxy_classes'] = $this->autoGenerateProxyClasses;
+        }
+        if (isset($this->_usedProperties['enableLazyGhostObjects'])) {
+            $output['enable_lazy_ghost_objects'] = $this->enableLazyGhostObjects;
+        }
         if (isset($this->_usedProperties['enableNativeLazyObjects'])) {
             $output['enable_native_lazy_objects'] = $this->enableNativeLazyObjects;
+        }
+        if (isset($this->_usedProperties['proxyDir'])) {
+            $output['proxy_dir'] = $this->proxyDir;
+        }
+        if (isset($this->_usedProperties['proxyNamespace'])) {
+            $output['proxy_namespace'] = $this->proxyNamespace;
         }
         if (isset($this->_usedProperties['controllerResolver'])) {
             $output['controller_resolver'] = $this->controllerResolver->toArray();

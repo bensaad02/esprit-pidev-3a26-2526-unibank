@@ -8,17 +8,27 @@ use App\Enum\TypeContrat;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
+// Service li ygenerate PDF ta3 contrat de crédit bancaire
+// Ysta3ml Dompdf bech yconvert HTML fi PDF
 class ContractPdfGenerator
 {
+    // Génère le PDF du contrat à partir des données du crédit et contrat
+    // Créer un document PDF officiel avec toutes les informations du crédit
+    // Description: Prend un crédit et son contrat, génère HTML formaté, puis le convertit en PDF
     public function generate(Credit $credit, Contrat $contrat): string
     {
+        // Récupère le client associé au crédit
         $client = $credit->getClient();
+
+        // Détermine le label du type de paiement selon le type de contrat
         $typeLabel = match ($credit->getTypeContrat()) {
             TypeContrat::PRELEVEMENT_AUTOMATIQUE => 'Prelevement automatique le 5 de chaque mois',
             TypeContrat::PAIEMENT_MENSUEL => 'Paiement mensuel avant le 10 de chaque mois',
             TypeContrat::PAIEMENT_DIFFERE => 'Paiement differe avec taux majore',
             default => '-',
         };
+
+        // Détermine le taux de pénalité selon le type de contrat
         $penaltyRate = match ($credit->getTypeContrat()) {
             TypeContrat::PRELEVEMENT_AUTOMATIQUE => '1.5%',
             TypeContrat::PAIEMENT_MENSUEL => '3.0%',
@@ -26,8 +36,10 @@ class ContractPdfGenerator
             default => '-',
         };
 
+        // Génère les lignes du tableau d'amortissement
         $amortRows = $this->generateAmortizationRows($credit);
 
+        // Construit le HTML du contrat avec toutes les sections
         $html = '<!DOCTYPE html><html><head><style>
             body{font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#1e293b;margin:40px;}
             .header{background:#2259d6;color:#fff;padding:20px 25px;border-radius:8px;text-align:center;margin-bottom:25px;}
@@ -109,39 +121,77 @@ class ContractPdfGenerator
             </div>
         </body></html>';
 
+
+
+
+        // Configure les options de Dompdf
+
+
+
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
         $options->set('defaultFont', 'Helvetica');
 
+        // Crée l'instance Dompdf avec les options
         $dompdf = new Dompdf($options);
+        // Charge le HTML dans Dompdf
         $dompdf->loadHtml($html);
+        // Définit le format du papier (A4 portrait)
         $dompdf->setPaper('A4', 'portrait');
+        // Rend le PDF
         $dompdf->render();
 
+        // Retourne le contenu binaire du PDF
         return $dompdf->output();
     }
 
+
+
+
+
+
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+    // Génère les lignes HTML du tableau d'amortissement
+    // Calculer et formater les premières lignes du tableau d'amortissement
+    // Prend les données du crédit, calcule les mensualités, intérêts, etc., et génère HTML pour les 12 premières lignes
     private function generateAmortizationRows(Credit $credit): string
     {
+        // Récupère les valeurs du crédit
         $montant = (float) $credit->getMontant();
         $taux = (float) $credit->getTauxInteret();
         $duree = $credit->getDureeEnMois();
         $mensualite = (float) $credit->getMensualite();
+        // Calcule le taux mensuel
         $tauxMensuel = $taux / 100 / 12;
+        // Initialise le restant
         $remaining = $montant;
+        // Initialise les lignes HTML
         $rows = '';
+        // Limite à 12 lignes max pour l'extrait
         $maxRows = min($duree, 12);
 
+        // Boucle pour générer chaque ligne
         for ($i = 1; $i <= $maxRows; $i++) {
+            // Calcule les intérêts pour ce mois
             $interest = $remaining * $tauxMensuel;
+            // Calcule le capital remboursé
             $capital = $mensualite - $interest;
+            // Ajuste pour le dernier mois
             if ($i === $duree) {
                 $capital = $remaining;
                 $mensualite = $capital + $interest;
             }
+            // Met à jour le restant
             $remaining -= $capital;
             if ($remaining < 0) $remaining = 0;
 
+            // Ajoute la ligne HTML
             $rows .= '<tr>
                 <td>' . $i . '</td>
                 <td>' . number_format($mensualite, 2, ',', ' ') . '</td>
@@ -151,10 +201,12 @@ class ContractPdfGenerator
             </tr>';
         }
 
+        // Si plus de 12 mois, ajoute une ligne d'indication
         if ($duree > 12) {
             $rows .= '<tr><td colspan="5" style="text-align:center;color:#94a3b8;">... ' . ($duree - 12) . ' mois restants ...</td></tr>';
         }
 
+        // Retourne les lignes HTML
         return $rows;
     }
 }
