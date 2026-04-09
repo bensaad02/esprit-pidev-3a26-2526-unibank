@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }} - UniBank+{% endblock %}
+
+{% block body %}
+<div class="site-section bg-light" style="min-height: 70vh; display: flex; align-items: center;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <div class="bg-white p-5 rounded shadow">
+                    <div class="mb-4">
+                        <span class="icon-settings h1 text-primary d-block"></span>
+                    </div>
+                    <h2 class="text-black mb-3">{{ title }}</h2>
+                    <p class="lead text-muted">{{ message }}</p>
+                    <a href="{{ path('app_home') }}" class="btn btn-primary mt-3">Retour a l'accueil</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Demandes en attente - Admin UniBank+{% endblock %}
+{% block page_title %}Demandes en attente{% endblock %}
+
+{% block body %}
+<div class="admin-card">
+    <div class="card-header">
+        <h5><i class="fas fa-clock mr-2" style="color:var(--warning);"></i>Clients en attente d'approbation ({{ clients|length }})</h5>
+    </div>
+    <div class="card-body">
+        {% if clients|length > 0 %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>CIN</th>
+                    <th>Telephone</th>
+                    <th>Adresse</th>
+                    <th>Offre choisie</th>
+                    <th>Date inscription</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">{{ client.prenom|first }}{{ client.nom|first }}</div>
+                            <div class="user-details">
+                                <div class="user-name">{{ client.prenom }} {{ client.nom }}</div>
+                                <div class="user-email">{{ client.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ client.cin }}</td>
+                    <td>{{ client.telephone }}</td>
+                    <td style="max-width:200px;">{{ client.adresse }}</td>
+                    <td>
+                        {% if client.selectedOffer %}
+                            <span class="badge-status" style="background:#E7EDFF;color:var(--primary);">{{ client.selectedOffer }}</span>
+                        {% else %}
+                            <span style="color:var(--text-secondary);">-</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ client.dateCreation|date('d/m/Y H:i') }}</td>
+                    <td style="white-space:nowrap;">
+                        <button type="button" class="btn-admin success" style="padding:6px 16px;font-size:13px;" onclick="confirmSubmit('{{ path('app_admin_user_approve', {id: client.idUtilisateur}) }}', {type:'approve', title:'Approuver le client', message:'Approuver {{ client.prenom|e('js') }} {{ client.nom|e('js') }} et creer son compte bancaire ?', btnText:'Approuver'})">
+                            <i class="fas fa-check mr-1"></i>Approuver
+                        </button>
+                        <button type="button" class="btn-admin danger" style="padding:6px 16px;font-size:13px;" onclick="confirmSubmit('{{ path('app_admin_user_reject', {id: client.idUtilisateur}) }}', {type:'reject', title:'Rejeter la demande', message:'Rejeter la demande de {{ client.prenom|e('js') }} {{ client.nom|e('js') }} ?', btnText:'Rejeter'})">
+                            <i class="fas fa-times mr-1"></i>Rejeter
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>Aucune demande en attente</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

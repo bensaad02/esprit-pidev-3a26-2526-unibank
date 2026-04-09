@@ -1,0 +1,101 @@
+{% extends 'client/base.html.twig' %}
+{% block title %}Mon Profil - UniBank+{% endblock %}
+{% block page_title %}Mon Profil{% endblock %}
+
+{% block body %}
+<div class="row" style="display:flex;gap:25px;flex-wrap:wrap;">
+    <div class="col" style="flex:2;min-width:350px;">
+        <div class="admin-card" style="margin-bottom:25px;">
+            <div class="card-header">
+                <h5><i class="fas fa-user-edit mr-2" style="color:var(--primary);"></i>Informations personnelles</h5>
+            </div>
+            <div class="card-body" style="padding:25px;">
+                <form method="post" action="{{ path('app_client_profile') }}">
+                    <div class="row">
+                        <div class="col-md-6 form-group" style="margin-bottom:18px;">
+                            <label style="font-size:13px;font-weight:600;color:var(--primary-dark);margin-bottom:6px;display:block;">Prenom</label>
+                            <input type="text" name="prenom" value="{{ app.user.prenom }}" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required minlength="2">
+                        </div>
+                        <div class="col-md-6 form-group" style="margin-bottom:18px;">
+                            <label style="font-size:13px;font-weight:600;color:var(--primary-dark);margin-bottom:6px;display:block;">Nom</label>
+                            <input type="text" name="nom" value="{{ app.user.nom }}" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required minlength="2">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group" style="margin-bottom:18px;">
+                            <label style="font-size:13px;font-weight:600;color:var(--primary-dark);margin-bottom:6px;display:block;">Email</label>
+                            <input type="email" value="{{ app.user.email }}" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;background:#f8f9fa;" disabled>
+                            <small style="color:var(--text-secondary);">Non modifiable</small>
+                        </div>
+                        <div class="col-md-6 form-group" style="margin-bottom:18px;">
+                            <label style="font-size:13px;font-weight:600;color:var(--primary-dark);margin-bottom:6px;display:block;">Telephone</label>
+                            <input type="text" name="telephone" value="{{ app.user.telephone }}" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required minlength="8">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group" style="margin-bottom:18px;">
+                            <label style="font-size:13px;font-weight:600;color:var(--primary-dark);margin-bottom:6px;display:block;">CIN</label>
+                            <input type="text" value="{{ app.user.cin }}" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;background:#f8f9fa;" disabled>
+                            <small style="color:var(--text-secondary);">Non modifiable</small>
+                        </div>
+                        <div class="col-md-6 form-group" style="margin-bottom:18px;">
+                            <label style="font-size:13px;font-weight:600;color:var(--primary-dark);margin-bottom:6px;display:block;">Date de naissance</label>
+                            <input type="text" value="{{ app.user.dateNaissance|date('d/m/Y') }}" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;background:#f8f9fa;" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);margin-bottom:6px;display:block;">Adresse</label>
+                        <textarea name="adresse" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" rows="2" required minlength="5">{{ app.user.adresse }}</textarea>
+                    </div>
+                    <button type="submit" class="btn-admin primary">Enregistrer les modifications</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col" style="flex:1;min-width:300px;">
+        <div class="admin-card" style="margin-bottom:25px;">
+            <div class="card-header">
+                <h5><i class="fas fa-lock mr-2" style="color:var(--warning);"></i>Changer le mot de passe</h5>
+            </div>
+            <div class="card-body" style="padding:25px;">
+                <form method="post" action="{{ path('app_client_password') }}">
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);margin-bottom:6px;display:block;">Mot de passe actuel</label>
+                        <input type="password" name="current_password" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);margin-bottom:6px;display:block;">Nouveau mot de passe</label>
+                        <input type="password" name="new_password" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required minlength="8">
+                    </div>
+                    <div class="form-group" style="margin-bottom:18px;">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);margin-bottom:6px;display:block;">Confirmer</label>
+                        <input type="password" name="confirm_password" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required minlength="8">
+                    </div>
+                    <button type="submit" class="btn-admin primary">Changer le mot de passe</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle mr-2" style="color:var(--text-secondary);"></i>Mon compte</h5>
+            </div>
+            <div class="card-body" style="padding:25px;">
+                <div style="margin-bottom:12px;">
+                    <small style="color:var(--text-secondary);">Statut</small>
+                    <div><span class="badge-status approved">Approuve</span></div>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <small style="color:var(--text-secondary);">Membre depuis</small>
+                    <div style="font-weight:600;color:var(--primary-dark);">{{ app.user.dateCreation|date('d/m/Y') }}</div>
+                </div>
+                <div>
+                    <small style="color:var(--text-secondary);">Offre</small>
+                    <div style="font-weight:600;color:var(--primary);">{{ app.user.selectedOffer ?? '-' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

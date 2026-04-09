@@ -1,0 +1,93 @@
+{% extends 'client/base.html.twig' %}
+{% block title %}Tableau de bord - UniBank+{% endblock %}
+{% block page_title %}Accueil{% endblock %}
+
+{% block body %}
+<div style="margin-bottom:25px;">
+    <h4 style="font-weight:700;color:var(--primary-dark);margin:0;">Bonjour, {{ app.user.prenom }} !</h4>
+    <p style="color:var(--text-secondary);margin:0;">Bienvenue sur votre espace client UniBank+</p>
+</div>
+
+<div class="row mb-4" style="display:flex;gap:20px;flex-wrap:wrap;">
+    {% if compte %}
+    <div class="col" style="flex:1;min-width:200px;">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-wallet"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Solde</div>
+                <div class="stat-value">{{ compte.solde|number_format(2, ',', ' ') }} DT</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:200px;">
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-university"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Type de compte</div>
+                <div class="stat-value">{{ compte.typeCompte.value }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:200px;">
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="fas fa-hashtag"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">N° Compte</div>
+                <div class="stat-value" style="font-size:16px;">{{ compte.numeroCompte }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:200px;">
+        <div class="stat-card">
+            <div class="stat-icon red"><i class="fas fa-calendar-alt"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Ouvert le</div>
+                <div class="stat-value" style="font-size:16px;">{{ compte.dateCreation|date('d/m/Y') }}</div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="admin-card">
+            <div class="card-body" style="padding:40px;">
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle" style="color:var(--warning);"></i>
+                    <p>Aucun compte bancaire trouve. Contactez le support.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row" style="display:flex;gap:20px;flex-wrap:wrap;">
+    <div class="col" style="flex:1;min-width:250px;">
+        <a href="{{ path('app_client_compte') }}" class="admin-card d-block text-decoration-none" style="padding:30px;text-align:center;">
+            <img src="{{ asset('images/flaticon-svg/svg/001-wallet.svg') }}" style="width:50px;margin-bottom:15px;">
+            <h6 style="color:var(--primary-dark);font-weight:600;">Mon Compte</h6>
+            <p style="color:var(--text-secondary);font-size:13px;margin:0;">Details de votre compte bancaire</p>
+        </a>
+    </div>
+    <div class="col" style="flex:1;min-width:250px;">
+        <a href="{{ path('app_client_profile') }}" class="admin-card d-block text-decoration-none" style="padding:30px;text-align:center;">
+            <img src="{{ asset('images/flaticon-svg/svg/003-notes.svg') }}" style="width:50px;margin-bottom:15px;">
+            <h6 style="color:var(--primary-dark);font-weight:600;">Mon Profil</h6>
+            <p style="color:var(--text-secondary);font-size:13px;margin:0;">Modifier vos informations personnelles</p>
+        </a>
+    </div>
+    <div class="col" style="flex:1;min-width:250px;">
+        <div class="admin-card" style="padding:30px;text-align:center;opacity:0.5;">
+            <img src="{{ asset('images/flaticon-svg/svg/006-credit-card.svg') }}" style="width:50px;margin-bottom:15px;">
+            <h6 style="color:var(--primary-dark);font-weight:600;">Cartes</h6>
+            <p style="color:var(--text-secondary);font-size:13px;margin:0;">Bientot disponible</p>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:250px;">
+        <div class="admin-card" style="padding:30px;text-align:center;opacity:0.5;">
+            <img src="{{ asset('images/flaticon-svg/svg/005-megaphone.svg') }}" style="width:50px;margin-bottom:15px;">
+            <h6 style="color:var(--primary-dark);font-weight:600;">Reclamations</h6>
+            <p style="color:var(--text-secondary);font-size:13px;margin:0;">Bientot disponible</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
