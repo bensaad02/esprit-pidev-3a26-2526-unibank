@@ -1,0 +1,187 @@
+===== UNIBANK+ - BASE DE CONNAISSANCES COMPLÈTE =====
+
+[IDENTITÉ]
+Nom: UniBank+
+Type: Application bancaire desktop (JavaFX)
+Devise: Dinar Tunisien (DT)
+Langue: Français
+
+[INSCRIPTION ET CONNEXION]
+Q: Comment créer un compte ?
+R: Cliquez sur "S'inscrire" depuis la page de connexion. Remplissez: prénom, nom, email, mot de passe, téléphone, CIN, adresse, date de naissance. Validez le captcha puis soumettez.
+
+Q: Que se passe-t-il après l'inscription ?
+R: Vous recevez un email de vérification. Cliquez sur le lien pour vérifier votre email. Ensuite vous choisissez votre type de compte (Courant ou Épargne). Votre demande passe en statut "En attente" jusqu'à l'approbation par un administrateur.
+
+Q: Combien de temps dure l'approbation ?
+R: L'approbation dépend de l'administrateur. Vous verrez un écran d'attente jusqu'à ce que votre compte soit approuvé.
+
+Q: J'ai oublié mon mot de passe ?
+R: Sur la page de connexion, cliquez sur "Mot de passe oublié". Entrez votre email et vous recevrez un lien de réinitialisation.
+
+Q: Mon compte est suspendu, que faire ?
+R: Contactez l'administrateur de la banque. Seul un administrateur peut réactiver un compte suspendu.
+
+Q: Quels sont les statuts possibles d'un client ?
+R: En attente (PENDING), Approuvé (APPROVED), Rejeté (REJECTED), Suspendu (SUSPENDED).
+
+[TYPES DE COMPTES]
+Q: Quels types de comptes sont disponibles ?
+R: Deux types: Compte Courant et Compte Épargne.
+
+Q: Quelle est la différence entre Compte Courant et Compte Épargne ?
+R: Le Compte Courant est pour les opérations quotidiennes (virements, retraits fréquents). Le Compte Épargne est pour mettre de l'argent de côté.
+
+Q: Puis-je changer de type de compte ?
+R: Oui, dans la section "Mon Compte", vous pouvez modifier le type de compte entre Courant et Épargne.
+
+Q: Comment voir mon solde ?
+R: Votre solde est affiché sur le tableau de bord principal en haut, et aussi dans la section "Mon Compte".
+
+Q: C'est quoi le numéro de compte ?
+R: C'est un identifiant unique de votre compte bancaire, au format UB suivi de chiffres (exemple: UB0870610183).
+
+Q: C'est quoi le RIB ?
+R: Le RIB (Relevé d'Identité Bancaire) est affiché dans votre profil au format "TN59 + numéro de compte + 000".
+
+[TRANSACTIONS]
+Q: Quels types de transactions puis-je faire ?
+R: Vous pouvez faire des Virements (transferts vers un autre compte) et des Retraits (retirer de l'argent de votre compte).
+
+Q: Comment faire un virement ?
+R: Allez dans la section "Transactions", sélectionnez "Virement", entrez le numéro de compte destinataire, le montant et une description. Le montant sera débité de votre compte et crédité sur le compte destinataire.
+
+Q: Puis-je faire un virement vers mon propre compte ?
+R: Non, les virements vers votre propre compte ne sont pas autorisés.
+
+Q: Comment faire un retrait ?
+R: Dans la section "Transactions", sélectionnez "Retrait", entrez le montant et une description.
+
+Q: Puis-je faire un dépôt ?
+R: Les dépôts sont gérés par les administrateurs. Vous ne pouvez pas initier un dépôt vous-même depuis l'application.
+
+Q: Comment voir mon historique de transactions ?
+R: Dans la section "Transactions", vous avez la liste paginée de toutes vos transactions avec un filtre par type (Tous, Virements, Retraits, Dépôts) et une recherche par texte.
+
+Q: Les transactions sont-elles en temps réel ?
+R: Oui, les virements et retraits sont effectués immédiatement.
+
+Q: Que se passe-t-il si mon solde est insuffisant ?
+R: La transaction sera refusée. Vous devez avoir un solde suffisant pour effectuer un retrait ou un virement.
+
+[CRÉDITS / PRÊTS]
+Q: Comment demander un crédit ?
+R: Allez dans la section "Crédits", utilisez le simulateur pour calculer vos mensualités, puis cliquez sur "Demander un crédit". Renseignez votre salaire mensuel et le motif de la demande.
+
+Q: Quel est le taux d'intérêt ?
+R: Le taux d'intérêt fixe est de 7.50% par an.
+
+Q: Comment fonctionne le simulateur ?
+R: Ajustez le montant et la durée (en années) avec les curseurs. Le simulateur calcule automatiquement la mensualité, le montant total et le coût du crédit.
+
+Q: Puis-je avoir plusieurs crédits en même temps ?
+R: Non, vous ne pouvez avoir qu'un seul crédit actif ou en attente à la fois.
+
+Q: Quels sont les statuts d'un crédit ?
+R: En attente (PENDING) → Approuvé (APPROVED) → Contrat en attente (CONTRACT_PENDING) → Actif (ACTIVE) → Terminé (COMPLETED). Un crédit peut aussi être Rejeté (REJECTED) ou Annulé (CANCELLED).
+
+Q: Puis-je modifier ma demande de crédit ?
+R: Oui, tant que le statut est "En attente", vous pouvez modifier le montant, la durée, le salaire et le motif.
+
+Q: Puis-je annuler ma demande de crédit ?
+R: Oui, tant que le statut est "En attente", vous pouvez annuler votre demande.
+
+Q: Mon crédit est approuvé, que faire ?
+R: Vous devez choisir un type de contrat parmi les trois options proposées, indiquer un motif, et définir les dates de prise et de début de paiement.
+
+Q: Pourquoi mon crédit a été rejeté ?
+R: Le motif de rejet est affiché sur votre carte de crédit dans la section "Mes Crédits".
+
+[CONTRATS]
+Q: Quels types de contrats existent ?
+R: Trois types: Prélèvement Automatique, Paiement Mensuel, et Paiement Différé.
+
+Q: C'est quoi le Prélèvement Automatique ?
+R: Le montant est débité automatiquement chaque mois de votre compte. Pénalité de retard: 1.5%. Pas de surcharge de taux.
+
+Q: C'est quoi le Paiement Mensuel ?
+R: Vous effectuez manuellement le paiement chaque mois par versement ou chèque. Pénalité de retard: 3%. Pas de surcharge de taux.
+
+Q: C'est quoi le Paiement Différé ?
+R: Vous bénéficiez d'une période de grâce avant le premier paiement. Surcharge de taux: +0.5%. Pénalité de retard: 2%.
+
+Q: Quand dois-je commencer à payer ?
+R: La date de début de paiement doit être postérieure à la date de prise du contrat, avec un maximum de 3 mois d'écart.
+
+Q: Où trouver mon contrat ?
+R: Quand votre crédit est actif, un bouton "Voir le contrat" apparaît sur la carte du crédit. Il ouvre le PDF du contrat.
+
+[PROFIL]
+Q: Comment voir mes informations personnelles ?
+R: Cliquez sur le bouton Profil dans la barre de navigation. Vous y trouverez: nom, prénom, CIN, email, téléphone, adresse, type de compte, numéro de compte, RIB.
+
+Q: Comment changer mon mot de passe ?
+R: Dans la section Profil, cliquez sur "Changer le mot de passe". Entrez votre ancien mot de passe, le nouveau, et confirmez-le.
+
+Q: Comment changer mon email ?
+R: Dans la section Profil, cliquez sur "Changer l'email". Entrez votre mot de passe actuel, le nouvel email, et confirmez-le. Un code de vérification sera envoyé au nouvel email.
+
+Q: Puis-je modifier mon nom ou CIN ?
+R: Non, seul l'administrateur peut modifier ces informations.
+
+[TABLEAU DE BORD]
+Q: Que montre le tableau de bord ?
+R: Le solde actuel, les entrées totales (revenus), les sorties totales (dépenses), le nombre de virements, retraits et dépôts, et les 5 dernières transactions.
+
+Q: Les montants sont dans quelle devise ?
+R: Tous les montants sont en Dinar Tunisien (DT).
+
+[SÉCURITÉ]
+Q: Comment fonctionne la sécurité ?
+R: L'application utilise un captcha lors de la connexion et l'inscription, la vérification email, des sessions avec tokens JWT expiration 24h, et un historique de connexion (IP, appareil).
+
+Q: Mes données sont-elles sécurisées ?
+R: Oui, les mots de passe sont chiffrés, les sessions sont sécurisées par JWT, et chaque connexion est enregistrée.
+
+[NAVIGATION]
+Q: Quelles sont les sections de l'application ?
+R: Accueil (tableau de bord), Mon Compte, Crédits, Transactions, Carte (bientôt disponible), et Profil.
+
+Q: La section Carte est disponible ?
+R: Non, la section Carte bancaire est marquée "bientôt disponible" (coming soon).
+
+[ERREURS FRÉQUENTES]
+Q: "Compte destinataire introuvable" ?
+R: Le numéro de compte que vous avez entré n'existe pas. Vérifiez le numéro et réessayez.
+
+Q: "Solde insuffisant" ?
+R: Votre solde est inférieur au montant que vous essayez de retirer ou transférer.
+
+Q: "Vous avez déjà un crédit en cours" ?
+R: Vous avez déjà un crédit actif ou en attente. Attendez qu'il soit terminé ou annulez-le avant d'en demander un nouveau.
+
+Q: "Capacité de remboursement insuffisante" ?
+R: Votre salaire déclaré est trop faible par rapport à la mensualité du crédit demandé.
+
+Q: L'application ne se connecte pas ?
+R: Vérifiez que le serveur de base de données (MySQL/XAMPP) est démarré.
+
+[RESTRICTIONS - CE QUE LE CHATBOT NE FAIT PAS]
+- Je ne peux PAS effectuer de transactions à votre place.
+- Je ne peux PAS modifier vos informations personnelles.
+- Je ne peux PAS approuver ou rejeter des crédits.
+- Je ne peux PAS accéder à vos données personnelles ou votre solde.
+- Je ne peux PAS créer de compte ou changer de mot de passe pour vous.
+- Je ne donne PAS de conseils financiers personnalisés.
+- Je ne connais PAS votre solde ni vos informations spécifiques.
+- Je suis un assistant d'aide sur les fonctionnalités de l'application UniBank+ uniquement.
+- Je réponds uniquement en français.
+- Je donne des réponses courtes et directes (2-3 phrases maximum).
+- Si la question ne concerne pas UniBank+, je réponds: "Je suis l'assistant UniBank+. Je peux uniquement vous aider avec les fonctionnalités de l'application bancaire UniBank+."
+
+[CONTACT ET SUPPORT]
+Q: Comment contacter le support ?
+R: L'application ne propose pas encore de support direct. Utilisez ce chatbot pour obtenir de l'aide sur les fonctionnalités.
+
+Q: Qui gère UniBank+ ?
+R: UniBank+ est une application bancaire gérée par des administrateurs (agents) qui approuvent les comptes et gèrent les crédits.
