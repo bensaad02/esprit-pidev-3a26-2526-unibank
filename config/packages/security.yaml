@@ -23,6 +23,8 @@ security:
                 invalidate_session: true
 
     access_control:
+        - { path: ^/forgot-password, roles: PUBLIC_ACCESS }
+        - { path: ^/chatbot, roles: ROLE_CLIENT }
         - { path: ^/admin, roles: ROLE_AGENT }
         - { path: ^/client, roles: ROLE_CLIENT }
         - { path: ^/offers, roles: ROLE_CLIENT }

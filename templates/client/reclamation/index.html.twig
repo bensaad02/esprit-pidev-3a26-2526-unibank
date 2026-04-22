@@ -1,0 +1,1207 @@
+{% extends 'client/base.html.twig' %}
+{% block title %}Mes Réclamations - UniBank+{% endblock %}
+{% block page_title %}Mes Réclamations{% endblock %}
+
+{% block stylesheets %}
+<style>
+.field-error {
+    display: none;
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 600;
+}
+
+.field-error.is-visible {
+    display: block;
+}
+
+.form-control.input-error,
+textarea.input-error,
+select.input-error {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 0.12rem rgba(220, 38, 38, 0.12);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card-mini {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.stat-card-mini:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon-mini {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.stat-icon-mini.orange { background: #FFF3E0; color: #FF9800; }
+.stat-icon-mini.blue { background: #E3F2FD; color: #2196F3; }
+.stat-icon-mini.green { background: #E8F5E9; color: #4CAF50; }
+.stat-icon-mini.red { background: #FFEBEE; color: #F44336; }
+
+.stat-info-mini {
+    flex: 1;
+}
+
+.stat-label-mini {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 3px;
+}
+
+.stat-value-mini {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.badge-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-status.en_attente { background: #FFF3E0; color: #FF9800; }
+.badge-status.en_cours { background: #E3F2FD; color: #2196F3; }
+.badge-status.traite { background: #E8F5E9; color: #4CAF50; }
+.badge-status.rejete { background: #FFEBEE; color: #F44336; }
+
+.sentiment-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.sentiment-positif { background: #E8F5E9; color: #4CAF50; }
+.sentiment-negatif { background: #FFEBEE; color: #F44336; }
+.sentiment-neutre { background: #F5F5F5; color: #757575; }
+
+.response-preview {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.has-response {
+    color: #4CAF50;
+}
+
+.no-response {
+    color: #FF9800;
+}
+
+.image-preview {
+    max-width: 50px;
+    max-height: 50px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.image-preview:hover {
+    transform: scale(1.05);
+}
+
+.reclamation-detail {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.reclamation-response {
+    background: #E8F5E9;
+    border-left: 4px solid #4CAF50;
+}
+
+.btn-action {
+    background: transparent;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+}
+
+.btn-action:hover {
+    background: #f0f0f0;
+}
+
+.btn-action.edit:hover { color: #FF9800; background: #FFF3E0; }
+.btn-action.delete:hover { color: #F44336; background: #FFEBEE; }
+.btn-action.view:hover { color: #2196F3; background: #E3F2FD; }
+
+/* Barre de recherche pro */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+/* Input group */
+.search-input-group {
+    position: relative;
+    flex: 1;
+    max-width: 350px;
+}
+
+/* Icône */
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+    font-size: 14px;
+}
+
+/* Input */
+.search-input {
+    width: 100%;
+    padding: 10px 15px 10px 38px;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #F9FAFB;
+}
+
+/* Focus effet premium */
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(76, 73, 237, 0.08);
+}
+
+/* Bouton principal */
+.btn-search {
+    background: linear-gradient(135deg, var(--primary), #4C49ED);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Hover bouton */
+.btn-search:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 73, 237, 0.2);
+}
+
+/* Reset */
+.btn-reset {
+    background: #F3F4F6;
+    color: #374151;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-reset:hover {
+    background: #E5E7EB;
+}
+
+.search-select {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    background: #F9FAFB;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.search-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(76, 73, 237, 0.08);
+}
+
+.input-success {
+    border-color: #4CAF50 !important;
+    box-shadow: 0 0 0 0.12rem rgba(76, 175, 80, 0.15);
+}
+
+/* ============================================
+   STYLES POUR NOTIFICATIONS ANIMÉES (AJOUT)
+============================================ */
+
+/* Conteneur des notifications */
+#response-notifications {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+/* Style de base de la notification */
+.notification-toast {
+    pointer-events: auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    min-width: 320px;
+    max-width: 400px;
+    opacity: 0;
+    transform: translateX(100px) scale(0.9);
+    animation: notificationSlideIn 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+    position: relative;
+}
+
+/* Animation d'entrée */
+@keyframes notificationSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100px) scale(0.8);
+    }
+    60% {
+        opacity: 1;
+        transform: translateX(-10px) scale(1.02);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* Animation de sortie */
+.notification-toast.hide {
+    animation: notificationSlideOut 0.4s ease-in forwards;
+}
+
+@keyframes notificationSlideOut {
+    0% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(100px) scale(0.8);
+        display: none;
+    }
+}
+
+/* Barre de progression */
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4CAF50, #66BB6A);
+    width: 100%;
+    animation: progressBar 5s linear forwards;
+}
+
+@keyframes progressBar {
+    0% { width: 100%; }
+    100% { width: 0%; }
+}
+
+/* En-tête de notification */
+.notification-header {
+    padding: 14px 16px 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    animation: iconPulse 0.6s ease-out;
+}
+
+@keyframes iconPulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.notification-title {
+    flex: 1;
+}
+
+.notification-title h4 {
+    color: white;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.notification-title p {
+    color: rgba(255,255,255,0.9);
+    margin: 2px 0 0;
+    font-size: 11px;
+}
+
+.notification-close {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: white;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.notification-close:hover {
+    background: rgba(255,255,255,0.4);
+    transform: rotate(90deg);
+}
+
+/* Corps de notification */
+.notification-body {
+    padding: 16px;
+    background: white;
+}
+
+.notification-subject {
+    font-weight: 700;
+    color: #1a202c;
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.notification-message {
+    color: #4a5568;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.notification-time {
+    font-size: 11px;
+    color: #a0aec0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Animation de bounce pour nouvelle notification */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.notification-toast.new {
+    animation: notificationSlideIn 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) forwards, bounce 0.5s ease 0.3s;
+}
+
+/* Confettis animation */
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.confetti {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+/* Sonnerie */
+@keyframes ring {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(15deg); }
+    50% { transform: rotate(-15deg); }
+    75% { transform: rotate(5deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.bell-ring {
+    animation: ring 0.5s ease-in-out;
+}
+
+/* Badge compteur de notifications */
+.notification-badge {
+    position: relative;
+}
+
+.notification-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #F44336;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 20px;
+    min-width: 18px;
+    text-align: center;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Formulaire de nouvelle réclamation -->
+<div class="admin-card mb-4">
+
+    <div id="response-notifications"></div>
+
+    <!-- Script de notification avec animations (AJOUT) -->
+    <script>
+    // Queue des notifications pour éviter les surcharges
+    let notificationQueue = [];
+    let isShowingNotification = false;
+    
+    // Fonction pour afficher une notification avec animation
+    function showNotification(notificationData) {
+        notificationQueue.push(notificationData);
+        processNotificationQueue();
+    }
+    
+    function processNotificationQueue() {
+        if (isShowingNotification || notificationQueue.length === 0) return;
+        
+        isShowingNotification = true;
+        const data = notificationQueue.shift();
+        
+        const container = document.getElementById('response-notifications');
+        if (!container) {
+            isShowingNotification = false;
+            return;
+        }
+        
+        // Créer l'élément de notification
+        const toast = document.createElement('div');
+        toast.className = 'notification-toast new';
+        
+        toast.innerHTML = `
+            <div class="notification-header">
+                <div class="notification-icon">
+                    ${data.icon || '📬'}
+                </div>
+                <div class="notification-title">
+                    <h4>${data.title}</h4>
+                    <p>${data.subtitle || 'Nouvelle réponse'}</p>
+                </div>
+                <button class="notification-close" onclick="closeNotification(this.parentElement.parentElement)">×</button>
+            </div>
+            <div class="notification-body">
+                <div class="notification-subject">
+                    <span>📌</span>
+                    <span>${escapeHtml(data.subject)}</span>
+                </div>
+                <div class="notification-message">
+                    ${escapeHtml(data.message)}
+                </div>
+                <div class="notification-time">
+                    <span>🕐</span>
+                    <span>${data.time}</span>
+                </div>
+            </div>
+            <div class="notification-progress"></div>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Animation de sonnerie (optionnelle)
+        playNotificationSound();
+        
+        // Confettis pour les réponses importantes
+        if (data.isImportant) {
+            createConfetti();
+        }
+        
+        // Auto-suppression après 5 secondes
+        const timeout = setTimeout(() => {
+            closeNotification(toast);
+        }, 5000);
+        
+        // Stocker le timeout pour l'annuler si nécessaire
+        toast.dataset.timeout = timeout;
+    }
+    
+    function closeNotification(element) {
+        const timeout = element.dataset.timeout;
+        if (timeout) clearTimeout(parseInt(timeout));
+        
+        element.classList.add('hide');
+        
+        setTimeout(() => {
+            if (element.parentElement) {
+                element.remove();
+            }
+            isShowingNotification = false;
+            processNotificationQueue();
+        }, 400);
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function playNotificationSound() {
+        // Sonnerie discrète (utilise l'API Web Audio si disponible)
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 880;
+            gainNode.gain.value = 0.15;
+            
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+            oscillator.stop(audioContext.currentTime + 0.5);
+            
+            audioContext.resume();
+        } catch(e) {
+            // Fallback silencieux si l'API Audio n'est pas supportée
+        }
+    }
+    
+    function createConfetti() {
+        const colors = ['#4CAF50', '#2196F3', '#FF9800', '#F44336', '#9C27B0'];
+        
+        for (let i = 0; i < 30; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.position = 'fixed';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.top = '-20px';
+            confetti.style.width = Math.random() * 8 + 4 + 'px';
+            confetti.style.height = Math.random() * 8 + 4 + 'px';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            confetti.style.opacity = Math.random() * 0.7 + 0.3;
+            confetti.style.animation = `confettiFall ${Math.random() * 2 + 2}s linear forwards`;
+            
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 3000);
+        }
+    }
+    
+    // Compteur de notifications
+    let notificationCount = 0;
+    
+    function updateNotificationBadge(count) {
+        notificationCount += count;
+        
+        let badge = document.querySelector('.notification-badge .notification-count');
+        if (!badge && notificationCount > 0) {
+            const title = document.querySelector('title');
+            const badgeContainer = document.createElement('div');
+            badgeContainer.className = 'notification-badge';
+            badgeContainer.style.position = 'fixed';
+            badgeContainer.style.top = '10px';
+            badgeContainer.style.right = '10px';
+            badgeContainer.style.zIndex = '10000';
+            
+            badge = document.createElement('div');
+            badge.className = 'notification-count';
+            badgeContainer.appendChild(badge);
+            document.body.appendChild(badgeContainer);
+        }
+        
+        if (badge) {
+            if (notificationCount > 0) {
+                badge.textContent = notificationCount > 99 ? '99+' : notificationCount;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        // Mettre à jour le titre de la page
+        if (notificationCount > 0) {
+            document.title = `(${notificationCount}) ${document.title.replace(/^\(\d+\)\s/, '')}`;
+        } else {
+            document.title = document.title.replace(/^\(\d+\)\s/, '');
+        }
+    }
+    
+    // Stockage des notifications déjà affichées (éviter les doublons)
+    let displayedNotifications = new Set();
+    </script>
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    let notifications = [];
+
+    {% for r in reclamations %}
+        {% if r.reponses|length > 0 %}
+            {% set rep = r.reponses|sort((a, b) => a.dateReponse <=> b.dateReponse)|last %}
+
+            notifications.push({
+                id: "{{ rep.id }}", // 👈 ID unique de la réponse
+                subject: "{{ r.sujet|e('js') }}",
+                message: "{{ rep.contenu|slice(0,150)|e('js') }}",
+                time: "{{ rep.dateReponse|date('d/m/Y H:i') }}",
+                timestamp: {{ rep.dateReponse.timestamp }}
+            });
+        {% endif %}
+    {% endfor %}
+
+    // 🔥 Trier par date (plus récent)
+    notifications.sort((a, b) => b.timestamp - a.timestamp);
+
+    // 🔥 récupérer les notifications déjà vues
+    let seen = JSON.parse(localStorage.getItem("seen_notifications") || "[]");
+
+    notifications.forEach((n, index) => {
+
+        // ❌ déjà vue → skip
+        if (seen.includes(n.id)) return;
+
+        updateNotificationBadge(1);
+
+        setTimeout(() => {
+            showNotification({
+                title: "📬 Nouvelle réponse",
+                subtitle: "Réponse non lue",
+                subject: n.subject,
+                message: n.message,
+                time: n.time,
+                icon: "💬",
+                isImportant: true
+            });
+
+            // ✅ marquer comme vue
+            seen.push(n.id);
+            localStorage.setItem("seen_notifications", JSON.stringify(seen));
+
+            setTimeout(() => updateNotificationBadge(-1), 6000);
+
+        }, index * 400);
+    });
+
+});
+</script>
+
+
+    <div class="card-header">
+        <h5><i class="fas fa-comment-alt mr-2" style="color:var(--primary);"></i>Nouvelle réclamation</h5>
+    </div>
+    <div class="card-body" style="padding:25px;">
+        <form method="post" action="{{ path('app_client_reclamation_new') }}" enctype="multipart/form-data" id="reclamationForm" novalidate data-inline-validate>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">
+                        Type de réclamation <span style="color:#dc2626;">*</span>
+                    </label>
+                    <select name="type" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required>
+                        <option value="">Sélectionnez un type</option>
+                        <option value="technique">💻 Problème technique</option>
+                        <option value="compte">👤 Problème de compte</option>
+                        <option value="transaction">💰 Transaction</option>
+                        <option value="carte">💳 Carte bancaire</option>
+                        <option value="credit">🏦 Crédit</option>
+                        <option value="autre">📝 Autre</option>
+                    </select>
+                    <div class="field-error" data-error-for="type"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">
+                        Sujet <span style="color:#dc2626;">*</span>
+                    </label>
+                    <input type="text" name="sujet" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required minlength="5" maxlength="255" placeholder="Ex: Problème de virement">
+                    <div class="field-error" data-error-for="sujet"></div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">
+                    Description <span style="color:#dc2626;">*</span>
+                </label>
+                <textarea name="description" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" rows="4" required minlength="10" placeholder="Décrivez votre problème en détail..."></textarea>
+                <div class="field-error" data-error-for="description"></div>
+            </div>
+            
+            <div class="mb-3">
+                <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">
+                    Pièce jointe (image)
+                </label>
+                <input type="file" name="image" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" accept="image/*">
+                <small style="font-size:11px;color:var(--text-secondary);">Format acceptés: JPG, PNG, GIF. Max 5MB</small>
+                <div class="field-error" data-error-for="image"></div>
+            </div>
+            
+            <button type="submit" class="btn-admin primary">
+                <i class="fas fa-paper-plane mr-2"></i>Envoyer la réclamation
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Statistiques -->
+{% if reclamations|length > 0 %}
+<div class="stats-grid">
+    <div class="stat-card-mini">
+        <div class="stat-icon-mini orange"><i class="fas fa-clock"></i></div>
+        <div class="stat-info-mini">
+            <div class="stat-label-mini">En attente</div>
+            <div class="stat-value-mini">{{ stats.en_attente }}</div>
+        </div>
+    </div>
+    <div class="stat-card-mini">
+        <div class="stat-icon-mini blue"><i class="fas fa-spinner"></i></div>
+        <div class="stat-info-mini">
+            <div class="stat-label-mini">En cours</div>
+            <div class="stat-value-mini">{{ stats.en_cours }}</div>
+        </div>
+    </div>
+    <div class="stat-card-mini">
+        <div class="stat-icon-mini green"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-info-mini">
+            <div class="stat-label-mini">Traitées</div>
+            <div class="stat-value-mini">{{ stats.traite }}</div>
+        </div>
+    </div>
+    <div class="stat-card-mini">
+        <div class="stat-icon-mini red"><i class="fas fa-times-circle"></i></div>
+        <div class="stat-info-mini">
+            <div class="stat-label-mini">Rejetées</div>
+            <div class="stat-value-mini">{{ stats.rejete }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des réclamations -->
+<div class="admin-card">
+    <div class="card-header">
+        <h5><i class="fas fa-list mr-2" style="color:var(--primary);"></i>Mes réclamations ({{ reclamations|length }})</h5>
+    </div>
+    <div class="card-body">
+      
+<form method="get" action="{{ path('app_client_reclamations') }}" class="search-bar">
+
+    <!-- Recherche -->
+    <div class="search-input-group">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text"
+               name="search"
+               value="{{ app.request.get('search') }}"
+               placeholder="Rechercher une réclamation..."
+               class="search-input">
+    </div>
+
+    <!-- TRI -->
+    <select name="sort" class="search-select">
+        <option value="date_desc" {{ sort == 'date_desc' ? 'selected' : '' }}>Plus récentes</option>
+        <option value="date_asc" {{ sort == 'date_asc' ? 'selected' : '' }}>Plus anciennes</option>
+        <option value="statut" {{ sort == 'statut' ? 'selected' : '' }}>Statut</option>
+        <option value="type" {{ sort == 'type' ? 'selected' : '' }}>Type</option>
+    </select>
+
+    <!-- Bouton -->
+    <button type="submit" class="btn-search">
+        Appliquer
+    </button>
+
+    {% if app.request.get('search') or sort != 'date_desc' %}
+        <a href="{{ path('app_client_reclamations') }}" class="btn-reset">
+            Réinitialiser
+        </a>
+    {% endif %}
+
+</form>
+
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Sujet</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th>Réponse</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reclamations %}
+                <tr>
+                    <td>
+                        <span class="badge-status" style="background:#F0F0F0;color:#666;">
+                            {% if r.type == 'technique' %}<i class="fas fa-code"></i> Technique
+                            {% elseif r.type == 'compte' %}<i class="fas fa-user"></i> Compte
+                            {% elseif r.type == 'transaction' %}<i class="fas fa-exchange-alt"></i> Transaction
+                            {% elseif r.type == 'carte' %}<i class="fas fa-credit-card"></i> Carte
+                            {% elseif r.type == 'credit' %}<i class="fas fa-hand-holding-usd"></i> Crédit
+                            {% else %}<i class="fas fa-comment"></i> Autre
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="font-weight:500;">{{ r.sujet }}</div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 3px;">
+                            {{ r.description|slice(0, 60) }}{% if r.description|length > 60 %}...{% endif %}
+                        </div>
+                        {% if r.sentiment %}
+                            <div style="margin-top: 5px;">
+                                <span class="sentiment-badge sentiment-{{ r.sentiment }}">
+                                    {% if r.sentiment == 'positif' %}
+                                        <i class="fas fa-smile"></i> Analyse positive
+                                    {% elseif r.sentiment == 'negatif' %}
+                                        <i class="fas fa-frown"></i> Analyse négative
+                                    {% else %}
+                                        <i class="fas fa-meh"></i> Analyse neutre
+                                    {% endif %}
+                                </span>
+                            </div>
+                        {% endif %}
+                        {% if r.imagePath %}
+                            <div style="margin-top: 8px;">
+                                <img src="{{ asset('uploads/reclamations/' ~ r.imagePath) }}" class="image-preview" alt="Image jointe" onclick="window.open(this.src)">
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge-status {{ r.statut }}">
+                            {% if r.statut == 'en_attente' %}
+                                <i class="fas fa-clock"></i> En attente
+                            {% elseif r.statut == 'en_cours' %}
+                                <i class="fas fa-spinner fa-pulse"></i> En cours
+                            {% elseif r.statut == 'traite' %}
+                                <i class="fas fa-check-circle"></i> Traité
+                            {% else %}
+                                <i class="fas fa-times-circle"></i> Rejeté
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td style="font-size:13px;">
+                        {{ r.dateReclamation|date('d/m/Y H:i') }}
+                    </td>
+                    <td>
+   {% if r.reponses|length > 0 %}
+    {% set rep = r.reponses|sort((a, b) => a.dateReponse <=> b.dateReponse)|last %}
+
+    <div class="response-preview has-response" title="{{ rep.contenu }}">
+        <i class="fas fa-reply-all"></i> 
+        {{ rep.contenu|slice(0, 50) }}{% if rep.contenu|length > 50 %}...{% endif %}
+    </div>
+
+    <div style="font-size: 11px; color: #4CAF50;">
+        <i class="fas fa-calendar-alt"></i> 
+        {{ rep.dateReponse|date('d/m/Y H:i') }}
+    </div>
+{% else %}
+    <span class="response-preview no-response">
+        <i class="fas fa-hourglass-half"></i> En attente de réponse
+    </span>
+{% endif %}
+</td>
+                    <td style="white-space:nowrap;">
+                        <button type="button" class="btn-action view" title="Voir détails" onclick="$('#detailModal{{ r.id }}').modal('show')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        {% if r.statut == 'en_attente' %}
+                            <button type="button" class="btn-action edit" title="Modifier" onclick="openEditModal({{ r.id }}, '{{ r.sujet|e('js') }}', '{{ r.description|e('js') }}', '{{ r.type|e('js') }}')">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                          <form method="post" action="{{ path('app_client_reclamation_delete', {id: r.id}) }}" style="display:inline;">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ r.id) }}">
+    <button type="submit" class="btn-action delete" title="Supprimer" onclick="return confirm('Supprimer cette réclamation ?')">
+        <i class="fas fa-trash"></i>
+    </button>
+</form>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <!-- Modal Détails -->
+                <div class="modal fade modal-admin" id="detailModal{{ r.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;">
+                            <div style="background:linear-gradient(135deg,var(--primary),#4C49ED);padding:20px 25px;">
+                                <h5 style="color:#fff;font-weight:700;margin:0;">
+                                    <i class="fas fa-comment-alt mr-2"></i>Détail de la réclamation
+                                </h5>
+                                <small style="color:rgba(255,255,255,0.8);">#{{ r.id }} - {{ r.dateReclamation|date('d/m/Y H:i') }}</small>
+                            </div>
+                            <div style="padding:25px;">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="text-muted" style="font-size:12px;">Type</label>
+                                        <div><strong>{% if r.type == 'technique' %}💻 Problème technique{% elseif r.type == 'compte' %}👤 Problème de compte{% elseif r.type == 'transaction' %}💰 Transaction{% elseif r.type == 'carte' %}💳 Carte bancaire{% elseif r.type == 'credit' %}🏦 Crédit{% else %}📝 Autre{% endif %}</strong></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="text-muted" style="font-size:12px;">Statut</label>
+                                        <div><span class="badge-status {{ r.statut }}">{% if r.statut == 'en_attente' %}⏳ En attente{% elseif r.statut == 'en_cours' %}🔄 En cours{% elseif r.statut == 'traite' %}✅ Traité{% else %}❌ Rejeté{% endif %}</span></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="text-muted" style="font-size:12px;">Sujet</label>
+                                    <div><strong>{{ r.sujet }}</strong></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="text-muted" style="font-size:12px;">Description</label>
+                                    <div class="reclamation-detail">{{ r.description|nl2br }}</div>
+                                </div>
+                                {% if r.imagePath %}
+                                <div class="mb-3">
+                                    <label class="text-muted" style="font-size:12px;">Image jointe</label>
+                                    <div><img src="{{ asset('uploads/reclamations/' ~ r.imagePath) }}" style="max-width:100%;max-height:300px;border-radius:8px;" onclick="window.open(this.src)"></div>
+                                </div>
+                                {% endif %}
+                                {% if r.sentiment %}
+                                <div class="mb-3">
+                                    <label class="text-muted" style="font-size:12px;">Analyse automatique</label>
+                                    <div><span class="sentiment-badge sentiment-{{ r.sentiment }}">{% if r.sentiment == 'positif' %}😊 Sentiment positif{% elseif r.sentiment == 'negatif' %}😞 Sentiment négatif{% else %}😐 Sentiment neutre{% endif %}</span></div>
+                                </div>
+                                {% endif %}
+                                {% if r.reponse %}
+                                <div class="mb-3">
+                                    <label class="text-muted" style="font-size:12px;">Réponse de l'administration</label>
+                                    <div class="reclamation-detail reclamation-response">
+                                        <div style="margin-bottom:8px;"><strong>{{ r.reponsePar ? r.reponsePar.prenom ~ ' ' ~ r.reponsePar.nom : 'Administration' }}</strong> - {{ r.reponseDate|date('d/m/Y H:i') }}</div>
+                                        {{ r.reponse|nl2br }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div style="padding:0 25px 25px;display:flex;gap:12px;justify-content:flex-end;">
+                                <button type="button" class="btn-admin outline" data-dismiss="modal">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal Modification -->
+<div class="modal fade modal-admin" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:600px;">
+        <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;">
+            <div style="background:linear-gradient(135deg,var(--primary),#4C49ED);padding:20px 25px;">
+                <h5 style="color:#fff;font-weight:700;margin:0;"><i class="fas fa-pen mr-2"></i>Modifier la réclamation</h5>
+            </div>
+            <form id="editForm" method="post" enctype="multipart/form-data" novalidate data-inline-validate>
+                <div style="padding:25px;">
+                    <div class="mb-3">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Type <span style="color:#dc2626;">*</span></label>
+                        <select name="type" id="edit_type" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required>
+                            <option value="technique">💻 Problème technique</option>
+                            <option value="compte">👤 Problème de compte</option>
+                            <option value="transaction">💰 Transaction</option>
+                            <option value="carte">💳 Carte bancaire</option>
+                            <option value="credit">🏦 Crédit</option>
+                            <option value="autre">📝 Autre</option>
+                        </select>
+                        <div class="field-error" data-error-for="type"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Sujet <span style="color:#dc2626;">*</span></label>
+                        <input type="text" name="sujet" id="edit_sujet" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" required minlength="5">
+                        <div class="field-error" data-error-for="sujet"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Description <span style="color:#dc2626;">*</span></label>
+                        <textarea name="description" id="edit_description" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" rows="4" required minlength="10"></textarea>
+                        <div class="field-error" data-error-for="description"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Nouvelle image (optionnel)</label>
+                        <input type="file" name="image" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" accept="image/*">
+                        <small style="font-size:11px;color:var(--text-secondary);">Laissez vide pour conserver l'image actuelle</small>
+                    </div>
+                </div>
+                <div style="padding:0 25px 25px;display:flex;gap:12px;justify-content:flex-end;">
+                    <button type="button" class="btn-admin outline" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn-admin primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function openEditModal(id, sujet, description, type) {
+    document.getElementById('editForm').action = '/client/reclamations/' + id + '/edit';
+    document.getElementById('edit_sujet').value = sujet;
+    document.getElementById('edit_description').value = description;
+    document.getElementById('edit_type').value = type;
+    $('#editModal').modal('show');
+}
+
+
+function getInlineValidationMessage(field) {
+    const value = field.value.trim();
+
+    // Champ obligatoire
+    if (field.validity.valueMissing) {
+        return 'Ce champ est obligatoire.';
+    }
+
+    // Sujet (anti spam + qualité)
+    if (field.name === 'sujet') {
+        if (value.length < 5) return 'Le sujet doit contenir au moins 5 caractères.';
+        if (value.length > 100) return 'Le sujet est trop long.';
+        if (!/^[a-zA-Z0-9À-ÿ\s\-\'?!.,]+$/.test(value)) {
+            return 'Caractères invalides dans le sujet.';
+        }
+    }
+
+    // Description (important en bancaire)
+    if (field.name === 'description') {
+        if (value.length < 10) return 'Description trop courte.';
+        if (value.length > 1000) return 'Description trop longue.';
+    }
+
+    // Type
+    if (field.name === 'type' && !value) {
+        return 'Veuillez sélectionner un type.';
+    }
+
+    // Image
+    if (field.type === 'file' && field.files.length > 0) {
+        const file = field.files[0];
+
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            return 'Format invalide (JPG, PNG, GIF uniquement).';
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            return 'Image trop volumineuse (max 5MB).';
+        }
+    }
+
+    return '';
+}
+
+function validateInlineField(field, form) {
+    var targetName = field.name;
+    var errorEl = form.querySelector('[data-error-for="' + targetName + '"]');
+
+    if (!errorEl) return true;
+
+    var message = getInlineValidationMessage(field);
+    var isValid = message === '';
+
+    field.classList.toggle('input-error', !isValid);
+    field.classList.toggle('input-success', isValid && field.value.trim() !== '');
+
+    errorEl.textContent = message;
+    errorEl.classList.toggle('is-visible', !isValid);
+
+    return isValid;
+}
+
+function setupInlineValidation(form) {
+    if (!form) return;
+
+    var fields = form.querySelectorAll('input[name], textarea[name], select[name]');
+
+    fields.forEach(function(field) {
+        field.addEventListener('input', function() {
+            validateInlineField(field, form);
+        });
+        field.addEventListener('change', function() {
+            validateInlineField(field, form);
+        });
+    });
+
+    form.addEventListener('submit', function(event) {
+        var firstInvalid = null;
+        var valid = true;
+
+        fields.forEach(function(field) {
+            if (!validateInlineField(field, form)) {
+                valid = false;
+                if (!firstInvalid) {
+                    firstInvalid = field;
+                }
+            }
+        });
+
+        if (!valid) {
+            event.preventDefault();
+            if (firstInvalid) {
+                firstInvalid.focus();
+            }
+        }
+    });
+}
+
+document.querySelectorAll('form[data-inline-validate]').forEach(setupInlineValidation);
+</script>
+{% endblock %}

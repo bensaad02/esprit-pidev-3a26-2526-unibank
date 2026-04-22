@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
-
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('fonts/icomoon/style.css') }}">
@@ -67,6 +66,11 @@
                 </li>
                 <li><a href="{{ path('app_home') }}#blog-section" class="nav-link">Blog</a></li>
                 <li><a href="{{ path('app_home') }}#contact-section" class="nav-link">Contact</a></li>
+                {% if app.request.get('_route') == 'app_home' %}
+                  <li><a href="#branchMapModal" class="nav-link" data-toggle="modal" data-target="#branchMapModal"><i class="fas fa-location-dot mr-1"></i> Maps</a></li>
+                {% else %}
+                  <li><a href="{{ path('app_home') }}#home-section" class="nav-link"><i class="fas fa-location-dot mr-1"></i> Maps</a></li>
+                {% endif %}
                 {% if app.user %}
                   {% if is_granted('ROLE_AGENT') %}
                     <li><a href="{{ path('app_admin_dashboard') }}" class="nav-link">Dashboard</a></li>
@@ -76,7 +80,7 @@
                   <li><a href="{{ path('app_logout') }}" class="nav-link">{{ app.user.prenom }} (Deconnexion)</a></li>
                 {% else %}
                   <li><a href="{{ path('app_login') }}" class="nav-link">Connexion</a></li>
-                  <li><a href="{{ path('app_register') }}" class="nav-link btn btn-primary text-white px-3 ml-2" style="border-radius: 30px;">Inscription</a></li>
+                  <li><a href="{{ path('app_register') }}" class="nav-link" style="background:#2259d6;color:#fff!important;border-radius:20px;padding:6px 18px;font-size:14px;font-weight:600;margin-left:8px;line-height:1.6;transition:background 0.2s;" onmouseover="this.style.background='#1a46b8'" onmouseout="this.style.background='#2259d6'">Inscription</a></li>
                 {% endif %}
               </ul>
             </nav>
@@ -184,6 +188,7 @@
   <script src="{{ asset('js/isotope.pkgd.min.js') }}"></script>
   <script src="{{ asset('js/main.js') }}"></script>
   <script src="{{ asset('js/password-toggle.js') }}"></script>
+  
   {% block javascripts %}{% endblock %}
 
   </body>

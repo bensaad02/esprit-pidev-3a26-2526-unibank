@@ -1,0 +1,202 @@
+{% extends 'client/base.html.twig' %}
+
+{% block page_title %}Mes Cartes{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+
+    <!-- 🔥 HEADER WITH ACTIONS -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <!-- LEFT -->
+        <div>
+            <h4 class="mb-0">Mes Cartes 💳</h4>
+            <small class="text-muted">Gérez vos cartes bancaires</small>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="d-flex gap-2">
+
+            <!-- 🔍 SEARCH -->
+            <form method="get" class="d-flex gap-2">
+                <input type="text" name="search" value="{{ search }}" 
+                       class="form-control" placeholder="Rechercher...">
+
+                <button class="btn btn-primary">🔍</button>
+            </form>
+
+            <!-- 📄 PDF -->
+            <a href="{{ path('app_client_cartes_pdf') }}" class="btn btn-danger" target="_blank">
+                📄 PDF
+            </a>
+
+            <!-- ➕ ADD -->
+            <a href="{{ path('app_client_cartes_add') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <div class="row">
+
+                {% if cartes is empty %}
+                    <div class="col-12 text-center text-muted">
+                        Aucune carte trouvée 💳
+                    </div>
+                {% endif %}
+
+                {% for carte in cartes %}
+                <div class="col-md-6 mb-4">
+                    <div class="carte-box1 animated-card">
+
+                        <!-- TOP -->
+                        <div class="d-flex justify-content-between mb-3">
+                            <i class="fas fa-credit-card card-icon"></i>
+
+                            <span class="badge 
+                                {% if carte.status == 'ACTIVE' %}
+                                    badge-success
+                                {% else %}
+                                    badge-warning
+                                {% endif %}
+                            ">
+                                {{ carte.status }}
+                            </span>
+                        </div>
+
+                        <!-- NUMBER -->
+                        <div class="card-number mb-3">
+                            **** **** **** {{ carte.cardNumber|slice(-4) }}
+                        </div>
+
+                        <!-- INFO -->
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <small class="text-muted">Titulaire</small><br>
+                                {{ carte.nom }} {{ carte.prenom }}
+                            </div>
+                            <div>
+                                <small class="text-muted">Expire</small><br>
+                                {{ carte.expirationDate }}
+                            </div>
+                            <div class="mt-2">
+    <small class="text-muted">Solde</small><br>
+    <span class="badge bg-primary">
+        {{ carte.solde }} DT
+    </span>
+</div>
+                        </div>
+
+                        <div class="d-flex mt-3">
+
+    <!-- DELETE -->
+<form method="post" action="{{ path('app_client_cartes_delete', {id: carte.id}) }}" class="w-50">
+    <button class="btn btn-danger w-100">
+        Supprimer
+    </button>
+</form>
+    <!-- ALIMENTER -->
+    <a href="{{ path('app_client_cartes_alimenter', {id: carte.id}) }}" 
+       class="btn btn-success w-50 mx-2">
+        Alimenter
+    </a>
+
+    <!-- EDIT -->
+ {% if carte.status == 'EN_ATTENTE' %}
+    <a href="{{ path('app_client_cartes_edit', {id: carte.id}) }}" 
+       class="btn btn-light w-50">
+        Paramètres
+    </a>
+{% else %}
+    <button class="btn btn-secondary w-50" disabled>
+        🔒 Paramètres
+    </button>
+{% endif %}
+</div>
+
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% block stylesheets %}
+<style>
+
+.carte-box1 {
+    position: relative;
+    background: #f8f9fc;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: 0.3s;
+    z-index: 1;
+}
+
+/* 🔥 IMPORTANT FIX → allow clicks */
+.carte-box1::before,
+.carte-box1::after {
+    pointer-events: none;
+}
+
+/* ensure buttons are clickable */
+.carte-box1 * {
+    pointer-events: auto;
+}
+
+/* hover effect */
+.carte-box1:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* card number */
+.card-number {
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+/* icon */
+.card-icon {
+    font-size: 22px;
+    color: #4e73df;
+}
+
+/* buttons spacing */
+.carte-box1 .btn {
+    border-radius: 8px;
+}
+
+/* fix flex buttons */
+.carte-box1 .d-flex.mt-3 {
+    gap: 10px;
+}
+
+/* make sure no overlay blocks clicks */
+.overlay,
+.animated-card::before,
+.animated-card::after {
+    pointer-events: none !important;
+}
+
+/* force buttons above everything */
+.carte-box1 a,
+.carte-box1 button {
+    position: relative;
+    z-index: 5;
+}
+
+</style>
+{% endblock %}
+{% endblock %}

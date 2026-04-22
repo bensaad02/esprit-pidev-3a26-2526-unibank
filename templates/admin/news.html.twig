@@ -1,0 +1,80 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Actualites Financieres - Admin UniBank+{% endblock %}
+{% block page_title %}Actualites Financieres{% endblock %}
+
+{% block body %}
+<div class="admin-card">
+    <div class="card-header" style="flex-wrap:wrap;gap:12px;">
+        <h5><i class="fas fa-newspaper mr-2" style="color:var(--primary);"></i>
+            Actualites financieres
+            <span style="font-size:11px;font-weight:400;color:var(--text-secondary);margin-left:8px;">Source: GNews · actualise toutes les 15 min</span>
+        </h5>
+        <form method="get" action="{{ path('app_admin_news') }}" style="display:flex;gap:8px;align-items:center;">
+            <div style="position:relative;">
+                <input type="text" name="q" value="{{ query }}" placeholder="Rechercher une actualite..."
+                    style="padding:8px 16px 8px 36px;border:1.5px solid #e2e8f0;border-radius:20px;font-size:13px;width:260px;outline:none;"
+                    onfocus="this.style.borderColor='#2259d6'" onblur="this.style.borderColor='#e2e8f0'">
+                <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#aaa;font-size:13px;"></i>
+            </div>
+            <button type="submit" class="btn-admin primary" style="padding:8px 16px;font-size:13px;">Rechercher</button>
+            {% if query %}
+                <a href="{{ path('app_admin_news') }}" class="btn-admin outline" style="padding:8px 14px;font-size:13px;">Reset</a>
+            {% endif %}
+        </form>
+    </div>
+    <div class="card-body">
+        {% if query %}
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+                Resultats pour <strong>"{{ query }}"</strong> — {{ articles|length }} article(s) trouve(s).
+            </p>
+        {% endif %}
+
+        {% if articles|length > 0 %}
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
+            {% for article in articles %}
+            <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer"
+               style="display:flex;flex-direction:column;background:#fff;border-radius:12px;overflow:hidden;text-decoration:none;border:1px solid #e2e8f0;transition:box-shadow 0.2s,transform 0.2s;"
+               onmouseover="this.style.boxShadow='0 6px 24px rgba(34,89,214,0.12)';this.style.transform='translateY(-2px)'"
+               onmouseout="this.style.boxShadow='none';this.style.transform='translateY(0)'">
+                {% if article.image %}
+                <div style="height:180px;overflow:hidden;background:#f3f4f6;">
+                    <img src="{{ article.image }}" alt="{{ article.title }}"
+                         style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;"
+                         onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"
+                         onerror="this.parentElement.style.display='none'">
+                </div>
+                {% endif %}
+                <div style="padding:16px;flex:1;display:flex;flex-direction:column;gap:8px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <span style="font-size:10px;text-transform:uppercase;letter-spacing:0.6px;color:#2259d6;font-weight:700;background:#dbeafe;padding:2px 8px;border-radius:20px;">
+                            {{ article.source.name ?? 'Source inconnue' }}
+                        </span>
+                        <span style="font-size:11px;color:#9ca3af;">
+                            <i class="fas fa-clock mr-1"></i>
+                            {{ article.publishedAt ? article.publishedAt|date('d/m/Y') : '' }}
+                        </span>
+                    </div>
+                    <div style="font-size:14px;font-weight:700;color:#111827;line-height:1.4;flex:1;">
+                        {{ article.title }}
+                    </div>
+                    {% if article.description %}
+                    <div style="font-size:12px;color:#6b7280;line-height:1.5;">
+                        {{ article.description|length > 120 ? article.description|slice(0,120) ~ '...' : article.description }}
+                    </div>
+                    {% endif %}
+                    <div style="display:flex;align-items:center;gap:4px;font-size:12px;color:#2259d6;font-weight:600;margin-top:4px;">
+                        Lire l'article <i class="fas fa-external-link-alt" style="font-size:10px;"></i>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-newspaper"></i>
+            <p>Aucune actualite disponible pour le moment.<br><small>Verifiez votre connexion ou reessayez dans quelques instants.</small></p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

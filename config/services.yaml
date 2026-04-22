@@ -1,5 +1,6 @@
-
 parameters:
+    # ton paramètre pour les réclamations
+    reclamations_directory: '%kernel.project_dir%/public/uploads/reclamations'
 
 services:
     _defaults:
@@ -22,6 +23,28 @@ services:
         arguments:
             $mailFromAddress: '%env(MAIL_FROM_ADDRESS)%'
             $mailFromName: '%env(MAIL_FROM_NAME)%'
+
+    App\Service\ContractBrevoService:
+        arguments:
+            $brevoApiKey: '%env(BREVO_API_KEY)%'
+            $brevoSenderEmail: '%env(BREVO_FROM)%'
+            $brevoSenderName: '%env(BREVO_FROM_NAME)%'
+
+    App\Service\ChatbotService:
+        arguments:
+            $ollamaUrl: '%env(OLLAMA_URL)%'
+
+    App\Service\NewsService:
+        arguments:
+            $gnewsApiKey: '%env(GNEWS_API_KEY)%'
+
+    App\Service\GrokService:
+        arguments:
+            $groqApiKey: '%env(GROQ_API_KEY)%'
+
+    App\Service\AIService:
+        arguments:
+            $huggingfaceToken: '%env(HUGGINGFACE_TOKEN)%'
 
     App\EventListener\ExceptionListener:
         tags:
