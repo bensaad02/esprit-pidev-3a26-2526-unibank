@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <title>{% block title %}Client - UniBank+{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="admin-body">
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('show');"></div>
+
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="{{ asset('images/unibank-icon.png') }}" alt="UniBank+">
+            <span>UniBank+</span>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">Menu principal</div>
+            <a href="{{ path('app_client_dashboard') }}" class="{% if app.request.get('_route') == 'app_client_dashboard' %}active{% endif %}">
+                <i class="fas fa-th-large"></i> Accueil
+            </a>
+            <a href="{{ path('app_client_compte') }}" class="{% if app.request.get('_route') == 'app_client_compte' %}active{% endif %}">
+                <i class="fas fa-wallet"></i> Mon Compte
+            </a>
+
+            <div class="nav-section">A venir</div>
+            <a href="{{ path('app_client_transactions') }}" class="{% if app.request.get('_route') starts with 'app_client_transaction' or app.request.get('_route') == 'app_client_extrait' %}active{% endif %}">
+                <i class="fas fa-exchange-alt"></i> Transactions
+            </a>
+            <a href="{{ path('app_client_credits') }}" class="{% if app.request.get('_route') starts with 'app_client_credit' %}active{% endif %}">
+                <i class="fas fa-hand-holding-usd"></i> Credits
+            </a>
+        <a href="{{ path('app_client_cartes') }}" 
+   class="{% if app.request.get('_route') starts with 'app_client_cartes' %}active{% endif %}">
+    <i class="fas fa-credit-card"></i> Cartes
+</a>
+           <a href="{{ path('app_client_reclamations') }}" class="enabled">
+    <i class="fas fa-comment-alt"></i> Reclamations
+</a>
+
+            <div class="nav-section">Compte</div>
+            <a href="{{ path('app_client_profile') }}" class="{% if app.request.get('_route') starts with 'app_client_profile' or app.request.get('_route') == 'app_client_password' %}active{% endif %}">
+                <i class="fas fa-user-cog"></i> Mon Profil
+            </a>
+            <a href="{{ path('app_logout') }}" class="text-danger">
+                <i class="fas fa-sign-out-alt"></i> Deconnexion
+            </a>
+        </nav>
+    </aside>
+
+    <header class="admin-topbar">
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn d-lg-none p-0 border-0" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('show');">
+                <i class="fas fa-bars" style="font-size:20px;color:var(--primary-dark);"></i>
+            </button>
+            <span class="page-title">{% block page_title %}Accueil{% endblock %}</span>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-user-info">
+                <div class="text-right d-none d-md-block">
+                    <div class="user-name">{{ app.user.prenom }} {{ app.user.nom }}</div>
+                    <div class="user-role">Client</div>
+                </div>
+                <div class="user-avatar" style="width:40px;height:40px;font-size:16px;">
+                    {{ app.user.prenom|first }}{{ app.user.nom|first }}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {% set flashes = app.flashes %}
+    {% if flashes|length > 0 %}
+    <div id="flash-messages" style="position:fixed;top:20px;right:20px;z-index:99999;max-width:450px;width:100%;">
+        {% for label, messages in flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} alert-dismissible fade show shadow-lg" role="alert" style="border-radius:10px;border:none;border-left:4px solid;margin-bottom:10px;font-size:14px;">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    <script>setTimeout(function(){var e=document.getElementById('flash-messages');if(e){e.style.transition='opacity .5s';e.style.opacity='0';setTimeout(function(){e.remove()},500);}},5000);</script>
+    {% endif %}
+
+    <main class="admin-content">
+        {% block body %}{% endblock %}
+    </main>
+
+    <!-- UniBot Chatbot Widget -->
+    <div id="chatbot-widget" style="position:fixed;bottom:24px;right:24px;z-index:9999;font-family:'Inter',sans-serif;">
+        <!-- Toggle Button -->
+        <button id="chatbot-toggle" onclick="toggleChatbot()"
+            style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2259d6,#4f8ef7);border:none;cursor:pointer;box-shadow:0 4px 20px rgba(34,89,214,0.4);display:flex;align-items:center;justify-content:center;transition:transform 0.2s;"
+            onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            <i class="fas fa-robot" style="color:#fff;font-size:22px;" id="chatbot-toggle-icon"></i>
+        </button>
+        <span id="chatbot-badge" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;display:none;">1</span>
+
+        <!-- Chat Window -->
+        <div id="chatbot-window" style="display:none;position:absolute;bottom:68px;right:0;width:360px;background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.15);overflow:hidden;flex-direction:column;">
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#2259d6,#4f8ef7);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-robot" style="color:#fff;font-size:16px;"></i>
+                    </div>
+                    <div>
+                        <div style="color:#fff;font-weight:600;font-size:14px;">UniBot</div>
+                        <div style="color:rgba(255,255,255,0.8);font-size:11px;" id="chatbot-status-text">Assistant virtuel</div>
+                    </div>
+                </div>
+                <button onclick="toggleChatbot()" style="background:none;border:none;color:rgba(255,255,255,0.8);cursor:pointer;font-size:18px;padding:0;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div id="chatbot-messages" style="height:320px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#f8faff;">
+                <div class="bot-msg" style="display:flex;gap:8px;align-items:flex-start;">
+                    <div style="width:28px;height:28px;background:#2259d6;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fas fa-robot" style="color:#fff;font-size:11px;"></i>
+                    </div>
+                    <div style="background:#fff;padding:10px 14px;border-radius:0 12px 12px 12px;font-size:13px;color:#333;box-shadow:0 1px 4px rgba(0,0,0,0.08);max-width:80%;">
+                        Bonjour ! Je suis <strong>UniBot</strong>, votre assistant bancaire. Comment puis-je vous aider aujourd'hui ?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input -->
+            <div style="padding:10px 14px;background:#fff;border-top:1px solid #eee;">
+                <!-- Voice status bar (hidden by default) -->
+                <div id="voice-bar" style="display:none;align-items:center;gap:10px;background:#fff0f0;border-radius:10px;padding:8px 14px;margin-bottom:8px;">
+                    <div style="display:flex;gap:3px;align-items:center;">
+                        <span class="vbar" style="width:3px;height:12px;background:#ef4444;border-radius:2px;animation:vwave 0.6s infinite alternate;"></span>
+                        <span class="vbar" style="width:3px;height:20px;background:#ef4444;border-radius:2px;animation:vwave 0.6s infinite alternate 0.1s;"></span>
+                        <span class="vbar" style="width:3px;height:14px;background:#ef4444;border-radius:2px;animation:vwave 0.6s infinite alternate 0.2s;"></span>
+                        <span class="vbar" style="width:3px;height:22px;background:#ef4444;border-radius:2px;animation:vwave 0.6s infinite alternate 0.3s;"></span>
+                        <span class="vbar" style="width:3px;height:10px;background:#ef4444;border-radius:2px;animation:vwave 0.6s infinite alternate 0.4s;"></span>
+                    </div>
+                    <span style="font-size:12px;font-weight:600;color:#ef4444;flex:1;">Enregistrement en cours…</span>
+                    <button onclick="stopRecording()" style="background:#ef4444;border:none;color:#fff;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;">Arrêter</button>
+                </div>
+                <!-- Transcribing status -->
+                <div id="transcribe-bar" style="display:none;align-items:center;gap:8px;background:#f0f4ff;border-radius:10px;padding:8px 14px;margin-bottom:8px;">
+                    <div style="width:14px;height:14px;border:2px solid #2259d6;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;"></div>
+                    <span style="font-size:12px;font-weight:600;color:#2259d6;">Transcription en cours…</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <!-- Mic button -->
+                    <button id="chatbot-mic" onclick="toggleRecording()"
+                        title="Parler à UniBot"
+                        style="width:36px;height:36px;border-radius:50%;background:#f1f5f9;border:1.5px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;">
+                        <i class="fas fa-microphone" style="color:#64748b;font-size:13px;"></i>
+                    </button>
+                    <input type="text" id="chatbot-input" placeholder="Votre message…"
+                        style="flex:1;border:1.5px solid #e2e8f0;border-radius:20px;padding:8px 16px;font-size:13px;outline:none;font-family:inherit;"
+                        onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendChatMessage();}"
+                        onfocus="this.style.borderColor='#2259d6'" onblur="this.style.borderColor='#e2e8f0'">
+                    <button onclick="sendChatMessage()" id="chatbot-send"
+                        style="width:36px;height:36px;border-radius:50%;background:#2259d6;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fas fa-paper-plane" style="color:#fff;font-size:13px;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ asset('js/popper.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/password-toggle.js') }}"></script>
+    <script>
+    var chatHistory = [];
+    var chatOpen = false;
+
+    function toggleChatbot() {
+        chatOpen = !chatOpen;
+        var win = document.getElementById('chatbot-window');
+        var icon = document.getElementById('chatbot-toggle-icon');
+        var badge = document.getElementById('chatbot-badge');
+        win.style.display = chatOpen ? 'flex' : 'none';
+        win.style.flexDirection = 'column';
+        icon.className = chatOpen ? 'fas fa-times' : 'fas fa-robot';
+        badge.style.display = 'none';
+        if (chatOpen) {
+            setTimeout(function() { document.getElementById('chatbot-input').focus(); }, 100);
+            scrollChatToBottom();
+        }
+    }
+
+    function scrollChatToBottom() {
+        var msgs = document.getElementById('chatbot-messages');
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function appendMessage(text, isBot) {
+        var msgs = document.getElementById('chatbot-messages');
+        var div = document.createElement('div');
+        div.style.cssText = 'display:flex;gap:8px;align-items:flex-start;' + (isBot ? '' : 'flex-direction:row-reverse;');
+        var avatar = document.createElement('div');
+        avatar.style.cssText = 'width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;';
+        if (isBot) {
+            avatar.style.background = '#2259d6';
+            avatar.innerHTML = '<i class="fas fa-robot" style="color:#fff;font-size:11px;"></i>';
+        } else {
+            avatar.style.background = '#e2e8f0';
+            avatar.innerHTML = '<i class="fas fa-user" style="color:#666;font-size:11px;"></i>';
+        }
+        var bubble = document.createElement('div');
+        bubble.style.cssText = 'padding:10px 14px;border-radius:' + (isBot ? '0 12px 12px 12px' : '12px 0 12px 12px') + ';font-size:13px;box-shadow:0 1px 4px rgba(0,0,0,0.08);max-width:80%;line-height:1.5;white-space:pre-wrap;word-break:break-word;';
+        if (isBot) {
+            bubble.style.background = '#fff';
+            bubble.style.color = '#333';
+        } else {
+            bubble.style.background = '#2259d6';
+            bubble.style.color = '#fff';
+        }
+        bubble.textContent = text;
+        div.appendChild(avatar);
+        div.appendChild(bubble);
+        msgs.appendChild(div);
+        scrollChatToBottom();
+        return bubble;
+    }
+
+    function showTyping() {
+        var msgs = document.getElementById('chatbot-messages');
+        var div = document.createElement('div');
+        div.id = 'chatbot-typing';
+        div.style.cssText = 'display:flex;gap:8px;align-items:flex-start;';
+        div.innerHTML = '<div style="width:28px;height:28px;background:#2259d6;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-robot" style="color:#fff;font-size:11px;"></i></div><div style="background:#fff;padding:10px 14px;border-radius:0 12px 12px 12px;box-shadow:0 1px 4px rgba(0,0,0,0.08);"><span style="display:inline-flex;gap:3px;"><span class="dot" style="width:6px;height:6px;background:#aaa;border-radius:50%;animation:bounce 1s infinite;"></span><span class="dot" style="width:6px;height:6px;background:#aaa;border-radius:50%;animation:bounce 1s infinite 0.2s;"></span><span class="dot" style="width:6px;height:6px;background:#aaa;border-radius:50%;animation:bounce 1s infinite 0.4s;"></span></span></div>';
+        msgs.appendChild(div);
+        scrollChatToBottom();
+    }
+
+    function removeTyping() {
+        var t = document.getElementById('chatbot-typing');
+        if (t) t.remove();
+    }
+
+    function sendChatMessage() {
+        var input = document.getElementById('chatbot-input');
+        var msg = input.value.trim();
+        if (!msg) return;
+        input.value = '';
+        appendMessage(msg, false);
+        chatHistory.push({role: 'user', content: msg});
+        document.getElementById('chatbot-send').disabled = true;
+        showTyping();
+
+        fetch('{{ path('app_chatbot_chat') }}', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: msg, history: chatHistory.slice(-10)})
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            removeTyping();
+            var reply = data.response || 'Desole, une erreur est survenue.';
+            appendMessage(reply, true);
+            chatHistory.push({role: 'assistant', content: reply});
+            document.getElementById('chatbot-send').disabled = false;
+        })
+        .catch(function() {
+            removeTyping();
+            appendMessage('Service temporairement indisponible. Veuillez reessayer.', true);
+            document.getElementById('chatbot-send').disabled = false;
+        });
+    }
+    </script>
+    <style>
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-4px)} }
+    @keyframes vwave  { from{transform:scaleY(0.4)} to{transform:scaleY(1)} }
+    @keyframes spin   { to{transform:rotate(360deg)} }
+    #chatbot-mic.recording {
+        background: #fef2f2 !important;
+        border-color: #ef4444 !important;
+        animation: micPulse 1.2s ease-in-out infinite;
+    }
+    #chatbot-mic.recording i { color: #ef4444 !important; }
+    @keyframes micPulse {
+        0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+        50%      { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+    }
+    </style>
+
+    <script>
+    /* ── Voice recording ── */
+    var mediaRecorder = null;
+    var audioChunks   = [];
+    var isRecording   = false;
+
+    function toggleRecording() {
+        if (isRecording) { stopRecording(); } else { startRecording(); }
+    }
+
+    function startRecording() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert('Votre navigateur ne supporte pas la capture audio.');
+            return;
+        }
+        navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+            audioChunks = [];
+            // Pick best supported format
+            var mimeType = 'audio/webm';
+            if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+                mimeType = 'audio/webm;codecs=opus';
+            } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
+                mimeType = 'audio/ogg;codecs=opus';
+            } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                mimeType = 'audio/mp4';
+            }
+            mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+            mediaRecorder.ondataavailable = function(e) {
+                if (e.data.size > 0) audioChunks.push(e.data);
+            };
+            mediaRecorder.onstop = function() {
+                stream.getTracks().forEach(function(t){ t.stop(); });
+                var blob = new Blob(audioChunks, { type: mimeType });
+                sendAudioForTranscription(blob, mimeType);
+            };
+            mediaRecorder.start();
+            isRecording = true;
+            document.getElementById('chatbot-mic').classList.add('recording');
+            document.getElementById('voice-bar').style.display = 'flex';
+        })
+        .catch(function(err) {
+            alert('Impossible d\'accéder au microphone : ' + err.message);
+        });
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && isRecording) {
+            mediaRecorder.stop();
+            isRecording = false;
+            document.getElementById('chatbot-mic').classList.remove('recording');
+            document.getElementById('voice-bar').style.display = 'none';
+            document.getElementById('transcribe-bar').style.display = 'flex';
+        }
+    }
+
+    function sendAudioForTranscription(blob, mimeType) {
+        // Derive file extension from mimeType for server-side validation
+        var ext = 'webm';
+        if (mimeType && mimeType.indexOf('ogg') !== -1) ext = 'ogg';
+        else if (mimeType && mimeType.indexOf('mp4') !== -1) ext = 'mp4';
+        var form = new FormData();
+        form.append('audio', blob, 'audio.' + ext);
+
+        fetch('{{ path('app_chatbot_transcribe') }}', {
+            method: 'POST',
+            body: form
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            document.getElementById('transcribe-bar').style.display = 'none';
+            if (data.text && data.text.trim()) {
+                var input = document.getElementById('chatbot-input');
+                input.value = data.text.trim();
+                input.focus();
+                sendChatMessage();
+            } else {
+                appendMessage('Aucune voix détectée. Veuillez réessayer.', true);
+            }
+        })
+        .catch(function() {
+            document.getElementById('transcribe-bar').style.display = 'none';
+            appendMessage('Erreur lors de la transcription. Veuillez réessayer.', true);
+        });
+    }
+    </script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

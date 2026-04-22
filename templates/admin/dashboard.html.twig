@@ -1,0 +1,395 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Tableau de bord - Admin UniBank+{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ── KPI cards ── */
+.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
+.kpi { background:#fff; border-radius:14px; padding:18px 20px; display:flex; align-items:center; gap:14px; border:1px solid #f0f2f5; box-shadow:0 1px 6px rgba(0,0,0,0.05); transition:box-shadow .2s,transform .15s; }
+.kpi:hover { box-shadow:0 4px 18px rgba(0,0,0,0.09); transform:translateY(-1px); }
+.kpi-ico { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.kpi-ico.bl{background:#dbeafe;color:#2259d6} .kpi-ico.gr{background:#dcfce7;color:#16a34a}
+.kpi-ico.or{background:#ffedd5;color:#ea580c} .kpi-ico.re{background:#fee2e2;color:#dc2626}
+.kpi-ico.pu{background:#ede9fe;color:#7c3aed} .kpi-ico.te{background:#ccfbf1;color:#0d9488}
+.kpi-ico.pk{background:#fce7f3;color:#db2777} .kpi-ico.ye{background:#fef9c3;color:#ca8a04}
+.kpi-lbl { font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase; letter-spacing:.5px; }
+.kpi-val { font-size:28px; font-weight:800; color:#111827; line-height:1.1; }
+.kpi-sub { font-size:11px; color:#9ca3af; margin-top:2px; }
+.pill { display:inline-flex; align-items:center; gap:3px; font-size:10px; font-weight:700; padding:2px 7px; border-radius:20px; }
+.pill.g{background:#dcfce7;color:#15803d} .pill.r{background:#fee2e2;color:#dc2626} .pill.n{background:#f3f4f6;color:#6b7280} .pill.o{background:#ffedd5;color:#ea580c}
+/* ── Charts grid ── */
+.charts-grid { display:grid; grid-template-columns:2fr 1fr; gap:18px; margin-bottom:18px; }
+.charts-grid2 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-bottom:18px; }
+.chart-card { background:#fff; border-radius:14px; border:1px solid #f0f2f5; box-shadow:0 1px 6px rgba(0,0,0,0.05); overflow:hidden; }
+.chart-header { padding:16px 20px 0; display:flex; align-items:center; justify-content:space-between; }
+.chart-title { font-size:13px; font-weight:700; color:#111827; }
+.chart-sub { font-size:11px; color:#9ca3af; }
+.chart-body { padding:12px 16px 16px; position:relative; }
+/* ── Bottom row ── */
+.bottom-grid { display:grid; grid-template-columns:1fr 340px; gap:18px; }
+@media(max-width:1300px){ .kpi-row{grid-template-columns:repeat(2,1fr)} .charts-grid{grid-template-columns:1fr} .charts-grid2{grid-template-columns:1fr 1fr} .bottom-grid{grid-template-columns:1fr} }
+@media(max-width:700px){ .kpi-row{grid-template-columns:1fr} .charts-grid2{grid-template-columns:1fr} }
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ── ROW 1: 4 KPIs ── #}
+<div class="kpi-row">
+    <div class="kpi">
+        <div class="kpi-ico bl"><i class="fas fa-users"></i></div>
+        <div>
+            <div class="kpi-lbl">Total Clients</div>
+            <div class="kpi-val">{{ totalClients }}</div>
+            <div class="kpi-sub"><span class="pill g">{{ approvedClients }} actifs</span> <span class="pill r">{{ bannedClients }} bannis</span></div>
+        </div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-ico gr"><i class="fas fa-wallet"></i></div>
+        <div>
+            <div class="kpi-lbl">Solde Total</div>
+            <div class="kpi-val" style="font-size:22px;">{{ totalSolde|number_format(0,'','') }} <small style="font-size:13px;color:#9ca3af;">TND</small></div>
+            <div class="kpi-sub">{{ activeAccounts }} comptes actifs sur {{ totalAccounts }}</div>
+        </div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-ico or"><i class="fas fa-exchange-alt"></i></div>
+        <div>
+            <div class="kpi-lbl">Transactions</div>
+            <div class="kpi-val">{{ totalTransactions }}</div>
+            <div class="kpi-sub"><span class="pill n">{{ totalVirements }} vir.</span> <span class="pill n">{{ totalDepots }} dep.</span> <span class="pill n">{{ totalRetraits }} ret.</span></div>
+        </div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-ico pu"><i class="fas fa-hand-holding-usd"></i></div>
+        <div>
+            <div class="kpi-lbl">Credits</div>
+            <div class="kpi-val">{{ totalCredits }}</div>
+            <div class="kpi-sub"><span class="pill g">{{ activeCredits }} actifs</span> <span class="pill o">{{ pendingCredits }} en attente</span></div>
+        </div>
+    </div>
+</div>
+
+{# ── ROW 2: 4 more KPIs ── #}
+<div class="kpi-row" style="margin-bottom:22px;">
+    <div class="kpi">
+        <div class="kpi-ico te"><i class="fas fa-coins"></i></div>
+        <div>
+            <div class="kpi-lbl">Volume Credits</div>
+            <div class="kpi-val" style="font-size:22px;">{{ creditVolume|number_format(0,'','') }} <small style="font-size:13px;color:#9ca3af;">TND</small></div>
+            <div class="kpi-sub">Credits approuves + actifs</div>
+        </div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-ico ye"><i class="fas fa-percentage"></i></div>
+        <div>
+            <div class="kpi-lbl">Taux Approbation</div>
+            <div class="kpi-val">{{ approvalRate }}<small style="font-size:15px;">%</small></div>
+            <div class="kpi-sub">{{ approvedClients }} / {{ totalClients }} clients approuves</div>
+        </div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-ico re"><i class="fas fa-comment-alt"></i></div>
+        <div>
+            <div class="kpi-lbl">Reclamations</div>
+            <div class="kpi-val">{{ totalRecla }}</div>
+            <div class="kpi-sub"><span class="pill {{ pendingRecla > 0 ? 'r' : 'g' }}">{{ pendingRecla }} en attente</span> <span class="pill g">{{ traitéRecla }} traites</span></div>
+        </div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-ico pk"><i class="fas fa-clock"></i></div>
+        <div>
+            <div class="kpi-lbl">Demandes Pending</div>
+            <div class="kpi-val">{{ pendingClients }}</div>
+            <div class="kpi-sub">Inscriptions a approuver</div>
+        </div>
+    </div>
+</div>
+
+{# ── CHARTS ROW 1: Line + Donut ── #}
+<div class="charts-grid">
+    {# Transactions 7 derniers jours #}
+    <div class="chart-card">
+        <div class="chart-header">
+            <div>
+                <div class="chart-title"><i class="fas fa-chart-line mr-2" style="color:#2259d6;"></i>Transactions — 7 derniers jours</div>
+                <div class="chart-sub">Nombre de transactions par jour</div>
+            </div>
+        </div>
+        <div class="chart-body" style="height:230px;">
+            <canvas id="txLineChart"></canvas>
+        </div>
+    </div>
+
+    {# Client registrations donut #}
+    <div class="chart-card">
+        <div class="chart-header">
+            <div>
+                <div class="chart-title"><i class="fas fa-chart-pie mr-2" style="color:#7c3aed;"></i>Statut Clients</div>
+                <div class="chart-sub">Repartition des statuts</div>
+            </div>
+        </div>
+        <div class="chart-body" style="height:230px;display:flex;align-items:center;justify-content:center;">
+            <canvas id="clientStatusDonut"></canvas>
+        </div>
+    </div>
+</div>
+
+{# ── CHARTS ROW 2: Bar + Donut + Bar ── #}
+<div class="charts-grid2">
+    {# Inscriptions 6 mois #}
+    <div class="chart-card">
+        <div class="chart-header">
+            <div>
+                <div class="chart-title"><i class="fas fa-chart-bar mr-2" style="color:#16a34a;"></i>Inscriptions (6 mois)</div>
+                <div class="chart-sub">Nouveaux clients par mois</div>
+            </div>
+        </div>
+        <div class="chart-body" style="height:200px;">
+            <canvas id="clientBarChart"></canvas>
+        </div>
+    </div>
+
+    {# Reclamations sentiment donut #}
+    <div class="chart-card">
+        <div class="chart-header">
+            <div>
+                <div class="chart-title"><i class="fas fa-smile mr-2" style="color:#f59e0b;"></i>Sentiment Reclamations</div>
+                <div class="chart-sub">Analyse IA des reclamations</div>
+            </div>
+        </div>
+        <div class="chart-body" style="height:200px;display:flex;align-items:center;justify-content:center;">
+            <canvas id="sentimentDonut"></canvas>
+        </div>
+    </div>
+
+    {# Credits par statut bar #}
+    <div class="chart-card">
+        <div class="chart-header">
+            <div>
+                <div class="chart-title"><i class="fas fa-chart-bar mr-2" style="color:#ea580c;"></i>Credits par Statut</div>
+                <div class="chart-sub">Distribution des demandes</div>
+            </div>
+        </div>
+        <div class="chart-body" style="height:200px;">
+            <canvas id="creditBarChart"></canvas>
+        </div>
+    </div>
+</div>
+
+{# ── BOTTOM: Pending table + Side panel ── #}
+<div class="bottom-grid">
+    <div class="chart-card">
+        <div class="chart-header" style="padding:16px 20px;">
+            <div class="chart-title"><i class="fas fa-clock mr-2" style="color:#f59e0b;"></i>Demandes en attente d'approbation</div>
+            <a href="{{ path('app_admin_pending') }}" class="btn-admin primary" style="font-size:12px;padding:6px 14px;">Voir tout</a>
+        </div>
+        <div style="padding:0 16px 16px;">
+            {% if recentPending|length > 0 %}
+            <table class="admin-table">
+                <thead><tr><th>Client</th><th>CIN</th><th>Offre</th><th>Date</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for client in recentPending|slice(0,5) %}
+                    <tr>
+                        <td><div class="user-cell"><div class="user-avatar">{{ client.prenom|first }}{{ client.nom|first }}</div><div class="user-details"><div class="user-name">{{ client.prenom }} {{ client.nom }}</div><div class="user-email">{{ client.email }}</div></div></div></td>
+                        <td>{{ client.cin }}</td>
+                        <td>{{ client.selectedOffer ?? '-' }}</td>
+                        <td>{{ client.dateCreation|date('d/m/Y') }}</td>
+                        <td>
+                            <button type="button" class="btn-action approve" title="Approuver" onclick="confirmSubmit('{{ path('app_admin_user_approve', {id: client.idUtilisateur}) }}', {type:'approve', title:'Approuver le client', message:'Approuver {{ client.prenom|e('js') }} {{ client.nom|e('js') }} ?', btnText:'Approuver'})"><i class="fas fa-check"></i></button>
+                            <button type="button" class="btn-action reject" title="Rejeter" onclick="confirmSubmit('{{ path('app_admin_user_reject', {id: client.idUtilisateur}) }}', {type:'reject', title:'Rejeter la demande', message:'Rejeter {{ client.prenom|e('js') }} {{ client.nom|e('js') }} ?', btnText:'Rejeter'})"><i class="fas fa-times"></i></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state"><i class="fas fa-inbox"></i><p>Aucune demande en attente</p></div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;">
+        {# AI Report #}
+        <div class="chart-card">
+            <div class="chart-header" style="padding:14px 16px 0;">
+                <div class="chart-title"><i class="fas fa-brain mr-2" style="color:#8b5cf6;"></i>Rapport IA</div>
+                <span style="font-size:10px;color:#9ca3af;">Groq LLaMA 3.3</span>
+            </div>
+            <div style="padding:12px 16px 16px;">
+                <p style="font-size:12px;color:#6b7280;margin-bottom:12px;line-height:1.5;">Analyse intelligente des KPIs actuels de la plateforme.</p>
+                <button onclick="generateReport()" id="report-btn" class="btn-admin primary" style="width:100%;justify-content:center;font-size:12px;"><i class="fas fa-magic mr-2"></i>Generer le rapport</button>
+                <div id="report-loading" style="display:none;text-align:center;padding:12px 0;"><div class="spinner-border text-primary" style="width:20px;height:20px;border-width:2px;" role="status"></div><p style="font-size:11px;color:#9ca3af;margin-top:6px;">Analyse en cours...</p></div>
+                <div id="report-result" style="display:none;margin-top:10px;background:#f8faff;border-radius:8px;padding:10px;font-size:11px;color:#374151;line-height:1.6;max-height:180px;overflow-y:auto;white-space:pre-wrap;border:1px solid #e2e8f0;"></div>
+            </div>
+        </div>
+
+        {# News redirect #}
+        <a href="{{ path('app_admin_news') }}"
+           style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;background:linear-gradient(135deg,#1e3a8a,#2259d6);border-radius:14px;text-decoration:none;color:#fff;box-shadow:0 4px 14px rgba(34,89,214,0.25);transition:box-shadow .2s,transform .15s;"
+           onmouseover="this.style.boxShadow='0 6px 22px rgba(34,89,214,0.4)';this.style.transform='translateY(-1px)'"
+           onmouseout="this.style.boxShadow='0 4px 14px rgba(34,89,214,0.25)';this.style.transform='translateY(0)'">
+            <div>
+                <div style="font-weight:700;font-size:13px;"><i class="fas fa-newspaper mr-2"></i>Actualites Financieres</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;">Marches · Fintech · Economie</div>
+            </div>
+            <i class="fas fa-arrow-right"></i>
+        </a>
+
+        {# Quick links #}
+        <div class="chart-card">
+            <div class="chart-header" style="padding:14px 16px 8px;"><div class="chart-title"><i class="fas fa-bolt mr-2" style="color:#f59e0b;"></i>Acces rapides</div></div>
+            <div style="padding:8px 12px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <a href="{{ path('app_admin_users') }}" style="display:flex;align-items:center;gap:6px;padding:9px 10px;background:#f0f4ff;border-radius:8px;text-decoration:none;color:#2259d6;font-size:11px;font-weight:600;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#f0f4ff'"><i class="fas fa-users"></i>Clients</a>
+                <a href="{{ path('app_admin_credits') }}" style="display:flex;align-items:center;gap:6px;padding:9px 10px;background:#f0fdf4;border-radius:8px;text-decoration:none;color:#16a34a;font-size:11px;font-weight:600;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'"><i class="fas fa-hand-holding-usd"></i>Credits</a>
+                <a href="{{ path('app_admin_transactions') }}" style="display:flex;align-items:center;gap:6px;padding:9px 10px;background:#fff7ed;border-radius:8px;text-decoration:none;color:#ea580c;font-size:11px;font-weight:600;" onmouseover="this.style.background='#ffedd5'" onmouseout="this.style.background='#fff7ed'"><i class="fas fa-exchange-alt"></i>Transactions</a>
+                <a href="{{ path('app_admin_reclamations') }}" style="display:flex;align-items:center;gap:6px;padding:9px 10px;background:#fdf2f8;border-radius:8px;text-decoration:none;color:#db2777;font-size:11px;font-weight:600;" onmouseover="this.style.background='#fce7f3'" onmouseout="this.style.background='#fdf2f8'"><i class="fas fa-comment-alt"></i>Reclamations</a>
+                <a href="{{ path('app_admin_comptes') }}" style="display:flex;align-items:center;gap:6px;padding:9px 10px;background:#f0fdfa;border-radius:8px;text-decoration:none;color:#0d9488;font-size:11px;font-weight:600;" onmouseover="this.style.background='#ccfbf1'" onmouseout="this.style.background='#f0fdfa'"><i class="fas fa-wallet"></i>Comptes</a>
+                <a href="{{ path('app_admin_contrats') }}" style="display:flex;align-items:center;gap:6px;padding:9px 10px;background:#fffbeb;border-radius:8px;text-decoration:none;color:#ca8a04;font-size:11px;font-weight:600;" onmouseover="this.style.background='#fef9c3'" onmouseout="this.style.background='#fffbeb'"><i class="fas fa-file-contract"></i>Contrats</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script>
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.color = '#6b7280';
+
+/* ── 1. Transactions line chart ── */
+var txData = {{ txLast7Days|json_encode|raw }};
+new Chart(document.getElementById('txLineChart'), {
+    type: 'line',
+    data: {
+        labels: txData.map(d => d.label),
+        datasets: [{
+            label: 'Transactions',
+            data: txData.map(d => d.count),
+            borderColor: '#2259d6',
+            backgroundColor: 'rgba(34,89,214,0.08)',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#2259d6',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+        scales: {
+            x: { grid: { display: false }, border: { display: false } },
+            y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 }, grid: { color: '#f3f4f6' }, border: { display: false } }
+        }
+    }
+});
+
+/* ── 2. Client status donut ── */
+new Chart(document.getElementById('clientStatusDonut'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Approuves', 'En attente', 'Rejetes', 'Bannis'],
+        datasets: [{
+            data: [{{ approvedClients }}, {{ pendingClients }}, {{ rejectedClients }}, {{ bannedClients }}],
+            backgroundColor: ['#22c55e','#f59e0b','#ef4444','#6b7280'],
+            borderWidth: 2, borderColor: '#fff', hoverOffset: 6
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { size: 11 } } },
+            tooltip: { callbacks: { label: function(c) { return ' ' + c.label + ': ' + c.raw; } } }
+        }
+    }
+});
+
+/* ── 3. Client monthly bar ── */
+var mData = {{ clientMonthly|json_encode|raw }};
+new Chart(document.getElementById('clientBarChart'), {
+    type: 'bar',
+    data: {
+        labels: mData.map(d => d.label),
+        datasets: [{
+            label: 'Inscriptions',
+            data: mData.map(d => d.count),
+            backgroundColor: 'rgba(34,89,214,0.75)',
+            borderRadius: 6, borderSkipped: false
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { display: false }, border: { display: false } },
+            y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#f3f4f6' }, border: { display: false } }
+        }
+    }
+});
+
+/* ── 4. Sentiment donut ── */
+new Chart(document.getElementById('sentimentDonut'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Positif', 'Negatif', 'Neutre'],
+        datasets: [{
+            data: [{{ sentimentPos }}, {{ sentimentNeg }}, {{ sentimentNeu }}],
+            backgroundColor: ['#22c55e','#ef4444','#94a3b8'],
+            borderWidth: 2, borderColor: '#fff', hoverOffset: 6
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11 } } }
+        }
+    }
+});
+
+/* ── 5. Credits bar ── */
+new Chart(document.getElementById('creditBarChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Actifs', 'En attente', 'Rejetes', 'Autres'],
+        datasets: [{
+            data: [{{ activeCredits }}, {{ pendingCredits }}, {{ rejectedCredits }}, {{ totalCredits - activeCredits - pendingCredits - rejectedCredits }}],
+            backgroundColor: ['#22c55e','#f59e0b','#ef4444','#94a3b8'],
+            borderRadius: 6, borderSkipped: false
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { display: false }, border: { display: false } },
+            y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#f3f4f6' }, border: { display: false } }
+        }
+    }
+});
+
+/* ── Report ── */
+function generateReport() {
+    document.getElementById('report-btn').style.display = 'none';
+    document.getElementById('report-loading').style.display = 'block';
+    document.getElementById('report-result').style.display = 'none';
+    fetch('{{ path('app_admin_report') }}', { method:'POST', headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/json'}, body:'{}' })
+    .then(r => r.json()).then(data => {
+        document.getElementById('report-loading').style.display = 'none';
+        document.getElementById('report-btn').style.display = 'flex';
+        var el = document.getElementById('report-result');
+        el.textContent = data.report || 'Rapport indisponible.';
+        el.style.display = 'block';
+    }).catch(() => {
+        document.getElementById('report-loading').style.display = 'none';
+        document.getElementById('report-btn').style.display = 'flex';
+        document.getElementById('report-result').textContent = 'Erreur de generation.';
+        document.getElementById('report-result').style.display = 'block';
+    });
+}
+</script>
+{% endblock %}

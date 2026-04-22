@@ -1,0 +1,82 @@
+{% extends 'client/base.html.twig' %}
+
+{% block page_title %}Demande Carte{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+
+    <!-- HEADER -->
+    <h4 class="mb-1">Demande Carte 💳</h4>
+    <p class="text-muted">Remplissez les informations pour demander une carte</p>
+
+    <div class="card shadow-sm border-0 mt-3">
+        <div class="card-body">
+{{ form_start(form, {
+    'attr': {
+        'id': 'carteForm',
+        'novalidate': 'novalidate'
+    }
+}) }}
+            <div class="row">
+
+                <!-- TYPE CARTE -->
+                <div class="col-md-6 mb-3">
+                    <label>Type de carte</label>
+                  {{ form_widget(form.typeCarte, {
+    'attr': {
+        'class': 'form-control',
+        'id': 'typeCarte',
+        'name': 'typeCarte'
+    }
+}) }}
+                    <small class="text-danger d-none" id="typeError">
+                        Choisissez un type de carte
+                    </small>
+                </div>
+
+                <!-- ADRESSE -->
+                <div class="col-md-6 mb-3">
+                    <label>Adresse de livraison</label>
+                    {{ form_widget(form.adresse, {
+                        'attr': {
+                            'class': 'form-control',
+                            'id': 'adresse'
+                        }
+                    }) }}
+                    <small class="text-danger d-none" id="adresseError">
+                        Adresse invalide (min 5 caractères)
+                    </small>
+                </div>
+
+                <!-- MONTANT -->
+                <div class="col-md-6 mb-3">
+                    <label>Montant initial (DT)</label>
+                    {{ form_widget(form.solde, {
+                        'attr': {
+                            'class': 'form-control',
+                            'id': 'montant'
+                        }
+                    }) }}
+                    <small class="text-danger d-none" id="montantError">
+                        Montant minimum 50 DT
+                    </small>
+                </div>
+
+            </div>
+
+            <!-- BUTTON -->
+            <button type="submit" class="btn btn-primary mt-3">  {# 🔥 FIX 2 #}
+                <i class="fas fa-paper-plane"></i> Envoyer demande
+            </button>
+
+            {{ form_end(form) }}
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/carte.js') }}"></script>
+{% endblock %}

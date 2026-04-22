@@ -1,0 +1,911 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}UniBank+ - Votre banque de confiance{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    .branch-map-modal .modal-content {
+      border: none;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 30px 70px rgba(15, 23, 42, 0.24);
+    }
+
+    .branch-map-head {
+      background: linear-gradient(135deg, #17398a, #2259d6 58%, #4f86ff);
+      color: #fff;
+      padding: 18px 22px;
+    }
+
+    .branch-map-head h4 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .branch-map-head p {
+      margin: 6px 0 0;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 0.92rem;
+    }
+
+    .branch-map-body {
+      padding: 18px;
+      background: linear-gradient(180deg, #f7faff 0%, #eef4ff 100%);
+    }
+
+    #unibank-leaflet-map {
+      height: 330px;
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid #d7e3fb;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .branch-mini-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .branch-mini-card {
+      background: #fff;
+      border: 1px solid #dde7fb;
+      border-radius: 16px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+
+    .branch-mini-card:hover,
+    .branch-mini-card.is-active {
+      transform: translateY(-1px);
+      border-color: #98b8ff;
+      box-shadow: 0 10px 24px rgba(34, 89, 214, 0.12);
+    }
+
+    .branch-mini-card strong {
+      display: block;
+      color: #16306b;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .branch-mini-card span {
+      display: block;
+      color: #61718f;
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+
+    .leaflet-popup-content-wrapper {
+      border-radius: 14px;
+    }
+
+    .unibank-popup h6 {
+      margin: 0 0 5px;
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #16306b;
+    }
+
+    .unibank-popup p {
+      margin: 0;
+      color: #5f6f8e;
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 767.98px) {
+      .branch-mini-list {
+        grid-template-columns: 1fr;
+      }
+
+      #unibank-leaflet-map {
+        height: 280px;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+
+    <div class="site-blocks-cover overlay" style="background-image: url({{ asset('images/hero_2.jpg') }});" data-aos="fade" id="home-section">
+      <div class="container">
+        <div class="row align-items-center justify-content-center">
+          <div class="col-md-10 mt-lg-5 text-center">
+            <div class="single-text owl-carousel">
+              <div class="slide">
+                <h1 class="text-uppercase" data-aos="fade-up">Solutions Bancaires</h1>
+                <p class="mb-5 desc" data-aos="fade-up" data-aos-delay="100">Decouvrez nos solutions bancaires innovantes pour gerer vos finances en toute simplicite et securite.</p>
+                <div data-aos="fade-up" data-aos-delay="100">
+                  <a href="{{ path('app_register') }}" class="btn btn-primary mr-2 mb-2">Ouvrir un compte</a>
+                  <a href="#contact-section" class="btn btn-outline-light mr-2 mb-2">Nous contacter</a>
+                  <a href="#branchMapModal" data-toggle="modal" data-target="#branchMapModal" class="btn btn-outline-light mr-2 mb-2">
+                    <i class="fas fa-location-dot mr-2"></i> Trouver UniBank+
+                  </a>
+                </div>
+              </div>
+              <div class="slide">
+                <h1 class="text-uppercase" data-aos="fade-up">Credits et Financements</h1>
+                <p class="mb-5 desc" data-aos="fade-up" data-aos-delay="100">Des solutions de financement adaptees a vos projets personnels et professionnels avec des taux competitifs.</p>
+                <div data-aos="fade-up" data-aos-delay="100">
+                  <a href="{{ path('app_register') }}" class="btn btn-primary mr-2 mb-2">En savoir plus</a>
+                </div>
+              </div>
+              <div class="slide">
+                <h1 class="text-uppercase" data-aos="fade-up">Comptes Epargne</h1>
+                <p class="mb-5 desc" data-aos="fade-up" data-aos-delay="100">Faites fructifier votre epargne avec nos comptes a taux avantageux et nos plans d'investissement.</p>
+                <div data-aos="fade-up" data-aos-delay="100">
+                  <a href="{{ path('app_register') }}" class="btn btn-primary mr-2 mb-2">Commencer</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a href="#next" class="mouse smoothscroll">
+        <span class="mouse-icon">
+          <span class="mouse-wheel"></span>
+        </span>
+      </a>
+    </div>
+
+    <div class="site-section cta-big-image" id="about-section">
+      <div class="container">
+        <div class="row mb-5 justify-content-center">
+          <div class="col-md-8 text-center">
+            <h2 class="section-title mb-3" data-aos="fade-up">A propos de nous</h2>
+            <p class="lead" data-aos="fade-up" data-aos-delay="100">UniBank+ est une banque moderne qui place la satisfaction client au coeur de ses priorites.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6 mb-5" data-aos="fade-up">
+            <figure class="circle-bg">
+              <img src="{{ asset('images/img_2.jpg') }}" alt="UniBank+" class="img-fluid">
+            </figure>
+          </div>
+          <div class="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="100">
+            <h3 class="text-black mb-4">Nous resolvons vos problemes financiers</h3>
+            <p>Avec UniBank+, beneficiez d'un accompagnement personnalise pour tous vos besoins bancaires. Notre equipe d'experts est a votre disposition pour vous guider dans vos decisions financieres.</p>
+            <p>Que ce soit pour un compte courant, un credit immobilier ou une carte bancaire, nous avons la solution qu'il vous faut.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="site-section" id="next">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-md-4 text-center" data-aos="fade-up">
+            <img src="{{ asset('images/flaticon-svg/svg/001-wallet.svg') }}" alt="Epargne" class="img-fluid w-25 mb-4">
+            <h3 class="card-title">Epargne securisee</h3>
+            <p>Faites fructifier votre argent avec nos comptes epargne a taux competitifs.</p>
+          </div>
+          <div class="col-md-4 text-center" data-aos="fade-up" data-aos-delay="100">
+            <img src="{{ asset('images/flaticon-svg/svg/004-cart.svg') }}" alt="Paiements" class="img-fluid w-25 mb-4">
+            <h3 class="card-title">Paiements en ligne</h3>
+            <p>Effectuez vos achats en ligne en toute securite avec nos cartes bancaires.</p>
+          </div>
+          <div class="col-md-4 text-center" data-aos="fade-up" data-aos-delay="200">
+            <img src="{{ asset('images/flaticon-svg/svg/006-credit-card.svg') }}" alt="Cartes" class="img-fluid w-25 mb-4">
+            <h3 class="card-title">Cartes bancaires</h3>
+            <p>Choisissez parmi notre gamme de cartes adaptees a vos besoins.</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-6 mb-5" data-aos="fade-up">
+            <figure class="circle-bg">
+              <img src="{{ asset('images/about_2.jpg') }}" alt="UniBank+" class="img-fluid">
+            </figure>
+          </div>
+          <div class="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="100">
+            <div class="mb-4">
+              <h3 class="h3 mb-4 text-black">Les solutions bancaires sont notre priorite</h3>
+              <p>Nous nous engageons a fournir des services bancaires de qualite superieure.</p>
+            </div>
+            <div class="mb-4">
+              <ul class="list-unstyled ul-check success">
+                <li>Gestion de compte en ligne 24h/24</li>
+                <li>Service client disponible et reactif</li>
+                <li>Taux d'interet competitifs</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="site-section border-bottom" id="team-section">
+      <div class="container">
+        <div class="row mb-5 justify-content-center">
+          <div class="col-md-8 text-center">
+            <h2 class="section-title mb-3" data-aos="fade-up">Notre Equipe</h2>
+            <p class="lead" data-aos="fade-up" data-aos-delay="100">Une equipe de professionnels devoues a votre service.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up">
+            <div class="team-member">
+              <figure>
+                <ul class="social">
+                  <li><a href="#"><span class="icon-facebook"></span></a></li>
+                  <li><a href="#"><span class="icon-twitter"></span></a></li>
+                  <li><a href="#"><span class="icon-linkedin"></span></a></li>
+                </ul>
+                <img src="{{ asset('images/person_1.jpg') }}" alt="Image" class="img-fluid">
+              </figure>
+              <div class="p-3">
+                <h3>Kaiara Spencer</h3>
+                <span class="position">Comptable</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="team-member">
+              <figure>
+                <ul class="social">
+                  <li><a href="#"><span class="icon-facebook"></span></a></li>
+                  <li><a href="#"><span class="icon-twitter"></span></a></li>
+                  <li><a href="#"><span class="icon-linkedin"></span></a></li>
+                </ul>
+                <img src="{{ asset('images/person_2.jpg') }}" alt="Image" class="img-fluid">
+              </figure>
+              <div class="p-3">
+                <h3>Dave Simpson</h3>
+                <span class="position">Agent bancaire</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="team-member">
+              <figure>
+                <ul class="social">
+                  <li><a href="#"><span class="icon-facebook"></span></a></li>
+                  <li><a href="#"><span class="icon-twitter"></span></a></li>
+                  <li><a href="#"><span class="icon-linkedin"></span></a></li>
+                </ul>
+                <img src="{{ asset('images/person_3.jpg') }}" alt="Image" class="img-fluid">
+              </figure>
+              <div class="p-3">
+                <h3>Ben Thompson</h3>
+                <span class="position">Agent bancaire</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-section" id="gallery-section" data-aos="fade">
+      <div class="container">
+        <div class="row mb-3">
+          <div class="col-12 text-center">
+            <h2 class="section-title mb-3">Galerie</h2>
+          </div>
+        </div>
+        <div id="posts" class="row no-gutter">
+          <div class="item web col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-4">
+            <a href="{{ asset('images/img_1.jpg') }}" class="item-wrap fancybox" data-fancybox="gallery2">
+              <span class="icon-search2"></span>
+              <img class="img-fluid" src="{{ asset('images/img_1.jpg') }}">
+            </a>
+          </div>
+          <div class="item web col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-4">
+            <a href="{{ asset('images/img_2.jpg') }}" class="item-wrap fancybox" data-fancybox="gallery2">
+              <span class="icon-search2"></span>
+              <img class="img-fluid" src="{{ asset('images/img_2.jpg') }}">
+            </a>
+          </div>
+          <div class="item brand col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-4">
+            <a href="{{ asset('images/img_3.jpg') }}" class="item-wrap fancybox" data-fancybox="gallery2">
+              <span class="icon-search2"></span>
+              <img class="img-fluid" src="{{ asset('images/img_3.jpg') }}">
+            </a>
+          </div>
+          <div class="item design col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-4">
+            <a href="{{ asset('images/img_4.jpg') }}" class="item-wrap fancybox" data-fancybox="gallery2">
+              <span class="icon-search2"></span>
+              <img class="img-fluid" src="{{ asset('images/img_4.jpg') }}">
+            </a>
+          </div>
+          <div class="item web col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-4">
+            <a href="{{ asset('images/img_5.jpg') }}" class="item-wrap fancybox" data-fancybox="gallery2">
+              <span class="icon-search2"></span>
+              <img class="img-fluid" src="{{ asset('images/img_5.jpg') }}">
+            </a>
+          </div>
+          <div class="item brand col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-4">
+            <a href="{{ asset('images/img_1.jpg') }}" class="item-wrap fancybox" data-fancybox="gallery2">
+              <span class="icon-search2"></span>
+              <img class="img-fluid" src="{{ asset('images/img_1.jpg') }}">
+            </a>
+          </div>
+          <div class="item web col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-4">
+            <a href="{{ asset('images/img_2.jpg') }}" class="item-wrap fancybox" data-fancybox="gallery2">
+              <span class="icon-search2"></span>
+              <img class="img-fluid" src="{{ asset('images/img_2.jpg') }}">
+            </a>
+          </div>
+          <div class="item design col-sm-6 col-md-4 col-lg-4 col-xl-3 mb-4">
+            <a href="{{ asset('images/img_3.jpg') }}" class="item-wrap fancybox" data-fancybox="gallery2">
+              <span class="icon-search2"></span>
+              <img class="img-fluid" src="{{ asset('images/img_3.jpg') }}">
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-section">
+      <div class="container">
+        <div class="row mb-5 justify-content-center">
+          <div class="col-md-7 text-center">
+            <h2 class="section-title mb-3" data-aos="fade-up">Comment ca marche</h2>
+            <p class="lead" data-aos="fade-up" data-aos-delay="100">Ouvrir un compte UniBank+ est simple et rapide en seulement 3 etapes.</p>
+          </div>
+        </div>
+        <div class="row align-items-lg-center">
+          <div class="col-lg-6 mb-5" data-aos="fade-up">
+            <div class="owl-carousel slide-one-item-alt">
+              <img src="{{ asset('images/img_1.jpg') }}" alt="Image" class="img-fluid">
+              <img src="{{ asset('images/img_2.jpg') }}" alt="Image" class="img-fluid">
+              <img src="{{ asset('images/img_3.jpg') }}" alt="Image" class="img-fluid">
+            </div>
+            <div class="custom-direction">
+              <a href="#" class="custom-prev"><span><span class="icon-keyboard_backspace"></span></span></a>
+              <a href="#" class="custom-next"><span><span class="icon-keyboard_backspace"></span></span></a>
+            </div>
+          </div>
+          <div class="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="100">
+            <div class="owl-carousel slide-one-item-alt-text">
+              <div>
+                <h2 class="section-title mb-3">01. Inscription en ligne</h2>
+                <p>Remplissez le formulaire d'inscription avec vos informations personnelles. C'est rapide et securise.</p>
+                <p><a href="{{ path('app_register') }}" class="btn btn-primary mr-2 mb-2">S'inscrire</a></p>
+              </div>
+              <div>
+                <h2 class="section-title mb-3">02. Validation du compte</h2>
+                <p>Notre equipe verifie vos informations et valide votre compte dans les plus brefs delais.</p>
+                <p><a href="#" class="btn btn-primary mr-2 mb-2">En savoir plus</a></p>
+              </div>
+              <div>
+                <h2 class="section-title mb-3">03. Acces a vos services</h2>
+                <p>Profitez de tous nos services bancaires : virements, cartes, credits et bien plus encore.</p>
+                <p><a href="#" class="btn btn-primary mr-2 mb-2">Decouvrir</a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-section border-bottom bg-light" id="services-section">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-12 text-center" data-aos="fade">
+            <h2 class="section-title mb-3">Nos Services</h2>
+          </div>
+        </div>
+        <div class="row align-items-stretch">
+          <div class="col-md-6 col-lg-4 mb-4 mb-lg-4" data-aos="fade-up">
+            <div class="unit-4">
+              <div class="unit-4-icon">
+                <img src="{{ asset('images/flaticon-svg/svg/001-wallet.svg') }}" alt="" class="img-fluid w-25 mb-4">
+              </div>
+              <div>
+                <h3>Comptes bancaires</h3>
+                <p>Comptes courants et epargne avec des conditions avantageuses pour tous vos besoins.</p>
+                <p><a href="#">En savoir plus</a></p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 mb-4 mb-lg-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="unit-4">
+              <div class="unit-4-icon">
+                <img src="{{ asset('images/flaticon-svg/svg/006-credit-card.svg') }}" alt="" class="img-fluid w-25 mb-4">
+              </div>
+              <div>
+                <h3>Cartes bancaires</h3>
+                <p>Une gamme complete de cartes bancaires pour vos paiements quotidiens et vos voyages.</p>
+                <p><a href="#">En savoir plus</a></p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 mb-4 mb-lg-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="unit-4">
+              <div class="unit-4-icon">
+                <img src="{{ asset('images/flaticon-svg/svg/002-rich.svg') }}" alt="" class="img-fluid w-25 mb-4">
+              </div>
+              <div>
+                <h3>Suivi des revenus</h3>
+                <p>Suivez vos revenus et depenses en temps reel depuis votre tableau de bord.</p>
+                <p><a href="#">En savoir plus</a></p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 mb-4 mb-lg-4" data-aos="fade-up">
+            <div class="unit-4">
+              <div class="unit-4-icon">
+                <img src="{{ asset('images/flaticon-svg/svg/003-notes.svg') }}" alt="" class="img-fluid w-25 mb-4">
+              </div>
+              <div>
+                <h3>Credits et prets</h3>
+                <p>Des solutions de financement flexibles avec des taux d'interet competitifs.</p>
+                <p><a href="#">En savoir plus</a></p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 mb-4 mb-lg-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="unit-4">
+              <div class="unit-4-icon">
+                <img src="{{ asset('images/flaticon-svg/svg/004-cart.svg') }}" alt="" class="img-fluid w-25 mb-4">
+              </div>
+              <div>
+                <h3>Virements</h3>
+                <p>Effectuez vos virements nationaux et internationaux en toute simplicite.</p>
+                <p><a href="#">En savoir plus</a></p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 mb-4 mb-lg-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="unit-4">
+              <div class="unit-4-icon">
+                <img src="{{ asset('images/flaticon-svg/svg/005-megaphone.svg') }}" alt="" class="img-fluid w-25 mb-4">
+              </div>
+              <div>
+                <h3>Support client</h3>
+                <p>Une equipe dediee pour repondre a toutes vos questions et reclamations.</p>
+                <p><a href="#">En savoir plus</a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-section testimonial-wrap" id="testimonials-section" data-aos="fade">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-12 text-center">
+            <h2 class="section-title mb-3">Clients satisfaits</h2>
+          </div>
+        </div>
+      </div>
+      <div class="slide-one-item home-slider owl-carousel">
+        <div>
+          <div class="testimonial">
+            <blockquote class="mb-5">
+              <p>&laquo; UniBank+ a transforme ma facon de gerer mes finances. Le service est rapide, securise et le support client est toujours disponible. &raquo;</p>
+            </blockquote>
+            <figure class="mb-4 d-flex align-items-center justify-content-center">
+              <div><img src="{{ asset('images/person_1.jpg') }}" alt="Image" class="w-50 img-fluid mb-3"></div>
+              <p>Ahmed Ben Ali</p>
+            </figure>
+          </div>
+        </div>
+        <div>
+          <div class="testimonial">
+            <blockquote class="mb-5">
+              <p>&laquo; J'ai obtenu mon credit immobilier en un temps record. Les taux sont tres competitifs et l'equipe est tres professionnelle. &raquo;</p>
+            </blockquote>
+            <figure class="mb-4 d-flex align-items-center justify-content-center">
+              <div><img src="{{ asset('images/person_2.jpg') }}" alt="Image" class="w-50 img-fluid mb-3"></div>
+              <p>Fatma Souissi</p>
+            </figure>
+          </div>
+        </div>
+        <div>
+          <div class="testimonial">
+            <blockquote class="mb-5">
+              <p>&laquo; La carte bancaire UniBank+ est parfaite pour mes achats en ligne. Je recommande vivement cette banque. &raquo;</p>
+            </blockquote>
+            <figure class="mb-4 d-flex align-items-center justify-content-center">
+              <div><img src="{{ asset('images/person_3.jpg') }}" alt="Image" class="w-50 img-fluid mb-3"></div>
+              <p>Mohamed Trabelsi</p>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-section bg-light" id="pricing-section">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-12 text-center" data-aos="fade-up">
+            <h2 class="section-title mb-3">Nos Offres</h2>
+          </div>
+        </div>
+        <div class="row mb-5">
+          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4" data-aos="fade-up">
+            <div class="pricing">
+              <h3 class="text-center text-black">Basique</h3>
+              <div class="price text-center mb-4">
+                <span><span>0 DT</span> / mois</span>
+              </div>
+              <ul class="list-unstyled ul-check success mb-5">
+                <li>Compte courant gratuit</li>
+                <li>Carte bancaire classique</li>
+                <li class="remove">Virements internationaux</li>
+                <li class="remove">Credit immobilier</li>
+                <li class="remove">Conseiller dedie</li>
+              </ul>
+              <p class="text-center">
+                <a href="{{ path('app_register') }}" class="btn btn-secondary">Choisir</a>
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4 pricing-popular" data-aos="fade-up" data-aos-delay="100">
+            <div class="pricing">
+              <h3 class="text-center text-black">Premium</h3>
+              <div class="price text-center mb-4">
+                <span><span>15 DT</span> / mois</span>
+              </div>
+              <ul class="list-unstyled ul-check success mb-5">
+                <li>Compte courant + epargne</li>
+                <li>Carte bancaire Gold</li>
+                <li>Virements internationaux</li>
+                <li>Credit immobilier</li>
+                <li class="remove">Conseiller dedie</li>
+              </ul>
+              <p class="text-center">
+                <a href="{{ path('app_register') }}" class="btn btn-primary">Choisir</a>
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6 mb-4 mb-lg-0 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="pricing">
+              <h3 class="text-center text-black">Professionnel</h3>
+              <div class="price text-center mb-4">
+                <span><span>45 DT</span> / mois</span>
+              </div>
+              <ul class="list-unstyled ul-check success mb-5">
+                <li>Compte courant + epargne</li>
+                <li>Carte bancaire Platinum</li>
+                <li>Virements internationaux</li>
+                <li>Credit immobilier</li>
+                <li>Conseiller dedie</li>
+              </ul>
+              <p class="text-center">
+                <a href="{{ path('app_register') }}" class="btn btn-secondary">Choisir</a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row site-section" id="faq-section">
+          <div class="col-12 text-center" data-aos="fade">
+            <h2 class="section-title">Questions frequentes</h2>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-5" data-aos="fade-up" data-aos-delay="100">
+              <h3 class="text-black h4 mb-4">Comment ouvrir un compte UniBank+ ?</h3>
+              <p>Il suffit de remplir le formulaire d'inscription en ligne avec vos informations personnelles. Votre demande sera traitee sous 24 a 48 heures.</p>
+            </div>
+            <div class="mb-5" data-aos="fade-up" data-aos-delay="100">
+              <h3 class="text-black h4 mb-4">Quels documents sont necessaires ?</h3>
+              <p>Vous aurez besoin de votre CIN (carte d'identite nationale), un justificatif de domicile et un numero de telephone valide.</p>
+            </div>
+            <div class="mb-5" data-aos="fade-up" data-aos-delay="100">
+              <h3 class="text-black h4 mb-4">Comment demander un credit ?</h3>
+              <p>Une fois votre compte valide, vous pouvez soumettre une demande de credit directement depuis votre espace client.</p>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-5" data-aos="fade-up" data-aos-delay="100">
+              <h3 class="text-black h4 mb-4">Les virements sont-ils gratuits ?</h3>
+              <p>Les virements locaux sont gratuits avec toutes nos offres. Les virements internationaux sont inclus dans les offres Premium et Professionnel.</p>
+            </div>
+            <div class="mb-5" data-aos="fade-up" data-aos-delay="100">
+              <h3 class="text-black h4 mb-4">Quels sont les horaires du service client ?</h3>
+              <p>Notre service client est disponible du lundi au vendredi de 8h a 18h, et le samedi de 9h a 13h.</p>
+            </div>
+            <div class="mb-5" data-aos="fade-up" data-aos-delay="100">
+              <h3 class="text-black h4 mb-4">Comment signaler un probleme ?</h3>
+              <p>Vous pouvez soumettre une reclamation depuis votre espace client ou nous contacter directement par telephone ou email.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 mb-5" data-aos="fade-up">
+            <figure class="circle-bg">
+              <img src="{{ asset('images/img_4.jpg') }}" alt="UniBank+" class="img-fluid">
+            </figure>
+          </div>
+          <div class="col-lg-5 ml-auto" data-aos="fade-up" data-aos-delay="100">
+            <div class="row">
+              <div class="col-12 mb-4" data-aos="fade-up">
+                <div class="unit-4 d-flex">
+                  <div class="unit-4-icon mr-4 mb-3"><span class="text-primary flaticon-head"></span></div>
+                  <div>
+                    <h3>Prets bancaires</h3>
+                    <p>Des solutions de financement adaptees a vos projets avec des taux competitifs et des durees flexibles.</p>
+                    <p class="mb-0"><a href="#">En savoir plus</a></p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="unit-4 d-flex">
+                  <div class="unit-4-icon mr-4 mb-3"><span class="text-primary flaticon-smartphone"></span></div>
+                  <div>
+                    <h3>Conseil bancaire</h3>
+                    <p>Nos conseillers vous accompagnent pour optimiser la gestion de votre patrimoine financier.</p>
+                    <p class="mb-0"><a href="#">En savoir plus</a></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-section" id="blog-section">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-12 text-center" data-aos="fade">
+            <h2 class="section-title mb-3">Notre Blog</h2>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 col-lg-4 mb-4 mb-lg-4" data-aos="fade-up">
+            <div class="h-entry">
+              <img src="{{ asset('images/img_1.jpg') }}" alt="Image" class="img-fluid">
+              <h2 class="font-size-regular"><a href="#">Comment bien gerer son budget mensuel ?</a></h2>
+              <div class="meta mb-4">UniBank+ <span class="mx-2">&bullet;</span> Jan 18, 2024<span class="mx-2">&bullet;</span> <a href="#">Conseils</a></div>
+              <p>Decouvrez nos astuces pour mieux gerer votre budget et epargner efficacement chaque mois.</p>
+              <p><a href="#">Lire la suite...</a></p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 mb-4 mb-lg-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="h-entry">
+              <img src="{{ asset('images/img_4.jpg') }}" alt="Image" class="img-fluid">
+              <h2 class="font-size-regular"><a href="#">Les avantages du paiement en ligne</a></h2>
+              <div class="meta mb-4">UniBank+ <span class="mx-2">&bullet;</span> Feb 10, 2024<span class="mx-2">&bullet;</span> <a href="#">Technologie</a></div>
+              <p>Le paiement en ligne est devenu incontournable. Voici pourquoi vous devriez l'adopter.</p>
+              <p><a href="#">Lire la suite...</a></p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 mb-4 mb-lg-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="h-entry">
+              <img src="{{ asset('images/img_3.jpg') }}" alt="Image" class="img-fluid">
+              <h2 class="font-size-regular"><a href="#">Guide complet du credit immobilier</a></h2>
+              <div class="meta mb-4">UniBank+ <span class="mx-2">&bullet;</span> Mar 5, 2024<span class="mx-2">&bullet;</span> <a href="#">Credits</a></div>
+              <p>Tout ce que vous devez savoir avant de demander un credit immobilier chez UniBank+.</p>
+              <p><a href="#">Lire la suite...</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-section bg-light" id="contact-section" data-aos="fade">
+      <div class="container">
+        <div class="row mb-5">
+          <div class="col-12 text-center">
+            <h2 class="section-title mb-3">Contactez-nous</h2>
+          </div>
+        </div>
+        <div class="row mb-5">
+          <div class="col-md-4 text-center">
+            <p class="mb-4">
+              <span class="icon-room d-block h2 text-primary"></span>
+              <span>Avenue Habib Bourguiba, Tunis, Tunisie</span>
+            </p>
+          </div>
+          <div class="col-md-4 text-center">
+            <p class="mb-4">
+              <span class="icon-phone d-block h2 text-primary"></span>
+              <a href="#">+216 71 123 456</a>
+            </p>
+          </div>
+          <div class="col-md-4 text-center">
+            <p class="mb-0">
+              <span class="icon-mail_outline d-block h2 text-primary"></span>
+              <a href="#">contact@unibank.tn</a>
+            </p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 mb-5">
+            <form action="#" class="p-5 bg-white">
+              <h2 class="h4 text-black mb-5">Formulaire de contact</h2>
+              <div class="row form-group">
+                <div class="col-md-6 mb-3 mb-md-0">
+                  <label class="text-black" for="fname">Prenom</label>
+                  <input type="text" id="fname" class="form-control">
+                </div>
+                <div class="col-md-6">
+                  <label class="text-black" for="lname">Nom</label>
+                  <input type="text" id="lname" class="form-control">
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-md-12">
+                  <label class="text-black" for="email">Email</label>
+                  <input type="email" id="email" class="form-control">
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-md-12">
+                  <label class="text-black" for="subject">Sujet</label>
+                  <input type="text" id="subject" class="form-control">
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-md-12">
+                  <label class="text-black" for="message">Message</label>
+                  <textarea name="message" id="message" cols="30" rows="7" class="form-control" placeholder="Ecrivez votre message ici..."></textarea>
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-md-12">
+                  <input type="submit" value="Envoyer" class="btn btn-primary btn-md text-white">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="modal fade branch-map-modal" id="branchMapModal" tabindex="-1" role="dialog" aria-labelledby="branchMapModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document" style="max-width:760px;">
+        <div class="modal-content">
+          <div class="branch-map-head">
+            <h4 id="branchMapModalLabel"><i class="fas fa-map-marked-alt mr-2"></i>Localiser UniBank+</h4>
+            <p>Une petite carte dans la meme page pour voir rapidement ou se trouvent nos agences.</p>
+          </div>
+          <div class="branch-map-body">
+            <div id="unibank-leaflet-map"></div>
+            <div class="branch-mini-list" id="branch-mini-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof L === 'undefined') {
+        return;
+      }
+
+      var modalEl = document.getElementById('branchMapModal');
+      var mapEl = document.getElementById('unibank-leaflet-map');
+      var listEl = document.getElementById('branch-mini-list');
+
+      if (!modalEl || !mapEl || !listEl) {
+        return;
+      }
+
+      var branches = [
+        {
+          name: 'UniBank+ Tunis Centre',
+          city: 'Tunis',
+          coords: [36.8008, 10.1809],
+          address: 'Avenue Habib Bourguiba',
+          hours: 'Lun - Ven : 08:00 - 17:00'
+        },
+        {
+          name: 'UniBank+ Lac 2',
+          city: 'Les Berges du Lac',
+          coords: [36.8421, 10.2726],
+          address: 'Zone affaires, Lac 2',
+          hours: 'Lun - Ven : 08:30 - 18:00'
+        },
+        {
+          name: 'UniBank+ Sousse',
+          city: 'Sousse',
+          coords: [35.8256, 10.6411],
+          address: 'Boulevard principal',
+          hours: 'Lun - Sam : 08:00 - 16:00'
+        },
+        {
+          name: 'UniBank+ Sfax',
+          city: 'Sfax',
+          coords: [34.7406, 10.7603],
+          address: 'Agence regionale Sfax',
+          hours: 'Lun - Ven : 08:00 - 17:30'
+        }
+      ];
+
+      var map = null;
+      var markers = [];
+      var activeCard = null;
+
+      function setActiveCard(index) {
+        if (activeCard) {
+          activeCard.classList.remove('is-active');
+        }
+        activeCard = listEl.querySelector('[data-branch-index="' + index + '"]');
+        if (activeCard) {
+          activeCard.classList.add('is-active');
+        }
+      }
+
+      function focusBranch(index) {
+        if (!map || !markers[index]) {
+          return;
+        }
+        map.flyTo(branches[index].coords, 11, { duration: 1.1 });
+        markers[index].openPopup();
+        setActiveCard(index);
+      }
+
+      function initMap() {
+        if (map) {
+          map.invalidateSize();
+          return;
+        }
+
+        map = L.map(mapEl, { scrollWheelZoom: false }).setView([35.8, 10.4], 7);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 18,
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var branchIcon = L.divIcon({
+          className: 'unibank-branch-marker',
+          html: '<div style="width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#2259d6,#4d87ff);border:4px solid rgba(255,255,255,0.98);box-shadow:0 8px 20px rgba(34,89,214,.34);"></div>',
+          iconSize: [18, 18],
+          iconAnchor: [9, 9]
+        });
+
+        branches.forEach(function (branch, index) {
+          var marker = L.marker(branch.coords, { icon: branchIcon }).addTo(map);
+          marker.bindPopup(
+            '<div class="unibank-popup">' +
+              '<h6>' + branch.name + '</h6>' +
+              '<p><strong>' + branch.city + '</strong><br>' + branch.address + '<br>' + branch.hours + '</p>' +
+            '</div>'
+          );
+          marker.on('click', function () {
+            setActiveCard(index);
+          });
+          markers.push(marker);
+
+          var card = document.createElement('button');
+          card.type = 'button';
+          card.className = 'branch-mini-card';
+          card.setAttribute('data-branch-index', index);
+          card.innerHTML =
+            '<strong>' + branch.name + '</strong>' +
+            '<span>' + branch.address + '</span>' +
+            '<span>' + branch.hours + '</span>';
+          card.addEventListener('click', function () {
+            focusBranch(index);
+          });
+          listEl.appendChild(card);
+        });
+
+        focusBranch(0);
+      }
+
+      $('#branchMapModal').on('shown.bs.modal', function () {
+        initMap();
+        setTimeout(function () {
+          if (map) {
+            map.invalidateSize();
+          }
+        }, 120);
+      });
+    });
+  </script>
+{% endblock %}

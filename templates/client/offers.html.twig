@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Choisir votre offre - UniBank+{% endblock %}
+
+{% block body %}
+<div class="site-section bg-light" style="min-height:80vh;display:flex;align-items:center;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="text-center mb-3">
+                <img src="{{ asset('images/unibank-plus.png') }}" alt="UniBank+" style="height:80px;">
+            </div>
+            <h2 class="h3 text-black">Choisissez votre type de compte</h2>
+            <p class="text-muted">Selectionnez l'offre qui correspond le mieux a vos besoins</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-5 mb-4">
+                <div class="bg-white p-5 rounded shadow text-center" style="border-top:4px solid #2259d6;">
+                    <div style="width:70px;height:70px;border-radius:50%;background:#E7EDFF;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                        <img src="{{ asset('images/flaticon-svg/svg/001-wallet.svg') }}" style="width:35px;">
+                    </div>
+                    <h3 class="h4 text-black mb-3">Compte Courant</h3>
+                    <ul class="list-unstyled text-left mb-4" style="max-width:250px;margin:0 auto;">
+                        <li class="mb-2"><i class="fas fa-check-circle mr-2" style="color:#10b981;"></i>Carte bancaire gratuite</li>
+                        <li class="mb-2"><i class="fas fa-check-circle mr-2" style="color:#10b981;"></i>Virements illimites</li>
+                        <li class="mb-2"><i class="fas fa-check-circle mr-2" style="color:#10b981;"></i>Decouvert autorise</li>
+                        <li class="mb-2"><i class="fas fa-check-circle mr-2" style="color:#10b981;"></i>Gestion en ligne 24h/24</li>
+                    </ul>
+                    <form method="post" action="{{ path('app_offers_select') }}">
+                        <input type="hidden" name="offer" value="COURANT">
+                        <button type="submit" class="btn btn-primary btn-block py-2" style="border-radius:10px;">Choisir Courant</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-5 mb-4">
+                <div class="bg-white p-5 rounded shadow text-center" style="border-top:4px solid #10b981;">
+                    <div style="width:70px;height:70px;border-radius:50%;background:#E0F8EF;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                        <img src="{{ asset('images/flaticon-svg/svg/007-piggy-bank.svg') }}" style="width:35px;">
+                    </div>
+                    <h3 class="h4 text-black mb-3">Compte Epargne</h3>
+                    <ul class="list-unstyled text-left mb-4" style="max-width:250px;margin:0 auto;">
+                        <li class="mb-2"><i class="fas fa-check-circle mr-2" style="color:#10b981;"></i>Taux d'interet 4.5%/an</li>
+                        <li class="mb-2"><i class="fas fa-check-circle mr-2" style="color:#10b981;"></i>Capital garanti</li>
+                        <li class="mb-2"><i class="fas fa-check-circle mr-2" style="color:#10b981;"></i>Retraits flexibles</li>
+                        <li class="mb-2"><i class="fas fa-check-circle mr-2" style="color:#10b981;"></i>Gestion en ligne 24h/24</li>
+                    </ul>
+                    <form method="post" action="{{ path('app_offers_select') }}">
+                        <input type="hidden" name="offer" value="EPARGNE">
+                        <button type="submit" class="btn btn-block py-2" style="border-radius:10px;background:#10b981;color:#fff;border:none;">Choisir Epargne</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <a href="{{ path('app_logout') }}" class="text-muted"><i class="fas fa-sign-out-alt mr-1"></i>Deconnexion</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

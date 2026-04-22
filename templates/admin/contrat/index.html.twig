@@ -1,0 +1,135 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Gestion Contrats - Admin UniBank+{% endblock %}
+{% block page_title %}Gestion Contrats{% endblock %}
+
+{% block body %}
+<div class="row mb-4" style="display:flex;gap:15px;flex-wrap:wrap;">
+    <div class="col" style="flex:1;min-width:180px;">
+        <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-file-contract"></i></div><div class="stat-info"><div class="stat-label">Total contrats</div><div class="stat-value">{{ totalContrats }}</div></div></div>
+    </div>
+    <div class="col" style="flex:1;min-width:180px;">
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><div class="stat-label">Contrats actifs</div><div class="stat-value">{{ activeContrats }}</div></div></div>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="card-header" style="flex-wrap:wrap;gap:10px;">
+        <h5><i class="fas fa-file-contract mr-2" style="color:var(--primary);"></i>Contrats ({{ contrats|length }})</h5>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <form method="get" action="{{ path('app_admin_contrats') }}" class="filter-bar">
+            <select name="status" onchange="this.form.submit()">
+                <option value="all" {{ status == 'all' ? 'selected' : '' }}>Tous les statuts</option>
+                <option value="ACTIVE" {{ status == 'ACTIVE' ? 'selected' : '' }}>Actif</option>
+                <option value="COMPLETED" {{ status == 'COMPLETED' ? 'selected' : '' }}>Termine</option>
+                <option value="CANCELLED" {{ status == 'CANCELLED' ? 'selected' : '' }}>Annule</option>
+            </select>
+            <input type="text" name="q" value="{{ search }}" placeholder="Rechercher client, N contrat..." oninput="clearTimeout(this.t);this.t=setTimeout(()=>this.form.submit(),400)" style="width:220px;">
+            {% if status != 'all' or search %}
+                <a href="{{ path('app_admin_contrats') }}" class="btn-admin outline" style="padding:8px 14px;font-size:13px;">Reset</a>
+            {% endif %}
+        </form>
+            <button type="button" class="btn-admin primary" style="padding:8px 14px;font-size:13px;" onclick="$('#contractsComparisonModal').modal('show')">
+                <i class="fas fa-chart-bar mr-1"></i> Comparaison
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if contrats|length > 0 %}
+        <table class="admin-table">
+            <thead>
+                <tr><th>N Contrat</th><th>Client</th><th>Montant</th><th>Mensualite</th><th>Duree</th><th>Periode</th><th>Statut</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for c in contrats %}
+                <tr>
+                    <td style="font-weight:700;color:var(--primary);font-family:monospace;">{{ c.numeroContrat }}</td>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">{{ c.client.prenom|first }}{{ c.client.nom|first }}</div>
+                            <div class="user-details">
+                                <div class="user-name">{{ c.client.prenom }} {{ c.client.nom }}</div>
+                                <div class="user-email">{{ c.client.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight:700;">{{ c.montantCredit|number_format(2, ',', ' ') }} DT</td>
+                    <td style="color:var(--success);font-weight:600;">{{ c.mensualite|number_format(2, ',', ' ') }} DT</td>
+                    <td>{{ c.dureeEnMois }} mois</td>
+                    <td style="font-size:13px;">{{ c.dateDebut|date('d/m/Y') }}<br><small style="color:var(--text-secondary);">au {{ c.dateFin|date('d/m/Y') }}</small></td>
+                    <td>
+                        {% if c.statut == 'ACTIVE' %}
+                            <span class="badge-status active">Actif</span>
+                        {% elseif c.statut == 'COMPLETED' %}
+                            <span class="badge-status" style="background:#E0F8EF;color:#1A9E6E;">Termine</span>
+                        {% else %}
+                            <span class="badge-status suspended">{{ c.statut }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="white-space:nowrap;">
+                        <a href="{{ path('app_admin_contrat_pdf', {id: c.idContrat}) }}" class="btn-action" title="Telecharger PDF" style="color:var(--primary);" target="_blank">
+                            <i class="fas fa-file-pdf"></i>
+                        </a>
+                        {% if c.cheminFichier %}
+                        <a href="{{ c.cheminFichier }}" target="_blank" class="btn-action" title="Voir sur Supabase" style="color:#16a34a;">
+                            <i class="fas fa-cloud"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>Aucun contrat trouve</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="modal fade modal-admin" id="contractsComparisonModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:720px;">
+        <div class="modal-content" style="border:none;border-radius:20px;overflow:hidden;">
+            <div style="background:linear-gradient(135deg,#2259d6,#4338ca);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                    <h5 style="color:#fff;font-weight:800;margin:0;font-size:18px;">
+                        <i class="fas fa-chart-bar mr-2"></i>Comparaison credits / contrats
+                    </h5>
+                    <div style="color:rgba(255,255,255,0.75);font-size:13px;margin-top:4px;">
+                        Credits approuves vs contrats finalises
+                    </div>
+                </div>
+                <button type="button" data-dismiss="modal" style="background:rgba(255,255,255,0.18);border:none;border-radius:8px;color:#fff;width:34px;height:34px;cursor:pointer;">&times;</button>
+            </div>
+            <div style="padding:22px 24px 10px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;">
+                    <div style="background:#eff6ff;border:1px solid #dbeafe;border-radius:14px;padding:16px 18px;">
+                        <div style="font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:700;">Credits approuves</div>
+                        <div style="font-size:28px;font-weight:800;color:#1d4ed8;margin-top:6px;">{{ approvedCredits }}</div>
+                    </div>
+                    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:16px 18px;">
+                        <div style="font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:700;">Contrats finalises</div>
+                        <div style="font-size:28px;font-weight:800;color:#16a34a;margin-top:6px;">{{ finalizedContracts }}</div>
+                    </div>
+                </div>
+                <div style="height:280px;">
+                    <div id="contractsComparisonChart"></div>
+                </div>
+            </div>
+            <div style="padding:0 24px 22px;display:flex;justify-content:flex-end;">
+                <button type="button" class="btn-admin outline" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+$('#contractsComparisonModal').on('shown.bs.modal', function () {
+    {{ gc_draw(comparisonChart, 'contractsComparisonChart') }}
+});
+</script>
+{% endblock %}

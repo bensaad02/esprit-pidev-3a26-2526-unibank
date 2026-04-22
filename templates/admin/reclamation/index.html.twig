@@ -1,0 +1,517 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Gestion Réclamations - Admin UniBank+{% endblock %}
+{% block page_title %}Gestion des réclamations{% endblock %}
+
+{% block stylesheets %}
+<style>
+.field-error {
+    display: none;
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 600;
+}
+
+.field-error.is-visible {
+    display: block;
+}
+
+.form-control.input-error,
+textarea.input-error,
+select.input-error {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 0.12rem rgba(220, 38, 38, 0.12);
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.stat-icon.orange { background: #FFF3E0; color: #FF9800; }
+.stat-icon.blue { background: #E3F2FD; color: #2196F3; }
+.stat-icon.green { background: #E8F5E9; color: #4CAF50; }
+.stat-icon.red { background: #FFEBEE; color: #F44336; }
+.stat-icon.purple { background: #F3E5F5; color: #9C27B0; }
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.badge-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-status.en_attente { background: #FFF3E0; color: #FF9800; }
+.badge-status.en_cours { background: #E3F2FD; color: #2196F3; }
+.badge-status.traite { background: #E8F5E9; color: #4CAF50; }
+.badge-status.rejete { background: #FFEBEE; color: #F44336; }
+
+.sentiment-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.sentiment-positif { background: #E8F5E9; color: #4CAF50; }
+.sentiment-negatif { background: #FFEBEE; color: #F44336; }
+.sentiment-neutre { background: #F5F5F5; color: #757575; }
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 2px;
+}
+
+.user-email {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.btn-action {
+    background: transparent;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+}
+
+.btn-action:hover {
+    background: #f0f0f0;
+}
+
+.btn-action.approve:hover { color: #4CAF50; background: #E8F5E9; }
+.btn-action.reject:hover { color: #F44336; background: #FFEBEE; }
+.btn-action.view:hover { color: #2196F3; background: #E3F2FD; }
+
+.response-preview {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.has-response {
+    color: #4CAF50;
+}
+
+.no-response {
+    color: #FF9800;
+}
+
+/* Style pour le bouton PDF */
+.btn-pdf {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-pdf:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    transform: translateY(-1px);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-pdf i {
+    font-size: 14px;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="row mb-4" style="display:flex;gap:15px;flex-wrap:wrap;">
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">En attente</div>
+                <div class="stat-value">{{ stats.en_attente }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-spinner"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">En cours</div>
+                <div class="stat-value">{{ stats.en_cours }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Traitées</div>
+                <div class="stat-value">{{ stats.traite }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card">
+            <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Rejetées</div>
+                <div class="stat-value">{{ stats.rejete }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card">
+            <div class="stat-icon purple"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Total</div>
+                <div class="stat-value">{{ stats.total }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="card-header" style="flex-wrap:wrap;gap:10px;">
+        <h5><i class="fas fa-comment-alt mr-2" style="color:var(--primary);"></i>Réclamations ({{ reclamations|length }})</h5>
+        <form method="get" action="{{ path('app_admin_reclamations') }}" class="filter-bar" style="display:flex;gap:10px;flex-wrap:wrap;">
+            <select name="status" onchange="this.form.submit()">
+                <option value="all" {{ status == 'all' ? 'selected' : '' }}>Tous les statuts</option>
+                <option value="en_attente" {{ status == 'en_attente' ? 'selected' : '' }}>En attente</option>
+                <option value="en_cours" {{ status == 'en_cours' ? 'selected' : '' }}>En cours</option>
+                <option value="traite" {{ status == 'traite' ? 'selected' : '' }}>Traité</option>
+                <option value="rejete" {{ status == 'rejete' ? 'selected' : '' }}>Rejeté</option>
+            </select>
+            
+            <select name="type" onchange="this.form.submit()">
+                <option value="all" {{ type == 'all' ? 'selected' : '' }}>Tous les types</option>
+                <option value="technique" {{ type == 'technique' ? 'selected' : '' }}>Problème technique</option>
+                <option value="compte" {{ type == 'compte' ? 'selected' : '' }}>Problème de compte</option>
+                <option value="transaction" {{ type == 'transaction' ? 'selected' : '' }}>Transaction</option>
+                <option value="carte" {{ type == 'carte' ? 'selected' : '' }}>Carte bancaire</option>
+                <option value="credit" {{ type == 'credit' ? 'selected' : '' }}>Crédit</option>
+                <option value="autre" {{ type == 'autre' ? 'selected' : '' }}>Autre</option>
+            </select>
+            
+            <select name="sentiment" onchange="this.form.submit()">
+                <option value="all" {{ sentiment == 'all' ? 'selected' : '' }}>Tous les sentiments</option>
+                <option value="positif" {{ sentiment == 'positif' ? 'selected' : '' }}>Positif</option>
+                <option value="negatif" {{ sentiment == 'negatif' ? 'selected' : '' }}>Négatif</option>
+                <option value="neutre" {{ sentiment == 'neutre' ? 'selected' : '' }}>Neutre</option>
+            </select>
+            
+            <input type="text" name="q" value="{{ search }}" placeholder="Rechercher client, sujet..." oninput="clearTimeout(this.t);this.t=setTimeout(()=>this.form.submit(),400)" style="width:200px;">
+            
+            {% if status != 'all' or type != 'all' or sentiment != 'all' or search %}
+                <a href="{{ path('app_admin_reclamations') }}" class="btn-admin outline" style="padding:8px 14px;font-size:13px;">
+                    <i class="fas fa-undo"></i> Reset
+                </a>
+            {% endif %}
+            
+            <!-- Bouton de téléchargement PDF -->
+            <a href="{{ path('app_admin_reclamations_pdf', {
+                status: status != 'all' ? status : null,
+                type: type != 'all' ? type : null,
+                sentiment: sentiment != 'all' ? sentiment : null,
+                q: search
+            }|filter(v => v is not null)) }}" 
+               class="btn-pdf" 
+               target="_blank">
+                <i class="fas fa-file-pdf"></i> Exporter en PDF
+            </a>
+        </form>
+    </div>
+    <div class="card-body">
+        {% if reclamations|length > 0 %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Type</th>
+                    <th>Sujet</th>
+                    <th>Sentiment</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th>Réponse</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reclamations %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">{{ r.utilisateur.prenom|first }}{{ r.utilisateur.nom|first }}</div>
+                            <div class="user-details">
+                                <div class="user-name">{{ r.utilisateur.prenom }} {{ r.utilisateur.nom }}</div>
+                                <div class="user-email">{{ r.utilisateur.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge-status" style="background:#F0F0F0;color:#666;">
+                            {% if r.type == 'technique' %}<i class="fas fa-code"></i> Technique
+                            {% elseif r.type == 'compte' %}<i class="fas fa-user"></i> Compte
+                            {% elseif r.type == 'transaction' %}<i class="fas fa-exchange-alt"></i> Transaction
+                            {% elseif r.type == 'carte' %}<i class="fas fa-credit-card"></i> Carte
+                            {% elseif r.type == 'credit' %}<i class="fas fa-hand-holding-usd"></i> Crédit
+                            {% else %}<i class="fas fa-comment"></i> Autre
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td style="max-width: 250px;">
+                        <div style="font-weight:500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            {{ r.sujet }}
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 3px;">
+                            {{ r.description|slice(0, 50) }}{% if r.description|length > 50 %}...{% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if r.sentiment %}
+                            <span class="sentiment-badge sentiment-{{ r.sentiment }}">
+                                {% if r.sentiment == 'positif' %}
+                                    <i class="fas fa-smile"></i> Positif
+                                {% elseif r.sentiment == 'negatif' %}
+                                    <i class="fas fa-frown"></i> Négatif
+                                {% else %}
+                                    <i class="fas fa-meh"></i> Neutre
+                                {% endif %}
+                            </span>
+                        {% else %}
+                            <span class="sentiment-badge" style="background:#F5F5F5;color:#999;">
+                                <i class="fas fa-question"></i> Non analysé
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge-status {{ r.statut }}">
+                            {% if r.statut == 'en_attente' %}
+                                <i class="fas fa-clock"></i> En attente
+                            {% elseif r.statut == 'en_cours' %}
+                                <i class="fas fa-spinner fa-pulse"></i> En cours
+                            {% elseif r.statut == 'traite' %}
+                                <i class="fas fa-check-circle"></i> Traité
+                            {% else %}
+                                <i class="fas fa-times-circle"></i> Rejeté
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td style="font-size:13px;">
+                        {{ r.dateReclamation|date('d/m/Y H:i') }}
+                    </td>
+                    <td>
+                        {% if r.reponse %}
+                            <div class="response-preview has-response" title="{{ r.reponse }}">
+                                <i class="fas fa-reply-all"></i> {{ r.reponse|slice(0, 50) }}{% if r.reponse|length > 50 %}...{% endif %}
+                            </div>
+                            <div style="font-size: 11px; color: #4CAF50;">
+                                <i class="fas fa-calendar-alt"></i> {{ r.reponseDate|date('d/m/Y H:i') }}
+                            </div>
+                        {% else %}
+                            <span class="response-preview no-response">
+                                <i class="fas fa-hourglass-half"></i> En attente
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td style="white-space:nowrap;">
+                        <a href="{{ path('app_admin_reclamations_show', {id: r.id}) }}" class="btn-action view" title="Voir détails">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{{ path('app_admin_reclamations_edit', {id: r.id}) }}" class="btn-action" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        {% if r.statut == 'en_attente' or r.statut == 'en_cours' %}
+                            <button type="button" class="btn-action approve" title="Marquer comme traité" onclick="confirmSubmit('{{ path('app_admin_reclamations_status', {id: r.id}) }}', {type:'approve', title:'Traiter la réclamation', message:'Marquer cette réclamation comme traitée ?', btnText:'Traiter', status:'traite'})">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        {% endif %}
+                        {% if r.statut == 'en_attente' %}
+                            <button type="button" class="btn-action reject" title="Rejeter" onclick="$('#rejectModal{{ r.id }}').modal('show')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <!-- Modal Rejet -->
+                {% if r.statut == 'en_attente' %}
+                <div class="modal fade modal-admin" id="rejectModal{{ r.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+                        <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;">
+                            <div style="background:#dc2626;padding:20px 25px;">
+                                <h5 style="color:#fff;font-weight:700;margin:0;">
+                                    <i class="fas fa-times-circle mr-2"></i>Rejeter la réclamation
+                                </h5>
+                            </div>
+                            <form method="post" action="{{ path('app_admin_reclamations_status', {id: r.id}) }}" novalidate data-reject-form>
+                                <input type="hidden" name="status" value="rejete">
+                                <div style="padding:25px;">
+                                    <p style="color:var(--text-secondary);font-size:14px;">
+                                        Réclamation de <strong>{{ r.utilisateur.prenom }} {{ r.utilisateur.nom }}</strong><br>
+                                        Sujet: <strong>{{ r.sujet }}</strong>
+                                    </p>
+                                    <div class="form-group">
+                                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">
+                                            Motif du rejet (obligatoire)
+                                        </label>
+                                        <textarea name="reponse" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" rows="3" required placeholder="Expliquez la raison du rejet..."></textarea>
+                                        <div class="field-error" data-error-for="reponse"></div>
+                                    </div>
+                                </div>
+                                <div style="padding:0 25px 25px;display:flex;gap:12px;justify-content:flex-end;">
+                                    <button type="button" class="btn-admin outline" data-dismiss="modal">Annuler</button>
+                                    <button type="submit" class="btn-admin danger">Rejeter</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>Aucune réclamation trouvée</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.querySelectorAll('form[data-reject-form]').forEach(function(form) {
+    var reponseField = form.querySelector('[name="reponse"]');
+    var errorEl = form.querySelector('[data-error-for="reponse"]');
+
+    function validateRejectField() {
+        var isValid = reponseField.checkValidity();
+        var message = '';
+
+        if (!isValid) {
+            if (reponseField.validity.valueMissing) {
+                message = 'Le motif du rejet est obligatoire.';
+            } else {
+                message = 'Le motif saisi est invalide.';
+            }
+        }
+
+        reponseField.classList.toggle('input-error', !isValid);
+        errorEl.textContent = message;
+        errorEl.classList.toggle('is-visible', !isValid);
+
+        return isValid;
+    }
+
+    reponseField.addEventListener('input', validateRejectField);
+
+    form.addEventListener('submit', function(event) {
+        if (!validateRejectField()) {
+            event.preventDefault();
+            reponseField.focus();
+        }
+    });
+});
+
+function confirmSubmit(action, options) {
+    var statusInput = '';
+    if (options.status) {
+        statusInput = '<input type="hidden" name="status" value="' + options.status + '">';
+    }
+    
+    confirmAction({
+        type: options.type || 'warning',
+        title: options.title || 'Confirmer',
+        message: options.message || '',
+        btnText: options.btnText || 'Confirmer',
+        onConfirm: function() {
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = action;
+            form.innerHTML = statusInput;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+</script>
+{% endblock %}

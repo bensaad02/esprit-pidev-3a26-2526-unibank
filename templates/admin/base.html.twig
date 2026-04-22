@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <title>{% block title %}Admin - UniBank+{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="admin-body">
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('show');"></div>
+
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="{{ asset('images/unibank-icon.png') }}" alt="UniBank+">
+            <span>UniBank+</span>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">Menu principal</div>
+            <a href="{{ path('app_admin_dashboard') }}" class="{% if app.request.get('_route') == 'app_admin_dashboard' %}active{% endif %}">
+                <i class="fas fa-th-large"></i> Tableau de bord
+            </a>
+            <a href="{{ path('app_admin_pending') }}" class="{% if app.request.get('_route') == 'app_admin_pending' %}active{% endif %}">
+                <i class="fas fa-clock"></i> Demandes en attente
+            </a>
+
+            <div class="nav-section">Gestion</div>
+            <a href="{{ path('app_admin_users') }}" class="{% if app.request.get('_route') starts with 'app_admin_user' %}active{% endif %}">
+                <i class="fas fa-users"></i> Gestion Clients
+            </a>
+            <a href="{{ path('app_admin_comptes') }}" class="{% if app.request.get('_route') starts with 'app_admin_compte' %}active{% endif %}">
+                <i class="fas fa-wallet"></i> Gestion Comptes
+            </a>
+            <a href="{{ path('app_admin_credits') }}" class="{% if app.request.get('_route') starts with 'app_admin_credit' %}active{% endif %}">
+                <i class="fas fa-hand-holding-usd"></i> Gestion Credits
+            </a>
+            <a href="{{ path('app_admin_contrats') }}" class="{% if app.request.get('_route') starts with 'app_admin_contrat' %}active{% endif %}">
+                <i class="fas fa-file-contract"></i> Contrats
+            </a>
+       <a href="{{ path('admin_cartes') }}" 
+   class="{% if app.request.get('_route') starts with 'admin_carte' %}active{% endif %}">
+    <i class="fas fa-credit-card"></i> Gestion Cartes
+</a>
+            <a href="{{ path('app_admin_transactions') }}" class="{% if app.request.get('_route') starts with 'app_admin_transaction' %}active{% endif %}">
+                <i class="fas fa-exchange-alt"></i> Transactions
+            </a>
+              <a href="{{ path('app_admin_reclamations') }}" class="{% if app.request.get('_route') starts with 'app_admin_reclamation' %}active{% endif %}">
+                <i class="fas fa-comment-alt"></i> Réclamations
+            </a>
+
+            <div class="nav-section">Outils</div>
+            <a href="{{ path('app_admin_news') }}" class="{% if app.request.get('_route') == 'app_admin_news' %}active{% endif %}">
+                <i class="fas fa-newspaper"></i> Actualites
+            </a>
+
+            <div class="nav-section">Compte</div>
+            <a href="{{ path('app_logout') }}" class="text-danger">
+                <i class="fas fa-sign-out-alt"></i> Deconnexion
+            </a>
+        </nav>
+    </aside>
+
+    <header class="admin-topbar">
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn d-lg-none p-0 border-0" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('show');">
+                <i class="fas fa-bars" style="font-size:20px;color:var(--primary-dark);"></i>
+            </button>
+            <span class="page-title">{% block page_title %}Dashboard{% endblock %}</span>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-user-info">
+                <div class="text-right d-none d-md-block">
+                    <div class="user-name">{{ app.user.prenom }} {{ app.user.nom }}</div>
+                    <div class="user-role">Agent</div>
+                </div>
+                <div class="user-avatar" style="width:40px;height:40px;font-size:16px;">
+                    {{ app.user.prenom|first }}{{ app.user.nom|first }}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {% set flashes = app.flashes %}
+    {% if flashes|length > 0 %}
+    <div id="flash-messages" style="position:fixed;top:20px;right:20px;z-index:99999;max-width:450px;width:100%;">
+        {% for label, messages in flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} alert-dismissible fade show shadow-lg" role="alert" style="border-radius:10px;border:none;border-left:4px solid;margin-bottom:10px;font-size:14px;">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    <script>setTimeout(function(){var e=document.getElementById('flash-messages');if(e){e.style.transition='opacity .5s';e.style.opacity='0';setTimeout(function(){e.remove()},500);}},5000);</script>
+    {% endif %}
+
+    <main class="admin-content">
+        {% block body %}{% endblock %}
+    </main>
+
+    <div class="modal fade" id="confirmModal" tabindex="-1" style="z-index:100000;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+            <div class="modal-content" style="border:none;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.15);overflow:hidden;">
+                <div class="modal-body p-0">
+                    <div id="confirmIcon" style="text-align:center;padding:30px 30px 15px;"></div>
+                    <div style="text-align:center;padding:0 30px;">
+                        <h5 id="confirmTitle" style="font-weight:700;color:var(--primary-dark);margin-bottom:8px;"></h5>
+                        <p id="confirmMessage" style="color:var(--text-secondary);font-size:14px;margin-bottom:0;"></p>
+                    </div>
+                    <div style="display:flex;gap:12px;padding:25px 30px 30px;justify-content:center;">
+                        <button type="button" class="btn-admin outline" data-dismiss="modal" style="min-width:120px;">Annuler</button>
+                        <button type="button" id="confirmBtn" class="btn-admin" style="min-width:120px;"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ asset('js/popper.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script>
+    function confirmAction(options) {
+        var icons = {
+            approve: '<div style="width:70px;height:70px;border-radius:50%;background:#E0F8EF;display:inline-flex;align-items:center;justify-content:center;"><i class="fas fa-check-circle" style="font-size:32px;color:#41D4A8;"></i></div>',
+            reject: '<div style="width:70px;height:70px;border-radius:50%;background:#FFE8EB;display:inline-flex;align-items:center;justify-content:center;"><i class="fas fa-times-circle" style="font-size:32px;color:#FE5C73;"></i></div>',
+            ban: '<div style="width:70px;height:70px;border-radius:50%;background:#FFF5E6;display:inline-flex;align-items:center;justify-content:center;"><i class="fas fa-ban" style="font-size:32px;color:#fc7900;"></i></div>',
+            unban: '<div style="width:70px;height:70px;border-radius:50%;background:#E0F8EF;display:inline-flex;align-items:center;justify-content:center;"><i class="fas fa-unlock" style="font-size:32px;color:#41D4A8;"></i></div>',
+            delete: '<div style="width:70px;height:70px;border-radius:50%;background:#FFE8EB;display:inline-flex;align-items:center;justify-content:center;"><i class="fas fa-trash-alt" style="font-size:32px;color:#FE5C73;"></i></div>',
+            warning: '<div style="width:70px;height:70px;border-radius:50%;background:#FFF5E6;display:inline-flex;align-items:center;justify-content:center;"><i class="fas fa-exclamation-triangle" style="font-size:32px;color:#fc7900;"></i></div>'
+        };
+        var btnClasses = {
+            approve: 'success', reject: 'danger', ban: 'primary', unban: 'success', delete: 'danger', warning: 'primary'
+        };
+        var type = options.type || 'warning';
+        document.getElementById('confirmIcon').innerHTML = icons[type] || icons.warning;
+        document.getElementById('confirmTitle').textContent = options.title || 'Confirmer';
+        document.getElementById('confirmMessage').textContent = options.message || '';
+        var btn = document.getElementById('confirmBtn');
+        btn.textContent = options.btnText || 'Confirmer';
+        btn.className = 'btn-admin ' + (btnClasses[type] || 'primary');
+        btn.style.minWidth = '120px';
+        btn.onclick = function() {
+            $('#confirmModal').modal('hide');
+            if (options.onConfirm) options.onConfirm();
+        };
+        $('#confirmModal').modal('show');
+    }
+    function confirmSubmit(formOrAction, options) {
+        confirmAction({
+            type: options.type || 'warning',
+            title: options.title || 'Confirmer',
+            message: options.message || '',
+            btnText: options.btnText || 'Confirmer',
+            onConfirm: function() {
+                if (typeof formOrAction === 'string') {
+                    var f = document.createElement('form');
+                    f.method = 'POST';
+                    f.action = formOrAction;
+                    document.body.appendChild(f);
+                    f.submit();
+                } else {
+                    formOrAction.submit();
+                }
+            }
+        });
+    }
+    </script>
+    <script src="{{ asset('js/password-toggle.js') }}"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

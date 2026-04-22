@@ -1,0 +1,1051 @@
+{# templates/admin/reclamation/edit.html.twig #}
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Traiter Réclamation - Admin{% endblock %}
+
+{% block body %}
+<style>
+    /* ============================================
+       DESIGN PROFESSIONNEL POUR ADMIN BANCAIRE
+       Style entreprise - Dark/Light élégant
+    ============================================ */
+    
+    /* Variables globales */
+    :root {
+        --primary: #0a2b3e;
+        --primary-dark: #061a26;
+        --primary-light: #1a4a6a;
+        --accent: #2c7da0;
+        --success: #2e7d32;
+        --danger: #c62828;
+        --warning: #f57c00;
+        --info: #0288d1;
+        --gray-50: #f8f9fc;
+        --gray-100: #f1f3f9;
+        --gray-200: #e4e8f0;
+        --gray-300: #d0d7e5;
+        --gray-400: #a8b5c9;
+        --gray-500: #8a99b0;
+        --gray-600: #6c7a91;
+        --gray-700: #4a5568;
+        --gray-800: #2d3748;
+        --gray-900: #1a202c;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+    
+    /* Base */
+    body {
+        background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        color: var(--gray-800);
+        line-height: 1.5;
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    /* En-tête */
+    h1 {
+        font-size: 1.875rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        color: var(--gray-900);
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--gray-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        animation: slideInFromLeft 0.5s ease-out;
+    }
+    
+    @keyframes slideInFromLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    /* Carte principale */
+    .reclamation-details {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        border: 1px solid var(--gray-200);
+        transition: transform 0.3s, box-shadow 0.3s;
+        animation: slideInFromRight 0.5s ease-out;
+    }
+    
+    @keyframes slideInFromRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .reclamation-details:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-xl);
+    }
+    
+    /* Grille des détails */
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        padding: 1.75rem;
+    }
+    
+    .detail-item {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+        animation: fadeInUp 0.4s ease-out backwards;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .detail-item:nth-child(1) { animation-delay: 0.05s; }
+    .detail-item:nth-child(2) { animation-delay: 0.1s; }
+    .detail-item:nth-child(3) { animation-delay: 0.15s; }
+    .detail-item:nth-child(4) { animation-delay: 0.2s; }
+    .detail-item:nth-child(5) { animation-delay: 0.25s; }
+    
+    .detail-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--gray-500);
+        transition: color 0.3s;
+    }
+    
+    .detail-item:hover .detail-label {
+        color: var(--primary);
+    }
+    
+    .detail-value {
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: var(--gray-900);
+    }
+    
+    /* Bloc image - intégré dans la grille */
+    .detail-item-full {
+        grid-column: span 2;
+        margin: 0;
+        animation: fadeInUp 0.4s ease-out 0.3s backwards;
+    }
+    
+    .image-container {
+        background: var(--gray-50);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        text-align: center;
+        border: 1px solid var(--gray-200);
+        transition: all 0.3s;
+        margin-top: 0.5rem;
+    }
+    
+    .image-container:hover {
+        background: white;
+        border-color: var(--primary-light);
+        transform: scale(1.01);
+    }
+    
+    .detail-image {
+        max-width: 100%;
+        max-height: 300px;
+        object-fit: contain;
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s;
+    }
+    
+    .detail-image:hover {
+        transform: scale(1.02);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    /* Badge statut */
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-en_attente {
+        background: #fff3e0;
+        color: var(--warning);
+    }
+    
+    .status-en_cours {
+        background: #e3f2fd;
+        color: var(--info);
+    }
+    
+    .status-traite {
+        background: #e8f5e9;
+        color: var(--success);
+    }
+    
+    .status-rejete {
+        background: #ffebee;
+        color: var(--danger);
+    }
+    
+    /* Séparateurs */
+    hr {
+        margin: 2rem 0;
+        border: none;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gray-300), transparent);
+        animation: expandWidth 0.6s ease-out;
+    }
+    
+    @keyframes expandWidth {
+        from {
+            width: 0;
+            opacity: 0;
+        }
+        to {
+            width: 100%;
+            opacity: 1;
+        }
+    }
+    
+    /* ============================================
+       BOUTONS STATUT
+    ============================================ */
+    
+    .status-buttons {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-top: 1.5rem;
+        animation: fadeInUp 0.4s ease-out 0.15s backwards;
+    }
+    
+    .btn-status {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        padding: 0.625rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-status::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.5s, height 0.5s;
+    }
+    
+    .btn-status:hover::before {
+        width: 300%;
+        height: 300%;
+    }
+    
+    .btn-status:active {
+        transform: scale(0.95);
+    }
+    
+    .btn-accept {
+        background: var(--success);
+        color: white;
+        box-shadow: 0 2px 4px rgba(46, 125, 50, 0.3);
+    }
+    
+    .btn-accept:hover {
+        background: #1b5e20;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(46, 125, 50, 0.4);
+    }
+    
+    .btn-reject {
+        background: var(--danger);
+        color: white;
+        box-shadow: 0 2px 4px rgba(198, 40, 40, 0.3);
+    }
+    
+    .btn-reject:hover {
+        background: #b71c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(198, 40, 40, 0.4);
+    }
+    
+    /* ============================================
+       NOUVEAU DESIGN POUR LA RÉPONSE
+       Style messagerie moderne
+    ============================================ */
+    
+    .reply-container {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        border: 1px solid var(--gray-200);
+        transition: all 0.3s;
+        animation: slideInFromLeft 0.5s ease-out 0.1s backwards;
+    }
+    
+    .reply-container:hover {
+        box-shadow: var(--shadow-xl);
+    }
+    
+    .reply-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .reply-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .reply-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+    
+    .reply-title h3 {
+        color: white;
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .reply-badge {
+        background: rgba(255,255,255,0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        color: white;
+    }
+    
+    .reply-body {
+        padding: 1.5rem;
+    }
+    
+    /* Style champ de texte comme une messagerie */
+    .reply-textarea-wrapper {
+        background: var(--gray-50);
+        border-radius: 1rem;
+        padding: 0.5rem;
+        border: 2px solid var(--gray-200);
+        transition: all 0.3s;
+    }
+    
+    .reply-textarea-wrapper:focus-within {
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(10, 43, 62, 0.1);
+    }
+    
+    .reply-textarea {
+        width: 100%;
+        padding: 1rem;
+        border: none;
+        background: transparent;
+        font-family: inherit;
+        font-size: 0.9375rem;
+        line-height: 1.6;
+        resize: vertical;
+        outline: none;
+    }
+    
+    .reply-textarea::placeholder {
+        color: var(--gray-400);
+        font-style: italic;
+    }
+    
+    /* Barre d'outils */
+    .reply-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.75rem;
+        padding: 0 0.5rem;
+    }
+    
+    .reply-info {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.75rem;
+        color: var(--gray-500);
+    }
+    
+    .char-counter {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .char-number {
+        font-weight: 600;
+        color: var(--primary);
+    }
+    
+    /* Bouton d'envoi stylisé */
+    .btn-send {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-send::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.5s, height 0.5s;
+    }
+    
+    .btn-send:hover::before {
+        width: 300%;
+        height: 300%;
+    }
+    
+    .btn-send:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(10, 43, 62, 0.3);
+    }
+    
+    .btn-send:active {
+        transform: translateY(0);
+    }
+    
+    /* ============================================
+       HISTORIQUE
+    ============================================ */
+    
+    .history-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        animation: slideInFromLeft 0.4s ease-out 0.15s backwards;
+    }
+    
+    .history-header h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin: 0;
+    }
+    
+    .history-count {
+        background: var(--gray-200);
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--gray-600);
+    }
+    
+    .timeline {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        position: relative;
+    }
+    
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 2rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, var(--gray-300), transparent);
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding: 1rem 0 1rem 4rem;
+        background: white;
+        border-radius: 0.75rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s;
+        animation: slideInFromRight 0.3s ease-out backwards;
+    }
+    
+    .timeline-item:nth-child(1) { animation-delay: 0.2s; }
+    .timeline-item:nth-child(2) { animation-delay: 0.25s; }
+    .timeline-item:nth-child(3) { animation-delay: 0.3s; }
+    .timeline-item:nth-child(4) { animation-delay: 0.35s; }
+    .timeline-item:nth-child(5) { animation-delay: 0.4s; }
+    
+    .timeline-item:hover {
+        transform: translateX(5px);
+        background: var(--gray-50);
+    }
+    
+    .timeline-avatar {
+        position: absolute;
+        left: 0.5rem;
+        top: 1rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    
+    .timeline-content {
+        background: var(--gray-50);
+        padding: 1rem;
+        border-radius: 0.75rem;
+        border-left: 3px solid var(--primary);
+    }
+    
+    .timeline-author {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .author-name {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 0.875rem;
+    }
+    
+    .author-date {
+        font-size: 0.7rem;
+        color: var(--gray-500);
+    }
+    
+    .timeline-message {
+        color: var(--gray-700);
+        font-size: 0.875rem;
+        line-height: 1.5;
+        margin: 0;
+    }
+    
+    .empty-history {
+        text-align: center;
+        padding: 3rem;
+        background: var(--gray-50);
+        border-radius: 1rem;
+        color: var(--gray-500);
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 768px) {
+        .details-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            padding: 1.25rem;
+        }
+        
+        .detail-item-full {
+            grid-column: span 1;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+        }
+        
+        .status-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-status {
+            width: 100%;
+        }
+        
+        .reply-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .reply-toolbar {
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: stretch;
+        }
+        
+        .btn-send {
+            justify-content: center;
+        }
+        
+        .timeline::before {
+            left: 1.25rem;
+        }
+        
+        .timeline-item {
+            padding-left: 3rem;
+        }
+        
+        .timeline-avatar {
+            width: 2rem;
+            height: 2rem;
+            font-size: 0.75rem;
+            left: 0;
+        }
+    }
+    
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+        .btn-status, .reply-container, form {
+            display: none;
+        }
+        
+        .reclamation-details {
+            box-shadow: none;
+            border: 1px solid #ddd;
+        }
+        
+        body {
+            background: white;
+        }
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--gray-100);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--gray-400);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--gray-500);
+    }
+</style>
+
+<!-- VOTRE CODE HTML MODIFIÉ -->
+<h1>📋 Traiter la réclamation</h1>
+
+<div class="reclamation-details">
+    <div class="details-grid">
+        <div class="detail-item">
+            <div class="detail-label">👤 Client</div>
+            <div class="detail-value">{{ reclamation.utilisateur.prenom }} {{ reclamation.utilisateur.nom }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">📧 Email</div>
+            <div class="detail-value">{{ reclamation.utilisateur.email }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">📌 Sujet</div>
+            <div class="detail-value">{{ reclamation.sujet }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">📝 Description</div>
+            <div class="detail-value">{{ reclamation.description }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">⚡ Statut</div>
+            <div class="detail-value">
+                <span class="status-badge 
+                    {% if reclamation.statut == 'en_attente' %}status-en_attente
+                    {% elseif reclamation.statut == 'en_cours' %}status-en_cours
+                    {% elseif reclamation.statut == 'traite' %}status-traite
+                    {% elseif reclamation.statut == 'rejete' %}status-rejete
+                    {% endif %}">
+                    {{ reclamation.statut|replace({'_': ' '})|capitalize }}
+                </span>
+            </div>
+        </div>
+        
+        {# Affichage de l'image intégré dans la grille #}
+        {% if reclamation.imagePath %}
+            <div class="detail-item-full">
+                <div class="detail-label">🖼️ Image jointe</div>
+                <div class="image-container">
+                    <img src="{{ asset('uploads/reclamations/' ~ reclamation.imagePath) }}" alt="Image de la réclamation" class="detail-image">
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<hr>
+
+{# Formulaire pour modifier le statut #}
+<form method="post" action="{{ path('app_admin_reclamations_edit', {'id': reclamation.id}) }}" enctype="multipart/form-data">
+    <div class="status-buttons">
+        {% if reclamation.statut in ['en_attente', 'en_cours'] %}
+            <button type="submit" name="statut" value="traite" class="btn-status btn-accept">
+                ✅ Accepter / Traiter
+            </button>
+        {% endif %}
+
+        {% if reclamation.statut == 'en_attente' %}
+            <button type="submit" name="statut" value="rejete" class="btn-status btn-reject">
+                ❌ Rejeter
+            </button>
+        {% endif %}
+    </div>
+</form>
+
+<hr>
+
+{# NOUVEAU DESIGN STYLE MESSAGERIE #}
+<div class="reply-container">
+    <div class="reply-header">
+        <div class="reply-title">
+            <div class="reply-icon">💬</div>
+            <h3>Répondre au client</h3>
+        </div>
+        <div class="reply-badge">Réponse rapide</div>
+    </div>
+    <div class="reply-body">
+        <form method="post" action="{{ path('app_admin_reclamations_response', {'id': reclamation.id}) }}">
+            <div class="reply-textarea-wrapper">
+                <textarea 
+                    name="reponse" 
+                    class="reply-textarea" 
+                    rows="5" 
+                    placeholder="Écrivez votre réponse ici... Le client sera notifié par email." 
+                    required
+                    onkeyup="updateCharCount(this)"
+                ></textarea>
+            </div>
+            <div class="reply-toolbar">
+                <div class="reply-info">
+                    <div class="char-counter">
+                        <span>📝</span>
+                        <span id="charCount">0</span>
+                        <span>caractères</span>
+                    </div>
+                    <div>💡 Conseil : Soyez clair et précis</div>
+                </div>
+                <button type="submit" class="btn-send">
+                    ✈️ Envoyer la réponse
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<hr>
+
+<div class="history-header">
+    <h3>📜 Historique des réponses</h3>
+    <div class="history-count">{{ reclamation.reponses|length }} message(s)</div>
+</div>
+
+{% if reclamation.reponses|length > 0 %}
+    <ul class="timeline">
+        {% for r in reclamation.reponses %}
+            <li class="timeline-item">
+                <div class="timeline-avatar">
+                    {{ r.auteur|first|upper }}
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-author">
+                        <span class="author-name">{{ r.auteur }}</span>
+                        <span class="author-date">{{ r.dateReponse|date('d/m/Y à H:i') }}</span>
+                    </div>
+                    <p class="timeline-message">{{ r.contenu|nl2br }}</p>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <div class="empty-history">
+        💬 Aucune réponse pour le moment<br>
+        <small>Soyez le premier à répondre à cette réclamation</small>
+    </div>
+{% endif %}
+
+<script>
+    // Compteur de caractères avec feedback visuel
+    function updateCharCount(textarea) {
+        const count = textarea.value.length;
+        const charCountSpan = document.getElementById('charCount');
+        if (charCountSpan) {
+            charCountSpan.textContent = count;
+            
+            // Changement de couleur et style selon le nombre de caractères
+            if (count > 500) {
+                charCountSpan.style.color = '#f57c00';
+                charCountSpan.style.fontWeight = 'bold';
+            } else if (count > 1000) {
+                charCountSpan.style.color = '#c62828';
+                charCountSpan.style.fontWeight = 'bold';
+            } else {
+                charCountSpan.style.color = 'var(--primary)';
+                charCountSpan.style.fontWeight = 'normal';
+            }
+        }
+    }
+    
+    // Initialiser le compteur
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.querySelector('.reply-textarea');
+        if (textarea) {
+            updateCharCount(textarea);
+        }
+    });
+</script>
+<style>
+    /* Animation de la flèche qui tourne */
+    @keyframes spinArrow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Overlay avec la flèche en plein écran */
+    .fullscreen-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        backdrop-filter: blur(5px);
+    }
+    
+    .fullscreen-loader .arrow {
+        font-size: 80px;
+        display: inline-block;
+        animation: spinArrow 1s linear infinite;
+        color: white;
+        text-shadow: 0 0 20px rgba(255,255,255,0.5);
+    }
+    
+    .fullscreen-loader .loader-text {
+        color: white;
+        text-align: center;
+        margin-top: 20px;
+        font-size: 18px;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .fullscreen-loader .loader-container {
+        text-align: center;
+    }
+</style>
+
+<script>
+    // Solution: Créer un bouton de test pour activer l'audio
+    // Le navigateur exige une interaction utilisateur AVANT de pouvoir jouer un son
+    
+    let audioContext = null;
+    let audioAllowed = false;
+    
+    // Fonction pour initialiser l'audio (doit être appelée après un clic utilisateur)
+    function initAudio() {
+        if (!audioContext) {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                audioAllowed = true;
+                console.log('Audio prêt !');
+            } catch(e) {
+                console.log('Audio non supporté');
+            }
+        }
+        return audioContext;
+    }
+    
+    // Son d'avion
+    function playPlaneSound() {
+        if (!audioAllowed || !audioContext) {
+            console.log('Audio non autorisé');
+            return;
+        }
+        
+        try {
+            const now = audioContext.currentTime;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 100;
+            gainNode.gain.value = 0.2;
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start();
+            oscillator.frequency.exponentialRampToValueAtTime(800, now + 0.4);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, now + 0.5);
+            oscillator.stop(now + 0.5);
+            
+            // Réactiver le contexte si suspendu
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        } catch(e) {
+            console.log('Erreur:', e);
+        }
+    }
+    
+    // Activer l'audio au premier clic n'importe où sur la page
+    function enableAudioOnFirstClick() {
+        const enableAudio = function() {
+            initAudio();
+            // Jouer un petit son silencieux pour activer
+            if (audioContext) {
+                const silent = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                gain.gain.value = 0.00001;
+                silent.connect(gain);
+                gain.connect(audioContext.destination);
+                silent.start();
+                silent.stop(0.001);
+                audioContext.resume();
+            }
+            document.removeEventListener('click', enableAudio);
+            document.removeEventListener('keydown', enableAudio);
+        };
+        
+        document.addEventListener('click', enableAudio);
+        document.addEventListener('keydown', enableAudio);
+    }
+    
+    enableAudioOnFirstClick();
+    
+    // Gestion du formulaire
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.reply-container form');
+        
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const textarea = form.querySelector('textarea[name="reponse"]');
+                if (!textarea.value.trim()) {
+                    e.preventDefault();
+                    alert('Veuillez écrire une réponse');
+                    return false;
+                }
+                
+                // Initialiser l'audio si ce n'est pas déjà fait
+                initAudio();
+                
+                // Jouer le son
+                playPlaneSound();
+                
+                // Créer l'overlay
+                const loader = document.createElement('div');
+                loader.className = 'fullscreen-loader';
+                loader.innerHTML = `
+                    <div class="loader-container">
+                        <div class="arrow">✈️</div>
+                        <div class="loader-text">Envoi en cours...</div>
+                    </div>
+                `;
+                document.body.appendChild(loader);
+                
+                return true;
+            });
+        }
+    });
+</script>
+
+<!-- Petit message visuel pour informer l'utilisateur -->
+<div style="position: fixed; bottom: 10px; right: 10px; background: #333; color: white; padding: 5px 10px; border-radius: 5px; font-size: 11px; z-index: 9999; opacity: 0.7;">
+    🔊 Cliquez ici pour activer le son d'avion
+</div>
+
+{% endblock %}

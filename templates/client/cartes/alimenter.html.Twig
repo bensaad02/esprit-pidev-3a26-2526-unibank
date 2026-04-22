@@ -1,0 +1,47 @@
+{% extends 'client/base.html.twig' %}
+
+{% block page_title %}Alimenter Carte{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+
+    <div class="card shadow-lg border-0 p-4" style="max-width: 500px; margin:auto; border-radius:15px;">
+
+        <h4 class="mb-3 text-center">💳 Alimenter Carte</h4>
+
+        <!-- CARD INFO -->
+        <div class="mb-3 text-center">
+            <strong>Carte:</strong><br>
+            **** **** **** {{ carte.cardNumber|slice(-4) }}
+        </div>
+
+        <!-- CURRENT SOLDE -->
+        <div class="mb-3 text-center">
+            <span class="badge bg-success p-2">
+                Solde actuel: {{ carte.solde }} DT
+            </span>
+        </div>
+
+        <!-- FORM -->
+        <form method="post">
+
+            <div class="mb-3">
+                <label class="form-label">Montant à ajouter</label>
+                <input type="number" name="montant" class="form-control" required min="1" placeholder="Ex: 100">
+            </div>
+
+            <button class="btn btn-success w-100">
+                
+                Valider
+            </button>
+
+        </form>
+
+        <a href="{{ path('app_client_cartes') }}" class="btn btn-light mt-3 w-100">
+            ⬅ Retour
+        </a>
+
+    </div>
+
+</div>
+{% endblock %}

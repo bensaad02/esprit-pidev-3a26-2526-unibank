@@ -1,0 +1,368 @@
+{% extends 'client/base.html.twig' %}
+{% block title %}Mes Transactions - UniBank+{% endblock %}
+{% block page_title %}Mes Transactions{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ── Hero ── */
+.tx-hero {
+    background: linear-gradient(135deg, #1a2f6b 0%, #2259d6 55%, #4338ca 100%);
+    border-radius: 20px;
+    padding: 26px 30px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+.tx-hero::before { content:''; position:absolute; width:250px; height:250px; border-radius:50%; background:rgba(255,255,255,0.05); top:-70px; right:-60px; }
+.tx-hero::after  { content:''; position:absolute; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.04); bottom:-50px; right:160px; }
+.tx-hero-left { z-index:1; }
+.tx-hero-label { font-size:11px; font-weight:700; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:.8px; margin-bottom:4px; }
+.tx-hero-balance { font-size:38px; font-weight:900; color:#fff; line-height:1; }
+.tx-hero-balance small { font-size:18px; font-weight:500; opacity:.7; }
+.tx-hero-account { font-size:12px; color:rgba(255,255,255,0.6); margin-top:6px; display:flex; gap:12px; flex-wrap:wrap; }
+.tx-hero-right { z-index:1; display:flex; gap:12px; }
+.tx-stat-pill {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(4px);
+    border-radius: 14px;
+    padding: 14px 18px;
+    text-align: center;
+    min-width: 90px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.tx-stat-pill-val { font-size: 22px; font-weight: 800; color: #fff; line-height: 1; }
+.tx-stat-pill-label { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 3px; }
+.tx-stat-pill-ico { font-size: 14px; margin-bottom: 4px; }
+
+/* ── New transaction card ── */
+.new-tx-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #f0f2f5;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+.new-tx-header {
+    background: linear-gradient(90deg, #f8faff, #f0f4ff);
+    padding: 16px 22px;
+    border-bottom: 1px solid #e8edf8;
+    display: flex; align-items: center; gap: 10px;
+}
+.new-tx-header-title { font-size: 14px; font-weight: 800; color: #1e3a8a; }
+.new-tx-body { padding: 20px 22px; }
+
+.tx-form-grid { display: grid; grid-template-columns: 1fr 1fr 1.5fr 1.5fr auto; gap: 14px; align-items: end; }
+.tx-form-label { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 7px; }
+.tx-form-input {
+    width: 100%;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 11px;
+    padding: 11px 14px;
+    font-size: 14px; font-family: inherit; color: #111827;
+    transition: border-color .2s, box-shadow .2s;
+    background: #fafbff;
+}
+.tx-form-input:focus { outline: none; border-color: #2259d6; box-shadow: 0 0 0 3px rgba(34,89,214,0.08); background: #fff; }
+.tx-form-input.input-error { border-color: #dc2626 !important; }
+.field-error { display: none; font-size: 11px; color: #dc2626; font-weight: 600; margin-top: 4px; }
+.field-error.is-visible { display: block; }
+.tx-submit-btn {
+    background: linear-gradient(135deg, #2259d6, #4338ca);
+    color: #fff; border: none; border-radius: 11px;
+    padding: 11px 22px; font-size: 14px; font-weight: 800;
+    cursor: pointer; white-space: nowrap; height: 44px;
+    display: inline-flex; align-items: center; gap: 7px;
+    transition: box-shadow .2s, transform .15s;
+}
+.tx-submit-btn:hover { box-shadow: 0 6px 20px rgba(34,89,214,0.35); transform: translateY(-1px); }
+
+/* ── Account disabled warning ── */
+.account-warning {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 14px;
+    padding: 18px 22px; display: flex; align-items: center; gap: 14px;
+    margin-bottom: 20px;
+}
+
+/* ── History section ── */
+.history-card {
+    background: #fff; border-radius: 16px;
+    border: 1px solid #f0f2f5;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+.history-header {
+    padding: 16px 22px;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+}
+.history-title { font-size: 14px; font-weight: 800; color: #111827; }
+.filter-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.filter-input {
+    border: 1.5px solid #e5e7eb; border-radius: 9px;
+    padding: 8px 12px; font-size: 12px; font-family: inherit;
+    color: #374151; background: #fafbff;
+    transition: border-color .2s;
+}
+.filter-input:focus { outline: none; border-color: #2259d6; }
+.filter-select { padding-right: 28px; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+}
+.pdf-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #f0f4ff; color: #2259d6; border: 1.5px solid #c7d7ff;
+    border-radius: 9px; padding: 8px 14px; font-size: 12px; font-weight: 700;
+    text-decoration: none; transition: background .2s;
+}
+.pdf-btn:hover { background: #dbeafe; text-decoration: none; color: #2259d6; }
+
+/* ── Transaction rows ── */
+.tx-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 22px; border-bottom: 1px solid #f9fafb;
+    transition: background .15s;
+}
+.tx-row:last-child { border-bottom: none; }
+.tx-row:hover { background: #f8faff; }
+.tx-ico { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.tx-ico.vir { background: #dbeafe; color: #2259d6; }
+.tx-ico.ret { background: #fee2e2; color: #dc2626; }
+.tx-ico.dep { background: #dcfce7; color: #16a34a; }
+.tx-info { flex: 1; min-width: 0; }
+.tx-type { font-size: 13px; font-weight: 700; color: #111827; }
+.tx-detail { font-size: 11px; color: #9ca3af; margin-top: 1px; }
+.tx-desc-col { flex: 1.5; min-width: 0; font-size: 12px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tx-date-col { font-size: 12px; color: #9ca3af; white-space: nowrap; }
+.tx-amount { font-size: 15px; font-weight: 800; white-space: nowrap; }
+.tx-amount.pos { color: #16a34a; }
+.tx-amount.neg { color: #dc2626; }
+.tx-pdf-link { color: #9ca3af; font-size: 14px; padding: 6px 8px; border-radius: 8px; transition: color .15s, background .15s; }
+.tx-pdf-link:hover { color: #2259d6; background: #f0f4ff; }
+
+/* ── Empty ── */
+.tx-empty { padding: 52px 20px; text-align: center; color: #9ca3af; }
+.tx-empty i { font-size: 36px; color: #e5e7eb; display: block; margin-bottom: 12px; }
+
+@media(max-width:900px) {
+    .tx-form-grid { grid-template-columns: 1fr 1fr; }
+    .tx-hero { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .tx-hero-right { flex-wrap: wrap; }
+}
+@media(max-width:600px) {
+    .tx-form-grid { grid-template-columns: 1fr; }
+    .tx-stat-pill { min-width: 70px; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ── HERO ── #}
+<div class="tx-hero">
+    <div class="tx-hero-left">
+        <div class="tx-hero-label">Solde disponible</div>
+        <div class="tx-hero-balance">{{ compte.solde|number_format(2, ',', '\u00a0') }} <small>DT</small></div>
+        <div class="tx-hero-account">
+            <span><i class="fas fa-hashtag mr-1"></i>{{ compte.numeroCompte }}</span>
+            <span><i class="fas fa-university mr-1"></i>{{ compte.typeCompte.value }}</span>
+            <span><i class="fas fa-circle mr-1" style="font-size:8px;color:{% if compte.estActif %}#86efac{% else %}#fca5a5{% endif %};"></i>{% if compte.estActif %}Actif{% else %}Désactivé{% endif %}</span>
+        </div>
+    </div>
+    <div class="tx-hero-right">
+        <div class="tx-stat-pill">
+            <div class="tx-stat-pill-ico" style="color:#93c5fd;"><i class="fas fa-exchange-alt"></i></div>
+            <div class="tx-stat-pill-val">{{ stats.virements }}</div>
+            <div class="tx-stat-pill-label">Virements</div>
+        </div>
+        <div class="tx-stat-pill">
+            <div class="tx-stat-pill-ico" style="color:#fca5a5;"><i class="fas fa-arrow-up"></i></div>
+            <div class="tx-stat-pill-val">{{ stats.retraits }}</div>
+            <div class="tx-stat-pill-label">Retraits</div>
+        </div>
+        <div class="tx-stat-pill">
+            <div class="tx-stat-pill-ico" style="color:#86efac;"><i class="fas fa-arrow-down"></i></div>
+            <div class="tx-stat-pill-val">{{ stats.depots }}</div>
+            <div class="tx-stat-pill-label">Dépôts</div>
+        </div>
+    </div>
+</div>
+
+{# ── NEW TRANSACTION or warning ── #}
+{% if not compte.estActif %}
+<div class="account-warning">
+    <i class="fas fa-exclamation-triangle" style="font-size:22px;color:#d97706;flex-shrink:0;"></i>
+    <div>
+        <div style="font-weight:700;color:#92400e;font-size:14px;">Compte désactivé</div>
+        <div style="color:#78350f;font-size:13px;margin-top:2px;">Votre compte est actuellement désactivé. Contactez le support.</div>
+    </div>
+</div>
+{% else %}
+<div class="new-tx-card">
+    <div class="new-tx-header">
+        <div style="width:32px;height:32px;background:linear-gradient(135deg,#2259d6,#4338ca);border-radius:9px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-plus" style="color:#fff;font-size:13px;"></i>
+        </div>
+        <span class="new-tx-header-title">Nouvelle transaction</span>
+    </div>
+    <div class="new-tx-body">
+        <form method="post" action="{{ path('app_client_transaction_submit') }}" id="transactionForm" novalidate data-inline-validate>
+            <div class="tx-form-grid">
+                <div>
+                    <div class="tx-form-label">Type</div>
+                    <select name="type" id="txnType" class="tx-form-input filter-select" required>
+                        <option value="">Choisir...</option>
+                        <option value="VIREMENT">Virement</option>
+                        <option value="RETRAIT">Retrait</option>
+                    </select>
+                    <div class="field-error" data-error-for="type"></div>
+                </div>
+                <div>
+                    <div class="tx-form-label">Montant (DT)</div>
+                    <input type="number" name="montant" step="0.01" min="0.01" class="tx-form-input" placeholder="0,00" required>
+                    <div class="field-error" data-error-for="montant"></div>
+                </div>
+                <div id="destBox" style="display:none;">
+                    <div class="tx-form-label">Compte destinataire</div>
+                    <input type="text" name="destination" class="tx-form-input" placeholder="UB...">
+                    <div class="field-error" data-error-for="destination"></div>
+                </div>
+                <div>
+                    <div class="tx-form-label">Description <span style="font-weight:400;color:#9ca3af;">(optionnel)</span></div>
+                    <input type="text" name="description" class="tx-form-input" placeholder="Motif...">
+                </div>
+                <div>
+                    <button type="submit" class="tx-submit-btn">
+                        <i class="fas fa-paper-plane"></i> Effectuer
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{# ── HISTORY ── #}
+<div class="history-card">
+    <div class="history-header">
+        <div class="history-title"><i class="fas fa-history mr-2" style="color:#2259d6;"></i>Historique des transactions</div>
+        <form method="get" action="{{ path('app_client_transactions') }}" id="filterForm" style="display:contents;">
+            <div class="filter-row">
+                <input type="date" name="from" value="{{ dateFrom }}" class="filter-input" onchange="this.form.submit()" style="width:138px;" title="Date début">
+                <input type="date" name="to"   value="{{ dateTo }}"   class="filter-input" onchange="this.form.submit()" style="width:138px;" title="Date fin">
+                <select name="type" class="filter-input filter-select" onchange="this.form.submit()" style="width:130px;">
+                    <option value="all"     {{ type == 'all'     ? 'selected' : '' }}>Tous</option>
+                    <option value="VIREMENT"{{ type == 'VIREMENT'? 'selected' : '' }}>Virements</option>
+                    <option value="RETRAIT" {{ type == 'RETRAIT' ? 'selected' : '' }}>Retraits</option>
+                    <option value="DEPOT"   {{ type == 'DEPOT'   ? 'selected' : '' }}>Dépôts</option>
+                </select>
+                <input type="text" name="q" value="{{ search }}" class="filter-input" placeholder="Rechercher..." style="width:160px;"
+                    oninput="clearTimeout(this.t);this.t=setTimeout(()=>this.form.submit(),400)">
+                <a href="{{ path('app_client_extrait', {from: dateFrom, to: dateTo}) }}" class="pdf-btn" target="_blank">
+                    <i class="fas fa-file-pdf"></i> Extrait PDF
+                </a>
+            </div>
+        </form>
+    </div>
+
+    {% if transactions|length > 0 %}
+    <div>
+        {% for t in transactions %}
+        {% set isOut = (t.type.value == 'RETRAIT') or (t.type.value == 'VIREMENT' and t.compteSource and t.compteSource.idCompte == compte.idCompte) %}
+        <div class="tx-row">
+            <div class="tx-ico {{ t.type.value == 'VIREMENT' ? 'vir' : (t.type.value == 'RETRAIT' ? 'ret' : 'dep') }}">
+                <i class="fas {{ t.type.value == 'VIREMENT' ? 'fa-exchange-alt' : (t.type.value == 'RETRAIT' ? 'fa-arrow-up' : 'fa-arrow-down') }}"></i>
+            </div>
+            <div class="tx-info">
+                <div class="tx-type">
+                    {% if t.type.value == 'DEPOT' %}Dépôt
+                    {% elseif t.type.value == 'RETRAIT' %}Retrait
+                    {% else %}Virement{% endif %}
+                </div>
+                {% if t.type.value == 'VIREMENT' %}
+                <div class="tx-detail">
+                    {% if isOut %}<i class="fas fa-arrow-right mr-1" style="color:#9ca3af;font-size:9px;"></i>Vers {{ t.compteDestination ? t.compteDestination.numeroCompte : '—' }}
+                    {% else %}<i class="fas fa-arrow-left mr-1" style="color:#9ca3af;font-size:9px;"></i>De {{ t.compteSource ? t.compteSource.numeroCompte : '—' }}{% endif %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="tx-desc-col">{{ t.description ?? '—' }}</div>
+            <div class="tx-date-col">
+                <div>{{ t.dateCreation|date('d/m/Y') }}</div>
+                <div style="font-size:10px;margin-top:1px;">{{ t.dateCreation|date('H:i') }}</div>
+            </div>
+            <div class="tx-amount {{ isOut ? 'neg' : 'pos' }}">
+                {{ isOut ? '−' : '+' }}{{ t.montant|number_format(2, ',', '\u00a0') }} DT
+            </div>
+            <a href="{{ path('app_client_receipt', {id: t.idTransaction}) }}" class="tx-pdf-link" title="Télécharger le reçu" target="_blank">
+                <i class="fas fa-file-pdf"></i>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="tx-empty">
+        <i class="fas fa-inbox"></i>
+        <div style="font-weight:700;color:#374151;font-size:15px;margin-bottom:4px;">Aucune transaction trouvée</div>
+        <div style="font-size:13px;">Essayez de modifier vos filtres ou effectuez votre première transaction.</div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function toggleDestinationField() {
+    var isTransfer = document.getElementById('txnType').value === 'VIREMENT';
+    var destBox = document.getElementById('destBox');
+    var destInput = document.querySelector('#transactionForm [name="destination"]');
+    if (!destBox || !destInput) return;
+    destBox.style.display = isTransfer ? 'block' : 'none';
+    destInput.required = isTransfer;
+    if (!isTransfer) {
+        destInput.classList.remove('input-error');
+        var e = document.querySelector('#transactionForm [data-error-for="destination"]');
+        if (e) { e.textContent = ''; e.classList.remove('is-visible'); }
+    }
+}
+
+function getMsg(f) {
+    if (f.validity.valueMissing) return f.name === 'destination' ? 'Le compte destinataire est obligatoire.' : 'Champ obligatoire.';
+    if (f.validity.rangeUnderflow) return 'Le montant doit être positif.';
+    return '';
+}
+function validateField(f, form) {
+    var el = form.querySelector('[data-error-for="'+f.name+'"]');
+    if (!el) return true;
+    var ok = f.checkValidity(), msg = ok ? '' : getMsg(f);
+    f.classList.toggle('input-error', !ok);
+    el.textContent = msg; el.classList.toggle('is-visible', !ok);
+    return ok;
+}
+
+var form = document.getElementById('transactionForm');
+if (form) {
+    form.querySelectorAll('input[name],select[name]').forEach(function(f) {
+        f.addEventListener(f.tagName==='SELECT'?'change':'input', function(){ validateField(f, form); });
+    });
+    form.addEventListener('submit', function(e) {
+        var first=null, ok=true;
+        form.querySelectorAll('input[name],select[name]').forEach(function(f){
+            if(!validateField(f,form)){ok=false;if(!first)first=f;}
+        });
+        if(!ok){e.preventDefault();if(first)first.focus();}
+    });
+    document.getElementById('txnType').addEventListener('change', function(){
+        toggleDestinationField();
+        validateField(this, form);
+    });
+    toggleDestinationField();
+}
+</script>
+{% endblock %}

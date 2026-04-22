@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion - UniBank+{% endblock %}
+
+{% block body %}
+<div class="site-section bg-light" style="min-height: 80vh; display: flex; align-items: center;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="bg-white p-5 rounded shadow">
+                    <div class="text-center mb-4">
+                        <div class="text-center mb-2">
+                            <img src="{{ asset('images/unibank-plus.png') }}" alt="UniBank+" style="height: 80px;">
+                        </div>
+                        <h2 class="h4 text-black">Connexion</h2>
+                        <p class="text-muted">Connectez-vous a votre espace</p>
+                    </div>
+
+                    {% if error %}
+                        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                    {% endif %}
+
+                    <form method="post">
+                        <div class="form-group">
+                            <label class="text-black" for="inputEmail">Email</label>
+                            <input type="email" id="inputEmail" name="_username"
+                                   value="{{ last_username }}" required autofocus
+                                   class="form-control" placeholder="votre@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="text-black" for="inputPassword">Mot de passe</label>
+                            <input type="password" id="inputPassword" name="_password"
+                                   required class="form-control" placeholder="Votre mot de passe">
+                            <div class="text-right mt-1">
+                                <a href="{{ path('app_forgot_password') }}" style="font-size:13px;color:#2259d6;">Mot de passe oublie ?</a>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="h-captcha" data-sitekey="{{ hcaptcha_site_key }}"></div>
+                        </div>
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                        <button type="submit" class="btn btn-primary btn-block py-2">Se connecter</button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Pas encore de compte ? <a href="{{ path('app_register') }}"><strong>Creer un compte</strong></a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+{% endblock %}
