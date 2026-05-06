@@ -1,0 +1,724 @@
+{% extends 'client/base.html.twig' %}
+{% block title %}Mes Crédits - UniBank+{% endblock %}
+{% block page_title %}Mes Crédits{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ════════════════════════════════════
+   SIMULATOR SECTION
+════════════════════════════════════ */
+.sim-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 0;
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    margin-bottom: 28px;
+    border: 1px solid #f0f2f5;
+}
+
+/* Left panel */
+.sim-left {
+    background: linear-gradient(145deg, #1a2f6b 0%, #2259d6 55%, #4338ca 100%);
+    padding: 32px 36px;
+    position: relative;
+    overflow: hidden;
+}
+.sim-left::before {
+    content:''; position:absolute;
+    width:300px; height:300px;
+    border-radius:50%;
+    background: rgba(255,255,255,0.04);
+    top:-80px; right:-80px;
+}
+.sim-left::after {
+    content:''; position:absolute;
+    width:200px; height:200px;
+    border-radius:50%;
+    background: rgba(255,255,255,0.04);
+    bottom:-60px; left:40%;
+}
+.sim-left-title {
+    font-size: 20px; font-weight: 800; color: #fff;
+    margin-bottom: 4px; position: relative; z-index: 1;
+}
+.sim-left-sub {
+    font-size: 13px; color: rgba(255,255,255,0.65);
+    margin-bottom: 28px; position: relative; z-index: 1;
+}
+
+/* Sliders */
+.slider-block { position: relative; z-index: 1; margin-bottom: 24px; }
+.slider-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.slider-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.8px; }
+.slider-current { font-size: 22px; font-weight: 800; color: #fff; }
+
+input[type=range].pro-range {
+    -webkit-appearance: none;
+    width: 100%; height: 5px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.2);
+    outline: none; cursor: pointer;
+}
+input[type=range].pro-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%; background: #fff;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    border: 3px solid rgba(34,89,214,0.3);
+}
+.slider-minmax { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 5px; }
+
+/* Fields */
+.sim-fields-row { display: grid; grid-template-columns: 1fr 1.8fr; gap: 14px; position: relative; z-index: 1; margin-bottom: 18px; }
+.sim-field-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; }
+.sim-glass-input {
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    border-radius: 11px;
+    padding: 11px 15px;
+    color: #fff; font-size: 14px; font-family: inherit;
+    transition: border-color .2s, background .2s;
+    backdrop-filter: blur(4px);
+}
+.sim-glass-input::placeholder { color: rgba(255,255,255,0.35); }
+.sim-glass-input:focus { outline: none; border-color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.16); }
+.sim-glass-input.input-error { border-color: #fca5a5 !important; }
+textarea.sim-glass-input { resize: none; }
+.field-error { display: none; font-size: 11px; color: #fca5a5; font-weight: 600; margin-top: 5px; }
+.field-error.is-visible { display: block; }
+
+/* Capacity bar */
+.cap-box {
+    display: none;
+    background: rgba(255,255,255,0.08);
+    border-radius: 11px; padding: 13px 15px;
+    margin-bottom: 16px;
+    position: relative; z-index: 1;
+}
+.cap-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.9); }
+.cap-bar-bg { background: rgba(255,255,255,0.15); border-radius: 6px; height: 7px; overflow: hidden; }
+.cap-bar-fill { height: 100%; border-radius: 6px; transition: width .4s, background .4s; }
+.cap-foot { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: rgba(255,255,255,0.5); }
+
+/* Submit */
+.sim-submit-btn {
+    width: 100%;
+    background: #fff;
+    color: #2259d6;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 15px; font-weight: 800;
+    cursor: pointer;
+    position: relative; z-index: 1;
+    transition: box-shadow .2s, transform .15s, opacity .2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.sim-submit-btn:hover:not(:disabled) { box-shadow: 0 8px 24px rgba(0,0,0,0.2); transform: translateY(-1px); }
+.sim-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Right panel — results */
+.sim-right {
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #fafbff;
+    border-left: 1px solid #f0f2f5;
+}
+.sim-right-title { font-size: 12px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 16px; }
+
+.result-main {
+    background: linear-gradient(135deg,#2259d6,#4338ca);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 16px;
+}
+.result-main-label { font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
+.result-main-val { font-size: 36px; font-weight: 900; color: #fff; line-height: 1; }
+.result-main-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 5px; }
+
+.result-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 13px;
+}
+.result-row:last-child { border-bottom: none; }
+.result-row-label { color: #6b7280; }
+.result-row-val { font-weight: 700; color: #111827; }
+
+.taux-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #dbeafe; color: #2259d6;
+    border-radius: 20px; padding: 4px 12px;
+    font-size: 12px; font-weight: 700;
+}
+
+/* ════════════════════════════════════
+   CREDITS LIST
+════════════════════════════════════ */
+.credits-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+}
+.credits-header-title {
+    font-size: 16px; font-weight: 800; color: #111827;
+}
+.credits-count-badge {
+    background: #dbeafe; color: #2259d6;
+    border-radius: 20px; padding: 3px 12px;
+    font-size: 12px; font-weight: 700;
+    margin-left: 8px;
+}
+
+.credit-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #f0f2f5;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    overflow: hidden;
+    margin-bottom: 14px;
+    transition: box-shadow .2s, transform .15s;
+}
+.credit-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.08); transform: translateY(-1px); }
+
+.credit-card-top {
+    display: grid;
+    grid-template-columns: 6px 1fr;
+}
+.credit-card-stripe { /* status color injected inline */ }
+.credit-card-body { padding: 20px 24px; }
+
+.credit-card-row1 {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 12px; flex-wrap: wrap; gap: 10px;
+}
+.credit-amount { font-size: 26px; font-weight: 900; color: #111827; line-height: 1; }
+.credit-amount small { font-size: 14px; font-weight: 500; color: #9ca3af; }
+.credit-status-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 700;
+    padding: 5px 13px; border-radius: 20px;
+}
+
+.credit-card-stats {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 12px;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+}
+.cc-stat-label { font-size: 10px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.cc-stat-val { font-size: 14px; font-weight: 800; color: #111827; }
+.cc-stat-val.green { color: #16a34a; }
+.cc-stat-val.blue { color: #2259d6; }
+.cc-stat-val.red { color: #dc2626; }
+.cc-stat-val.orange { color: #ea580c; }
+
+.credit-card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+}
+.credit-motif {
+    font-size: 12px; color: #9ca3af;
+    font-style: italic; flex: 1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px;
+}
+
+.action-group { display: flex; gap: 8px; align-items: center; }
+.act { display: inline-flex; align-items: center; justify-content: center; border: none; cursor: pointer; border-radius: 9px; font-weight: 700; transition: transform .15s, box-shadow .15s; }
+.act:hover { transform: scale(1.05); box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+.act-icon { width: 34px; height: 34px; font-size: 13px; }
+.act-pill { height: 34px; padding: 0 14px; font-size: 12px; gap: 6px; }
+.act-edit-style { background: #dbeafe; color: #2259d6; }
+.act-del-style { background: #fee2e2; color: #dc2626; }
+.act-warn-style { background: #fef9c3; color: #d97706; }
+.act-green-style { background: #dcfce7; color: #16a34a; }
+.act-primary-style { background: linear-gradient(135deg,#2259d6,#4338ca); color: #fff; }
+
+/* Contract modal */
+.contract-opt {
+    display: block; padding: 14px 16px;
+    border: 2px solid #e5e7eb; border-radius: 12px;
+    cursor: pointer; margin-bottom: 10px;
+    transition: border-color .2s, background .2s;
+}
+.contract-opt:has(input:checked) { border-color: #2259d6; background: #f0f4ff; }
+
+/* Empty state */
+.empty-credits {
+    text-align: center; padding: 48px 20px;
+    color: #9ca3af;
+}
+.empty-credits i { font-size: 40px; margin-bottom: 12px; display: block; color: #e5e7eb; }
+.empty-credits p { font-size: 14px; margin: 0; }
+
+@media(max-width:900px) {
+    .sim-wrapper { grid-template-columns: 1fr; }
+    .sim-right { border-left: none; border-top: 1px solid #f0f2f5; }
+    .credit-card-stats { grid-template-columns: repeat(2,1fr); }
+}
+@media(max-width:600px) {
+    .sim-fields-row { grid-template-columns: 1fr; }
+    .credit-card-stats { grid-template-columns: 1fr 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ══════════════════════════════════════
+   SIMULATOR
+══════════════════════════════════════ #}
+<form method="post" action="{{ path('app_client_credit_apply') }}" id="creditForm" novalidate data-inline-validate>
+<div class="sim-wrapper">
+
+    {# LEFT — controls #}
+    <div class="sim-left">
+        <div class="sim-left-title"><i class="fas fa-calculator mr-2"></i>Simulateur de crédit</div>
+        <div class="sim-left-sub">Ajustez les curseurs pour calculer votre mensualité en temps réel</div>
+
+        {# Montant slider #}
+        <div class="slider-block">
+            <div class="slider-top">
+                <span class="slider-label">Montant du crédit</span>
+                <span class="slider-current" id="montantVal">50 000 DT</span>
+            </div>
+            <input type="range" class="pro-range" id="montantSlider" min="1000" max="500000" step="1000" value="50000" oninput="updateSimulation()">
+            <div class="slider-minmax"><span>1 000 DT</span><span>500 000 DT</span></div>
+            <input type="hidden" name="montant" id="montantInput" value="50000">
+            <div class="field-error" data-error-for="montant"></div>
+        </div>
+
+        {# Durée slider #}
+        <div class="slider-block">
+            <div class="slider-top">
+                <span class="slider-label">Durée de remboursement</span>
+                <span class="slider-current" id="dureeVal">5 ans</span>
+            </div>
+            <input type="range" class="pro-range" id="dureeSlider" min="1" max="25" step="1" value="5" oninput="updateSimulation()">
+            <div class="slider-minmax"><span>1 an</span><span>25 ans</span></div>
+            <input type="hidden" name="duree" id="dureeInput" value="5">
+            <div class="field-error" data-error-for="duree"></div>
+        </div>
+
+        {# Capacity bar #}
+        <div class="cap-box" id="capacityBox">
+            <div class="cap-row">
+                <span><i class="fas fa-chart-bar mr-2"></i>Capacité d'endettement (33% du salaire)</span>
+                <span id="capacityLabel" style="font-size:13px;"></span>
+            </div>
+            <div class="cap-bar-bg"><div class="cap-bar-fill" id="capacityBar"></div></div>
+            <div class="cap-foot">
+                <span id="capacityMens"></span>
+                <span id="capacityMax"></span>
+            </div>
+        </div>
+
+        {# Salaire + motif #}
+        <div class="sim-fields-row">
+            <div>
+                <div class="sim-field-label">Salaire mensuel (DT)</div>
+                <input type="number" name="salaire" id="salaireInput" step="0.01" min="1"
+                    class="sim-glass-input" placeholder="Ex: 2 500" required oninput="updateSimulation()">
+                <div class="field-error" data-error-for="salaire"></div>
+            </div>
+            <div>
+                <div class="sim-field-label">Motif de la demande <span style="font-size:10px;font-weight:400;">(min. 10 car.)</span></div>
+                <textarea name="motif" class="sim-glass-input" rows="3"
+                    required minlength="10" placeholder="Décrivez votre projet..."></textarea>
+                <div class="field-error" data-error-for="motif"></div>
+            </div>
+        </div>
+
+        <button type="submit" class="sim-submit-btn" id="submitBtn">
+            <i class="fas fa-paper-plane"></i> Soumettre ma demande
+        </button>
+    </div>
+
+    {# RIGHT — live results #}
+    <div class="sim-right">
+        <div>
+            <div class="sim-right-title"><i class="fas fa-chart-line mr-1"></i> Résultat de la simulation</div>
+
+            <div class="result-main">
+                <div class="result-main-label">Mensualité estimée</div>
+                <div class="result-main-val" id="simMensualite">—</div>
+                <div class="result-main-sub">par mois pendant <span id="resultDuree">—</span></div>
+            </div>
+
+            <div>
+                <div class="result-row">
+                    <span class="result-row-label"><i class="fas fa-percentage mr-2" style="color:#2259d6;width:14px;"></i>Taux annuel</span>
+                    <span class="taux-badge">{{ tauxBase }}%</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-row-label"><i class="fas fa-coins mr-2" style="color:#16a34a;width:14px;"></i>Total à rembourser</span>
+                    <span class="result-row-val" id="simTotal">—</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-row-label"><i class="fas fa-receipt mr-2" style="color:#ea580c;width:14px;"></i>Coût du crédit</span>
+                    <span class="result-row-val" style="color:#ea580c;" id="simCout">—</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-row-label"><i class="fas fa-calendar-alt mr-2" style="color:#7c3aed;width:14px;"></i>Nb de mensualités</span>
+                    <span class="result-row-val" id="simNbMens">—</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:16px;background:#f0f9ff;border-radius:12px;padding:12px 14px;border-left:3px solid #2259d6;">
+            <div style="font-size:11px;font-weight:700;color:#1e40af;margin-bottom:3px;"><i class="fas fa-info-circle mr-1"></i>Information</div>
+            <div style="font-size:11px;color:#3b82f6;line-height:1.5;">Saisissez votre salaire mensuel pour vérifier votre éligibilité selon la règle des 33%.</div>
+        </div>
+    </div>
+</div>
+</form>
+
+{# ══════════════════════════════════════
+   CREDITS LIST
+══════════════════════════════════════ #}
+{% if credits|length > 0 %}
+<div class="credits-header">
+    <div class="credits-header-title">
+        <i class="fas fa-file-invoice-dollar mr-2" style="color:#2259d6;"></i>
+        Mes demandes de crédit
+        <span class="credits-count-badge">{{ credits|length }}</span>
+    </div>
+</div>
+
+{% for c in credits %}
+{% set statusColor = '#6b7280' %}
+{% set statusBg = '#f3f4f6' %}
+{% set statusText = c.statut.value %}
+{% if c.statut.value == 'ACTIVE' %}{% set statusColor = '#16a34a' %}{% set statusBg = '#dcfce7' %}{% set statusText = 'Actif' %}{% set stripeColor = '#16a34a' %}
+{% elseif c.statut.value == 'PENDING' %}{% set statusColor = '#d97706' %}{% set statusBg = '#fef9c3' %}{% set statusText = 'En attente' %}{% set stripeColor = '#f59e0b' %}
+{% elseif c.statut.value == 'APPROVED' %}{% set statusColor = '#2259d6' %}{% set statusBg = '#dbeafe' %}{% set statusText = 'Approuvé' %}{% set stripeColor = '#2259d6' %}
+{% elseif c.statut.value == 'CONTRACT_PENDING' %}{% set statusColor = '#7c3aed' %}{% set statusBg = '#ede9fe' %}{% set statusText = 'Contrat en cours' %}{% set stripeColor = '#7c3aed' %}
+{% elseif c.statut.value == 'REJECTED' %}{% set statusColor = '#dc2626' %}{% set statusBg = '#fee2e2' %}{% set statusText = 'Rejeté' %}{% set stripeColor = '#dc2626' %}
+{% elseif c.statut.value == 'COMPLETED' %}{% set statusColor = '#0d9488' %}{% set statusBg = '#ccfbf1' %}{% set statusText = 'Terminé' %}{% set stripeColor = '#0d9488' %}
+{% elseif c.statut.value == 'CANCELLED' %}{% set statusColor = '#6b7280' %}{% set statusBg = '#f3f4f6' %}{% set statusText = 'Annulé' %}{% set stripeColor = '#9ca3af' %}
+{% else %}{% set stripeColor = '#9ca3af' %}{% endif %}
+
+<div class="credit-card">
+    <div class="credit-card-top">
+        <div style="background:{{ stripeColor }};width:6px;"></div>
+        <div class="credit-card-body">
+
+            {# Row 1: amount + status #}
+            <div class="credit-card-row1">
+                <div>
+                    <div class="credit-amount">{{ c.montant|number_format(0, '', ' ') }} <small>DT</small></div>
+                    <div style="font-size:12px;color:#9ca3af;margin-top:3px;"><i class="fas fa-calendar mr-1"></i>Demande du {{ c.dateCreation|date('d/m/Y') }}</div>
+                </div>
+                <span class="credit-status-pill" style="background:{{ statusBg }};color:{{ statusColor }};">
+                    <i class="fas {% if c.statut.value == 'ACTIVE' %}fa-check-circle{% elseif c.statut.value == 'PENDING' %}fa-hourglass-half{% elseif c.statut.value == 'APPROVED' %}fa-thumbs-up{% elseif c.statut.value == 'CONTRACT_PENDING' %}fa-file-signature{% elseif c.statut.value == 'REJECTED' %}fa-times-circle{% elseif c.statut.value == 'COMPLETED' %}fa-check-double{% else %}fa-ban{% endif %}"></i>
+                    {{ statusText }}
+                </span>
+            </div>
+
+            {# Stats grid #}
+            <div class="credit-card-stats">
+                <div>
+                    <div class="cc-stat-label">Mensualité</div>
+                    <div class="cc-stat-val green">{{ c.mensualite|number_format(2, ',', ' ') }} DT</div>
+                </div>
+                <div>
+                    <div class="cc-stat-label">Durée</div>
+                    <div class="cc-stat-val blue">{{ c.dureeEnMois }} mois</div>
+                </div>
+                <div>
+                    <div class="cc-stat-label">Total à rembourser</div>
+                    {% set totalRembours = c.mensualite * c.dureeEnMois %}
+                    <div class="cc-stat-val">{{ totalRembours|number_format(0, '', ' ') }} DT</div>
+                </div>
+                <div>
+                    <div class="cc-stat-label">Salaire mensuel</div>
+                    <div class="cc-stat-val">{{ c.salaireMensuel|number_format(0, '', ' ') }} DT</div>
+                </div>
+            </div>
+
+            {# Currency converter #}
+            {% if rates is defined and rates is not empty %}
+            <div style="display:flex;align-items:center;gap:10px;background:#f8fafc;border-radius:10px;padding:10px 14px;margin-bottom:10px;">
+                <i class="fas fa-globe" style="color:#9ca3af;font-size:13px;"></i>
+                <select onchange="fxCredit(this, {{ c.montant }})" style="border:1px solid #e5e7eb;border-radius:8px;padding:5px 10px;font-size:13px;font-weight:600;color:#374151;background:#fff;cursor:pointer;outline:none;">
+                    <option value="">Convertir le montant…</option>
+                    <option value="EUR">🇪🇺 EUR</option>
+                    <option value="USD">🇺🇸 USD</option>
+                    <option value="GBP">🇬🇧 GBP</option>
+                    <option value="SAR">🇸🇦 SAR</option>
+                    <option value="MAD">🇲🇦 MAD</option>
+                </select>
+                <span class="fx-credit-result" style="font-size:15px;font-weight:800;color:#2259d6;"></span>
+            </div>
+            {% endif %}
+
+            {# Footer: motif + actions #}
+            <div class="credit-card-footer">
+                {% if c.motifDemande %}
+                <div class="credit-motif"><i class="fas fa-quote-left mr-1"></i>{{ c.motifDemande|slice(0,80) }}{% if c.motifDemande|length > 80 %}…{% endif %}</div>
+                {% else %}<div></div>{% endif %}
+
+                <div class="action-group">
+                    {% if c.statut.value == 'PENDING' %}
+                        <button type="button" class="act act-icon act-edit-style" title="Modifier"
+                            onclick="openModifyModal({{ c.idCredit }}, {{ c.montant }}, {{ (c.dureeEnMois / 12)|round }}, {{ c.salaireMensuel }}, '{{ c.motifDemande|e('js') }}')">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <form method="post" action="{{ path('app_client_credit_cancel', {id: c.idCredit}) }}" style="display:inline;">
+                            <button type="submit" class="act act-icon act-warn-style" title="Annuler" onclick="return confirm('Annuler cette demande ?')">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                        </form>
+                        <form method="post" action="{{ path('app_client_credit_delete', {id: c.idCredit}) }}" style="display:inline;">
+                            <button type="submit" class="act act-icon act-del-style" title="Supprimer" onclick="return confirm('Supprimer définitivement ?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+
+                    {% elseif c.statut.value == 'APPROVED' %}
+                        <button type="button" class="act act-pill act-primary-style" onclick="$('#contractModal{{ c.idCredit }}').modal('show')">
+                            <i class="fas fa-file-contract"></i> Choisir mon contrat
+                        </button>
+
+                    {% elseif c.statut.value == 'CONTRACT_PENDING' %}
+                        <button type="button" class="act act-pill act-edit-style" onclick="$('#contractModal{{ c.idCredit }}').modal('show')">
+                            <i class="fas fa-pen"></i> Modifier le contrat
+                        </button>
+
+                    {% elseif c.statut.value == 'ACTIVE' %}
+                        <a href="{{ path('app_client_credit_pdf', {id: c.idCredit}) }}" class="act act-pill act-green-style" title="Télécharger le contrat PDF">
+                            <i class="fas fa-file-pdf"></i> Télécharger contrat
+                        </a>
+
+                    {% elseif c.statut.value == 'REJECTED' and c.motifRejet %}
+                        <button type="button" class="act act-pill act-del-style"
+                            onclick="alert('Motif du rejet:\n\n{{ c.motifRejet|e('js') }}')">
+                            <i class="fas fa-info-circle"></i> Voir motif du rejet
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="empty-credits" style="background:#fff;border-radius:16px;border:1px solid #f0f2f5;">
+    <i class="fas fa-hand-holding-usd"></i>
+    <p style="font-weight:700;color:#374151;font-size:15px;margin-bottom:6px;">Aucune demande de crédit</p>
+    <p>Utilisez le simulateur ci-dessus pour soumettre votre première demande.</p>
+</div>
+{% endif %}
+
+{# Contract modals #}
+{% for c in credits %}
+{% if c.statut.value == 'APPROVED' or c.statut.value == 'CONTRACT_PENDING' %}
+<div class="modal fade modal-admin" id="contractModal{{ c.idCredit }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+        <div class="modal-content" style="border:none;border-radius:18px;overflow:hidden;">
+            <div style="background:linear-gradient(135deg,#2259d6,#4338ca);padding:22px 26px;">
+                <h5 style="color:#fff;font-weight:800;margin:0;font-size:17px;"><i class="fas fa-file-contract mr-2"></i>Choisir le type de contrat</h5>
+                <div style="color:rgba(255,255,255,0.7);font-size:13px;margin-top:4px;">
+                    {{ c.montant|number_format(0,'',' ') }} DT · {{ c.mensualite|number_format(2,',',' ') }} DT/mois · {{ c.dureeEnMois }} mois
+                </div>
+            </div>
+            <form method="post" action="{{ path('app_client_credit_contract', {id: c.idCredit}) }}" novalidate data-inline-validate>
+                <div style="padding:22px 24px 8px;">
+                    <label class="contract-opt">
+                        <input type="radio" name="type_contrat" value="PRELEVEMENT_AUTOMATIQUE" required style="margin-right:10px;accent-color:#2259d6;">
+                        <strong style="color:#111827;">Prélèvement automatique</strong>
+                        <small style="display:block;color:#6b7280;font-size:12px;margin-top:3px;">Prélevé le 5 de chaque mois · Aucune majoration · Pénalité retard: 1.5%</small>
+                    </label>
+                    <label class="contract-opt">
+                        <input type="radio" name="type_contrat" value="PAIEMENT_MENSUEL" style="margin-right:10px;accent-color:#2259d6;">
+                        <strong style="color:#111827;">Paiement mensuel</strong>
+                        <small style="display:block;color:#6b7280;font-size:12px;margin-top:3px;">Avant le 10 de chaque mois · Aucune majoration · Pénalité retard: 3.0%</small>
+                    </label>
+                    <label class="contract-opt" style="margin-bottom:0;">
+                        <input type="radio" name="type_contrat" value="PAIEMENT_DIFFERE" style="margin-right:10px;accent-color:#2259d6;">
+                        <strong style="color:#111827;">Paiement différé</strong>
+                        <small style="display:block;color:#6b7280;font-size:12px;margin-top:3px;">Période de grâce incluse · Majoration taux: +0.5% · Pénalité: 2.0%</small>
+                    </label>
+                    <div class="field-error" style="color:#dc2626;" data-error-for="type_contrat"></div>
+                </div>
+                <div style="padding:16px 24px 22px;display:flex;gap:12px;justify-content:flex-end;border-top:1px solid #f3f4f6;margin-top:16px;">
+                    <button type="button" class="btn-admin outline" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn-admin primary">Confirmer mon choix</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+{# Modify modal #}
+<div class="modal fade modal-admin" id="modifyModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:480px;">
+        <div class="modal-content" style="border:none;border-radius:18px;overflow:hidden;">
+            <div style="background:linear-gradient(135deg,#2259d6,#4338ca);padding:22px 26px;">
+                <h5 style="color:#fff;font-weight:800;margin:0;font-size:17px;"><i class="fas fa-pen mr-2"></i>Modifier la demande</h5>
+            </div>
+            <form id="modifyForm" method="post" novalidate data-inline-validate>
+                <div style="padding:22px 24px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px;">Montant (DT)</label>
+                            <input type="number" name="montant" id="mod_montant" min="1000" max="500000" step="1000"
+                                class="form-control" style="border-radius:10px;border:1.5px solid #e5e7eb;padding:10px 14px;font-size:14px;" required>
+                            <div class="field-error" style="color:#dc2626;" data-error-for="montant"></div>
+                        </div>
+                        <div>
+                            <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px;">Durée (années)</label>
+                            <input type="number" name="duree" id="mod_duree" min="1" max="25"
+                                class="form-control" style="border-radius:10px;border:1.5px solid #e5e7eb;padding:10px 14px;font-size:14px;" required>
+                            <div class="field-error" style="color:#dc2626;" data-error-for="duree"></div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px;">Salaire mensuel (DT)</label>
+                        <input type="number" name="salaire" id="mod_salaire" step="0.01" min="1"
+                            class="form-control" style="border-radius:10px;border:1.5px solid #e5e7eb;padding:10px 14px;font-size:14px;" required>
+                        <div class="field-error" style="color:#dc2626;" data-error-for="salaire"></div>
+                    </div>
+                    <div>
+                        <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px;">Motif (min. 10 caractères)</label>
+                        <textarea name="motif" id="mod_motif" class="form-control"
+                            style="border-radius:10px;border:1.5px solid #e5e7eb;padding:10px 14px;font-size:14px;" rows="3" required minlength="10"></textarea>
+                        <div class="field-error" style="color:#dc2626;" data-error-for="motif"></div>
+                    </div>
+                </div>
+                <div style="padding:0 24px 22px;display:flex;gap:12px;justify-content:flex-end;">
+                    <button type="button" class="btn-admin outline" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn-admin primary">Enregistrer les modifications</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+var FX_RATES = {{ rates is defined ? rates|json_encode|raw : '{}' }};
+
+function fxCredit(sel, montant) {
+    var cur = sel.value;
+    var result = sel.parentElement.querySelector('.fx-credit-result');
+    if (!cur || !FX_RATES[cur]) { result.textContent = ''; return; }
+    var amount = (montant * FX_RATES[cur]).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    result.textContent = '≈ ' + amount + ' ' + cur;
+}
+
+var tauxBase = {{ tauxBase }};
+
+function updateSimulation() {
+    var m = +document.getElementById('montantSlider').value;
+    var d = +document.getElementById('dureeSlider').value;
+    var s = parseFloat(document.getElementById('salaireInput').value) || 0;
+    var mois = d * 12;
+    var tm = tauxBase / 100 / 12;
+    var mens = m * (tm * Math.pow(1+tm,mois)) / (Math.pow(1+tm,mois)-1);
+    var total = mens * mois;
+
+    document.getElementById('montantVal').textContent = m.toLocaleString('fr-FR') + ' DT';
+    document.getElementById('dureeVal').textContent = d + (d>1?' ans':' an');
+    document.getElementById('montantInput').value = m;
+    document.getElementById('dureeInput').value = d;
+    document.getElementById('resultDuree').textContent = d + (d>1?' ans':' an');
+    document.getElementById('simNbMens').textContent = mois + ' mensualités';
+
+    var fmt = function(n){ return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' DT'; };
+    document.getElementById('simMensualite').textContent = fmt(mens);
+    document.getElementById('simTotal').textContent = fmt(total);
+    document.getElementById('simCout').textContent = fmt(total - m);
+
+    // Update slider fill
+    ['montantSlider','dureeSlider'].forEach(function(id){
+        var el = document.getElementById(id);
+        var pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+        el.style.background = 'linear-gradient(to right, rgba(255,255,255,0.7) '+pct+'%, rgba(255,255,255,0.2) '+pct+'%)';
+    });
+
+    var box = document.getElementById('capacityBox');
+    if (s > 0) {
+        box.style.display = 'block';
+        var maxA = s * 0.33, pct2 = Math.min((mens/maxA)*100,100), ok = mens <= maxA;
+        document.getElementById('capacityBar').style.width = pct2+'%';
+        document.getElementById('capacityBar').style.background = ok ? '#86efac' : '#fca5a5';
+        document.getElementById('capacityLabel').textContent = ok ? '✓ Éligible' : '✗ Non éligible';
+        document.getElementById('capacityLabel').style.color = ok ? '#86efac' : '#fca5a5';
+        document.getElementById('capacityMens').textContent = 'Mensualité: '+fmt(mens);
+        document.getElementById('capacityMax').textContent = 'Max 33%: '+fmt(maxA);
+        document.getElementById('submitBtn').disabled = !ok;
+    } else {
+        box.style.display = 'none';
+        document.getElementById('submitBtn').disabled = false;
+    }
+}
+
+updateSimulation();
+
+function openModifyModal(id, montant, duree, salaire, motif) {
+    document.getElementById('modifyForm').action = '/client/credits/'+id+'/modify';
+    document.getElementById('mod_montant').value = montant;
+    document.getElementById('mod_duree').value = duree;
+    document.getElementById('mod_salaire').value = salaire;
+    document.getElementById('mod_motif').value = motif;
+    $('#modifyModal').modal('show');
+}
+
+function getMsg(f) {
+    if (f.validity.valueMissing) return 'Champ obligatoire.';
+    if (f.validity.rangeUnderflow||f.validity.rangeOverflow) {
+        if(f.name==='salaire') return 'Salaire doit être > 0.';
+        if(f.name==='montant') return 'Entre 1 000 et 500 000 DT.';
+        if(f.name==='duree') return 'Entre 1 et 25 ans.';
+    }
+    if (f.validity.tooShort) return 'Trop court (min. 10 caractères).';
+    if (f.type==='radio') return 'Veuillez choisir une option.';
+    return '';
+}
+function validateField(f, form) {
+    var el = form.querySelector('[data-error-for="'+f.name+'"]');
+    if (!el) return true;
+    var ok, msg;
+    if (f.type==='radio') {
+        ok = !!form.querySelector('input[name="'+f.name+'"]:checked');
+        msg = ok ? '' : getMsg(f);
+    } else {
+        ok = f.checkValidity(); msg = ok ? '' : getMsg(f);
+        f.classList.toggle('input-error', !ok);
+    }
+    el.textContent = msg; el.classList.toggle('is-visible', !ok);
+    return ok;
+}
+function setupValidation(form) {
+    if (!form) return;
+    var fields = form.querySelectorAll('input[name],textarea[name],select[name]');
+    fields.forEach(function(f){
+        f.addEventListener(f.type==='radio'?'change':'input', function(){ validateField(f, form); });
+    });
+    form.addEventListener('submit', function(e){
+        var first=null, ok=true;
+        fields.forEach(function(f){ if(!validateField(f,form)){ok=false;if(!first)first=f;} });
+        if(!ok){e.preventDefault();if(first)first.focus();}
+    });
+}
+document.querySelectorAll('form[data-inline-validate]').forEach(setupValidation);
+</script>
+{% endblock %}

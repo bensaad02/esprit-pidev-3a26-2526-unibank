@@ -1,0 +1,355 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Gestion Clients - Admin UniBank+{% endblock %}
+{% block page_title %}Gestion Clients{% endblock %}
+
+{% block body %}
+<div class="admin-card">
+    <div class="card-header">
+        <h5><i class="fas fa-users mr-2" style="color:var(--primary);"></i>Liste des clients ({{ clients|length }})</h5>
+        <form method="get" action="{{ path('app_admin_users') }}" class="filter-bar">
+            <input type="text" name="q" value="{{ search }}" placeholder="Rechercher nom, email, CIN..." oninput="clearTimeout(this.t);this.t=setTimeout(()=>this.form.submit(),400)" style="width:220px;">
+            <select name="status" onchange="this.form.submit()">
+                <option value="all" {{ statusFilter == 'all' ? 'selected' : '' }}>Tous les statuts</option>
+                <option value="PENDING" {{ statusFilter == 'PENDING' ? 'selected' : '' }}>En attente</option>
+                <option value="APPROVED" {{ statusFilter == 'APPROVED' ? 'selected' : '' }}>Approuve</option>
+                <option value="REJECTED" {{ statusFilter == 'REJECTED' ? 'selected' : '' }}>Rejete</option>
+                <option value="SUSPENDED" {{ statusFilter == 'SUSPENDED' ? 'selected' : '' }}>Suspendu</option>
+            </select>
+            {% if search or statusFilter != 'all' %}
+                <a href="{{ path('app_admin_users') }}" class="btn-admin outline" style="padding:8px 14px;font-size:13px;">Reset</a>
+            {% endif %}
+        </form>
+    </div>
+    <div class="card-body">
+        {% if clients|length > 0 %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>CIN</th>
+                    <th>Telephone</th>
+                    <th>Statut</th>
+                    <th>Etat</th>
+                    <th>Inscription</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">{{ client.prenom|first }}{{ client.nom|first }}</div>
+                            <div class="user-details">
+                                <div class="user-name">{{ client.prenom }} {{ client.nom }}</div>
+                                <div class="user-email">{{ client.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ client.cin }}</td>
+                    <td>{{ client.telephone }}</td>
+                    <td>
+                        {% if client.clientStatus %}
+                            {% if client.clientStatus.value == 'APPROVED' %}
+                                <span class="badge-status approved">Approuve</span>
+                            {% elseif client.clientStatus.value == 'PENDING' %}
+                                <span class="badge-status pending">En attente</span>
+                            {% elseif client.clientStatus.value == 'REJECTED' %}
+                                <span class="badge-status rejected">Rejete</span>
+                            {% elseif client.clientStatus.value == 'SUSPENDED' %}
+                                <span class="badge-status suspended">Suspendu</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge-status suspended">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if client.estActif %}
+                            <span class="badge-status active">Actif</span>
+                        {% elseif client.banUntil %}
+                            <span class="badge-status banned" title="Jusqu'au {{ client.banUntil|date('d/m/Y') }}{% if client.banReason %} · {{ client.banReason }}{% endif %}">
+                                Banni temp.
+                            </span>
+                        {% else %}
+                            <span class="badge-status banned" title="{% if client.banReason %}{{ client.banReason }}{% else %}Ban permanent{% endif %}">
+                                Banni ∞
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>{{ client.dateCreation|date('d/m/Y') }}</td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn-action edit" title="Modifier" onclick="openEditModal({{ client.idUtilisateur }}, '{{ client.nom|e('js') }}', '{{ client.prenom|e('js') }}', '{{ client.email|e('js') }}', '{{ client.telephone|e('js') }}', '{{ client.cin|e('js') }}', '{{ client.adresse|e('js') }}')">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        {% if client.estActif %}
+                            <button type="button" class="btn-action ban" title="Bannir"
+                                onclick="openBanModal({{ client.idUtilisateur }}, '{{ client.prenom|e('js') }} {{ client.nom|e('js') }}', '{{ path('app_admin_user_ban', {id: client.idUtilisateur}) }}')">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                        {% else %}
+                            <form method="post" action="{{ path('app_admin_user_ban', {id: client.idUtilisateur}) }}" style="display:inline;">
+                                <button type="submit" class="btn-action unban" title="Débannir"
+                                    onclick="return confirm('Débannir {{ client.prenom|e('js') }} {{ client.nom|e('js') }} ?')">
+                                    <i class="fas fa-unlock"></i>
+                                </button>
+                            </form>
+                        {% endif %}
+                        <button class="btn-action delete" title="Supprimer" onclick="openDeleteModal({{ client.idUtilisateur }}, '{{ client.prenom|e('js') }} {{ client.nom|e('js') }}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-search"></i>
+            <p>Aucun client trouve</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{# ── Ban Modal ── #}
+<div class="modal fade modal-admin" id="banModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;">
+            <div style="background:linear-gradient(135deg,#dc2626,#ef4444);padding:20px 24px;">
+                <h5 style="color:#fff;font-weight:700;margin:0;font-size:16px;"><i class="fas fa-ban mr-2"></i>Bannir le client</h5>
+                <div id="banModalName" style="color:rgba(255,255,255,0.8);font-size:13px;margin-top:3px;"></div>
+            </div>
+            <form id="banForm" method="post">
+                <div style="padding:22px 24px;">
+                    <div style="margin-bottom:16px;">
+                        <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Durée du ban</label>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                            <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;" class="ban-dur-opt">
+                                <input type="radio" name="duration" value="1d" style="display:none;"> 1 jour
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;" class="ban-dur-opt">
+                                <input type="radio" name="duration" value="3d" style="display:none;"> 3 jours
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;" class="ban-dur-opt">
+                                <input type="radio" name="duration" value="1w" style="display:none;"> 1 semaine
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;" class="ban-dur-opt">
+                                <input type="radio" name="duration" value="2w" style="display:none;"> 2 semaines
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;" class="ban-dur-opt">
+                                <input type="radio" name="duration" value="1m" style="display:none;"> 1 mois
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;" class="ban-dur-opt">
+                                <input type="radio" name="duration" value="3m" style="display:none;"> 3 mois
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;" class="ban-dur-opt">
+                                <input type="radio" name="duration" value="6m" style="display:none;"> 6 mois
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;background:#fff0f0;border-color:#fca5a5;" class="ban-dur-opt" id="banPermLabel">
+                                <input type="radio" name="duration" value="permanent" checked style="display:none;"> ⛔ Permanent
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Raison <span style="font-weight:400;color:#9ca3af;">(optionnel)</span></label>
+                        <input type="text" name="reason" placeholder="Ex: Fraude, comportement abusif..." maxlength="255"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:9px 14px;font-size:13px;outline:none;font-family:inherit;"
+                            onfocus="this.style.borderColor='#dc2626'" onblur="this.style.borderColor='#e5e7eb'">
+                    </div>
+                </div>
+                <div style="padding:0 24px 20px;display:flex;gap:10px;justify-content:flex-end;">
+                    <button type="button" class="btn-admin outline" data-dismiss="modal">Annuler</button>
+                    <button type="submit" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;border:none;border-radius:10px;padding:9px 20px;font-weight:700;font-size:13px;cursor:pointer;">
+                        <i class="fas fa-ban mr-1"></i> Confirmer le ban
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-admin" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-pen mr-2"></i>Modifier le client</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <form id="editForm" method="post">
+                <div class="modal-body">
+                    <div id="edit_global_error" class="alert alert-danger" style="display:none;font-size:13px;padding:8px 14px;border-radius:8px;"></div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Prenom</label>
+                            <input type="text" name="prenom" id="edit_prenom" class="form-control">
+                            <div class="invalid-feedback" id="err_prenom"></div>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Nom</label>
+                            <input type="text" name="nom" id="edit_nom" class="form-control">
+                            <div class="invalid-feedback" id="err_nom"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" id="edit_email" class="form-control">
+                        <div class="invalid-feedback" id="err_email"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Telephone</label>
+                            <input type="text" name="telephone" id="edit_telephone" class="form-control">
+                            <div class="invalid-feedback" id="err_telephone"></div>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>CIN</label>
+                            <input type="text" name="cin" id="edit_cin" class="form-control" maxlength="8" pattern="\d{8}" inputmode="numeric">
+                            <div class="invalid-feedback" id="err_cin"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Adresse</label>
+                        <textarea name="adresse" id="edit_adresse" class="form-control" rows="2"></textarea>
+                        <div class="invalid-feedback" id="err_adresse"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-admin outline" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn-admin primary" id="edit_submit_btn">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-admin" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle mr-2" style="color:var(--danger);"></i>Supprimer</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <form id="deleteForm" method="post">
+                <div class="modal-body">
+                    <p>Supprimer definitivement <strong id="delete_name"></strong> ?</p>
+                    <p style="font-size:13px;color:var(--text-secondary);">Tapez <strong>SUPPRIMER</strong> pour confirmer</p>
+                    <input type="text" id="delete_confirm" class="form-control" placeholder="SUPPRIMER" autocomplete="off">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-admin outline" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn-admin danger" id="delete_btn" disabled>Supprimer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function clearEditErrors() {
+    ['nom','prenom','email','telephone','cin','adresse'].forEach(function(f) {
+        var input = document.getElementById('edit_' + f);
+        var err = document.getElementById('err_' + f);
+        input.classList.remove('is-invalid');
+        err.textContent = '';
+    });
+    var global = document.getElementById('edit_global_error');
+    global.style.display = 'none';
+    global.textContent = '';
+}
+
+function openEditModal(id, nom, prenom, email, telephone, cin, adresse) {
+    document.getElementById('editForm').action = '/admin/users/' + id + '/edit';
+    document.getElementById('edit_nom').value = nom;
+    document.getElementById('edit_prenom').value = prenom;
+    document.getElementById('edit_email').value = email;
+    document.getElementById('edit_telephone').value = telephone;
+    document.getElementById('edit_cin').value = cin;
+    document.getElementById('edit_adresse').value = adresse;
+    clearEditErrors();
+    $('#editModal').modal('show');
+}
+
+document.getElementById('editForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    clearEditErrors();
+    var form = this;
+    var btn = document.getElementById('edit_submit_btn');
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement...';
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+        body: new FormData(form)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        btn.disabled = false;
+        btn.textContent = 'Enregistrer';
+        if (data.success) {
+            $('#editModal').modal('hide');
+            location.reload();
+        } else {
+            var errors = data.errors || {};
+            if (errors._global) {
+                var g = document.getElementById('edit_global_error');
+                g.textContent = errors._global;
+                g.style.display = 'block';
+            }
+            ['nom','prenom','email','telephone','cin','adresse'].forEach(function(f) {
+                if (errors[f]) {
+                    document.getElementById('edit_' + f).classList.add('is-invalid');
+                    document.getElementById('err_' + f).textContent = errors[f];
+                }
+            });
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.textContent = 'Enregistrer';
+        var g = document.getElementById('edit_global_error');
+        g.textContent = 'Une erreur est survenue. Veuillez reessayer.';
+        g.style.display = 'block';
+    });
+});
+
+function openBanModal(id, name, action) {
+    document.getElementById('banModalName').textContent = name;
+    document.getElementById('banForm').action = action;
+    document.querySelector('#banForm [name="reason"]').value = '';
+    // Reset selection styles
+    document.querySelectorAll('.ban-dur-opt').forEach(function(l) {
+        l.style.borderColor = l.id === 'banPermLabel' ? '#fca5a5' : '#e5e7eb';
+        l.style.background  = l.id === 'banPermLabel' ? '#fff0f0' : '';
+        l.style.color = '#374151';
+    });
+    var perm = document.querySelector('#banForm [value="permanent"]');
+    if (perm) perm.checked = true;
+    // Bind selection highlight
+    document.querySelectorAll('.ban-dur-opt').forEach(function(lbl) {
+        lbl.onclick = function() {
+            document.querySelectorAll('.ban-dur-opt').forEach(function(l) {
+                l.style.borderColor = '#e5e7eb'; l.style.background = ''; l.style.color = '#374151';
+            });
+            lbl.style.borderColor = '#dc2626';
+            lbl.style.background  = '#fff0f0';
+            lbl.style.color = '#dc2626';
+        };
+    });
+    $('#banModal').modal('show');
+}
+
+function openDeleteModal(id, name) {
+    document.getElementById('deleteForm').action = '/admin/users/' + id + '/delete';
+    document.getElementById('delete_name').textContent = name;
+    document.getElementById('delete_confirm').value = '';
+    document.getElementById('delete_btn').disabled = true;
+    $('#deleteModal').modal('show');
+}
+document.getElementById('delete_confirm').addEventListener('input', function() {
+    document.getElementById('delete_btn').disabled = this.value !== 'SUPPRIMER';
+});
+</script>
+{% endblock %}

@@ -1,0 +1,342 @@
+{# templates/client/reclamation/new.html.twig #}
+{% extends 'client/base.html.twig' %}
+
+{% block title %}Nouvelle réclamation - UniBank+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .info-card {
+        background: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .info-card i {
+        color: #2196f3;
+        margin-right: 10px;
+    }
+    
+    .accepted-formats {
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    
+    .accepted-formats i {
+        margin-right: 5px;
+    }
+    
+    .image-preview-container {
+        margin-top: 15px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        display: none;
+    }
+    
+    .image-preview {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .moderation-status {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+    
+    .moderation-status.loading {
+        background: #e3f2fd;
+        color: #1976d2;
+        border-left: 4px solid #1976d2;
+    }
+    
+    .moderation-status.approved {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border-left: 4px solid #2e7d32;
+    }
+    
+    .moderation-status.rejected {
+        background: #ffebee;
+        color: #c62828;
+        border-left: 4px solid #c62828;
+    }
+    
+    .requirements {
+        list-style: none;
+        padding-left: 0;
+    }
+    
+    .requirements li {
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
+    
+    .requirements li i {
+        margin-right: 8px;
+        width: 20px;
+    }
+    
+    .requirements li.valid {
+        color: #4caf50;
+    }
+    
+    .requirements li.invalid {
+        color: #f44336;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="form-container">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Nouvelle réclamation
+                </h4>
+            </div>
+            
+            <div class="card-body">
+                {# Messages flash #}
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+                
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <i class="fas fa-check-circle me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+                
+                {# Informations sur les justificatifs acceptés #}
+                <div class="info-card">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Justificatifs financiers acceptés :</strong>
+                    <ul class="requirements mt-2">
+                        <li><i class="fas fa-file-invoice"></i> Factures</li>
+                        <li><i class="fas fa-university"></i> Relevés bancaires</li>
+                        <li><i class="fas fa-receipt"></i> Reçus de paiement</li>
+                        <li><i class="fas fa-chart-line"></i> Relevés de transaction</li>
+                        <li><i class="fas fa-file-contract"></i> Contrats financiers</li>
+                    </ul>
+                    <small class="text-muted">
+                        ⚠️ Les photos personnelles, selfies ou images sans rapport financier seront refusées.
+                    </small>
+                </div>
+                
+                <form method="post" enctype="multipart/form-data" id="reclamationForm">
+                    <div class="mb-3">
+                        <label for="sujet" class="form-label">
+                            <i class="fas fa-tag me-1"></i>
+                            Sujet <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="sujet" 
+                               name="sujet" 
+                               required 
+                               placeholder="Ex: Problème de virement, Transaction non reconnue..."
+                               maxlength="255">
+                        <small class="text-muted">Maximum 255 caractères</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="type" class="form-label">
+                            <i class="fas fa-category me-1"></i>
+                            Type de réclamation <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="type" name="type" required>
+                            <option value="">Sélectionnez un type</option>
+                            <option value="technique">🔧 Problème technique</option>
+                            <option value="compte">👤 Problème de compte</option>
+                            <option value="transaction">💰 Transaction</option>
+                            <option value="carte">💳 Carte bancaire</option>
+                            <option value="credit">🏦 Crédit</option>
+                            <option value="autre">📝 Autre</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">
+                            <i class="fas fa-align-left me-1"></i>
+                            Description <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" 
+                                  id="description" 
+                                  name="description" 
+                                  rows="5" 
+                                  required 
+                                  placeholder="Décrivez votre problème en détail..."></textarea>
+                        <small class="text-muted">Soyez le plus précis possible pour un traitement rapide</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="image" class="form-label">
+                            <i class="fas fa-image me-1"></i>
+                            Justificatif financier
+                        </label>
+                        <input type="file" 
+                               class="form-control" 
+                               id="image" 
+                               name="image" 
+                               accept="image/jpeg,image/png,image/jpg,image/gif">
+                        
+                        <div class="accepted-formats">
+                            <i class="fas fa-info-circle"></i>
+                            Formats acceptés: JPG, PNG, GIF | Taille max: 5MB
+                            <br>
+                            <i class="fas fa-file-invoice"></i>
+                            Seuls les justificatifs financiers sont acceptés
+                        </div>
+                        
+                        {# Zone de preview #}
+                        <div id="imagePreviewContainer" class="image-preview-container">
+                            <img id="imagePreview" class="image-preview" alt="Aperçu">
+                            <div id="moderationStatus" class="moderation-status"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ path('app_client_reclamations') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-paper-plane me-1"></i>
+                            Envoyer la réclamation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.getElementById('image');
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    const previewImg = document.getElementById('imagePreview');
+    const moderationStatus = document.getElementById('moderationStatus');
+    const submitBtn = document.getElementById('submitBtn');
+    let isImageValid = true;
+    
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            // Réinitialiser
+            previewContainer.style.display = 'none';
+            moderationStatus.innerHTML = '';
+            moderationStatus.className = 'moderation-status';
+            isImageValid = true;
+            submitBtn.disabled = false;
+            
+            if (!file) {
+                return;
+            }
+            
+            // Vérifier la taille
+            if (file.size > 5 * 1024 * 1024) {
+                moderationStatus.innerHTML = '<i class="fas fa-times-circle me-2"></i>❌ Fichier trop volumineux (max 5MB)';
+                moderationStatus.className = 'moderation-status rejected';
+                previewContainer.style.display = 'block';
+                submitBtn.disabled = true;
+                isImageValid = false;
+                return;
+            }
+            
+            // Vérifier le type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+            if (!allowedTypes.includes(file.type)) {
+                moderationStatus.innerHTML = '<i class="fas fa-times-circle me-2"></i>❌ Format non supporté. Utilisez JPG, PNG ou GIF.';
+                moderationStatus.className = 'moderation-status rejected';
+                previewContainer.style.display = 'block';
+                submitBtn.disabled = true;
+                isImageValid = false;
+                return;
+            }
+            
+            // Afficher l'aperçu
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewContainer.style.display = 'block';
+                moderationStatus.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>🔍 Vérification du justificatif...';
+                moderationStatus.className = 'moderation-status loading';
+                
+                // Simuler une vérification (le serveur vérifiera réellement)
+                setTimeout(() => {
+                    // Vérification basique du nom de fichier
+                    const filename = file.name.toLowerCase();
+                    const validKeywords = ['facture', 'relevé', 'releve', 'paiement', 'bank', 'invoice', 'statement', 'transaction', 'virement', 'rib', 'iban'];
+                    let isValid = false;
+                    
+                    for (const keyword of validKeywords) {
+                        if (filename.includes(keyword)) {
+                            isValid = true;
+                            break;
+                        }
+                    }
+                    
+                    if (isValid) {
+                        moderationStatus.innerHTML = '<i class="fas fa-check-circle me-2"></i>✅ Justificatif financier accepté';
+                        moderationStatus.className = 'moderation-status approved';
+                        submitBtn.disabled = false;
+                        isImageValid = true;
+                    } else {
+                        moderationStatus.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>⚠️ Assurez-vous que ce document est un justificatif financier valide (facture, relevé, reçu)';
+                        moderationStatus.className = 'moderation-status warning';
+                        submitBtn.disabled = false;
+                        isImageValid = true;
+                    }
+                }, 1500);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    // Validation avant soumission
+    const form = document.getElementById('reclamationForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!isImageValid && imageInput.files.length > 0) {
+                e.preventDefault();
+                moderationStatus.innerHTML = '<i class="fas fa-times-circle me-2"></i>❌ Image invalide. Veuillez supprimer ou remplacer l\'image.';
+                moderationStatus.className = 'moderation-status rejected';
+                return false;
+            }
+            
+            // Désactiver le bouton pour éviter double soumission
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Envoi en cours...';
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,9 @@
+knp_paginator:
+    page_range: 5                      # Nombre de pages affichées autour de la page courante
+    default_options:
+        page_name: page                # Nom du paramètre GET pour la page
+        sort_field_name: ~  
+        sort_direction_name: ~  
+        distinct: true
+    template:
+        pagination: '@KnpPaginator/Pagination/twitter_bootstrap_v5_pagination.html.twig'

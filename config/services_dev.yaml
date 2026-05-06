@@ -1,0 +1,3 @@
+services:
+    AhmedBhs\DoctrineDoctor\Analyzer\Integrity\TypeHintMismatchAnalyzer:
+        tags: []

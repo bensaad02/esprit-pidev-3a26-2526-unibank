@@ -1,0 +1,1139 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Gestion Réclamations - Admin UniBank+{% endblock %}
+{% block page_title %}Gestion des réclamations{% endblock %}
+
+{% block stylesheets %}
+<style>
+.field-error {
+    display: none;
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 600;
+}
+
+.field-error.is-visible {
+    display: block;
+}
+
+.form-control.input-error,
+textarea.input-error,
+select.input-error {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 0.12rem rgba(220, 38, 38, 0.12);
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.stat-icon.orange { background: #FFF3E0; color: #FF9800; }
+.stat-icon.blue { background: #E3F2FD; color: #2196F3; }
+.stat-icon.green { background: #E8F5E9; color: #4CAF50; }
+.stat-icon.red { background: #FFEBEE; color: #F44336; }
+.stat-icon.purple { background: #F3E5F5; color: #9C27B0; }
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.badge-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-status.en_attente { background: #FFF3E0; color: #FF9800; }
+.badge-status.en_cours { background: #E3F2FD; color: #2196F3; }
+.badge-status.traite { background: #E8F5E9; color: #4CAF50; }
+.badge-status.rejete { background: #FFEBEE; color: #F44336; }
+
+.sentiment-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.sentiment-positif { background: #E8F5E9; color: #4CAF50; }
+.sentiment-negatif { background: #FFEBEE; color: #F44336; }
+.sentiment-neutre { background: #F5F5F5; color: #757575; }
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 2px;
+}
+
+.user-email {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.btn-action {
+    background: transparent;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+}
+
+.btn-action:hover {
+    background: #f0f0f0;
+}
+
+.btn-action.approve:hover { color: #4CAF50; background: #E8F5E9; }
+.btn-action.reject:hover { color: #F44336; background: #FFEBEE; }
+.btn-action.view:hover { color: #2196F3; background: #E3F2FD; }
+
+.response-preview {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.has-response {
+    color: #4CAF50;
+}
+
+.no-response {
+    color: #FF9800;
+}
+
+.btn-pdf {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-pdf:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    transform: translateY(-1px);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-priority {
+    background: #dc2626;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-priority:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+    color: white;
+    text-decoration: none;
+}
+
+.priority-row {
+    background: linear-gradient(90deg, #fff5f5 0%, #ffffff 100%);
+    border-left: 4px solid #dc2626;
+}
+
+.priority-badge {
+    display: inline-block;
+    background: #dc2626;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.priority-icon {
+    color: #dc2626;
+    margin-right: 5px;
+}
+
+.priority-card {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+}
+
+.priority-card .stat-icon {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.priority-card .stat-label {
+    color: rgba(255,255,255,0.9);
+}
+
+.priority-card .stat-value {
+    color: white;
+}
+
+.priority-card small {
+    color: rgba(255,255,255,0.8);
+}
+
+/* Pagination */
+.pagination-container {
+    margin-top: 25px;
+    animation: fadeIn 0.3s ease;
+}
+
+.pagination {
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.page-link {
+    border-radius: 10px !important;
+    border: none;
+    padding: 8px 14px;
+    color: var(--primary-dark);
+    background: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.page-link:hover {
+    background: linear-gradient(135deg, var(--primary), #4C49ED);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 73, 237, 0.25);
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(135deg, var(--primary), #4C49ED);
+    color: white;
+    box-shadow: 0 4px 12px rgba(76, 73, 237, 0.3);
+}
+
+.page-item.disabled .page-link {
+    background: #f5f5f5;
+    color: #aaa;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 15px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-search {
+    background: linear-gradient(135deg, var(--primary), #4C49ED);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.search-select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+    background: #F9FAFB;
+    font-size: 13px;
+}
+
+.btn-ai {
+    background: linear-gradient(135deg, #6c5ce7, #5b4bc4);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-ai:hover {
+    background: linear-gradient(135deg, #5b4bc4, #4834d4);
+    transform: translateY(-1px);
+}
+
+.ai-predict-btn {
+    background: linear-gradient(135deg, #6c5ce7, #5b4bc4);
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ai-predict-btn:hover {
+    transform: translateY(-1px);
+}
+
+.ai-apply-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ai-apply-btn:hover {
+    background: #388E3C;
+}
+
+.ai-filter-section {
+    background: linear-gradient(135deg, #f8f4ff, #f0eaff);
+    padding: 15px;
+    border-radius: 12px;
+    margin: 15px;
+    display: none;
+}
+
+.ai-filter-section.show {
+    display: block;
+}
+
+.ai-progress {
+    margin-top: 15px;
+    display: none;
+}
+
+.ai-progress-bar {
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 8px;
+}
+
+.ai-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #6c5ce7, #5b4bc4);
+    transition: width 0.3s;
+}
+
+.ai-results {
+    margin-top: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Statistiques -->
+<div class="row mb-4" style="display:flex;gap:15px;flex-wrap:wrap;">
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">En attente</div>
+                <div class="stat-value">{{ stats.en_attente }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-spinner"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">En cours</div>
+                <div class="stat-value">{{ stats.en_cours }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Traitées</div>
+                <div class="stat-value">{{ stats.traite }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card">
+            <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Rejetées</div>
+                <div class="stat-value">{{ stats.rejete }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card">
+            <div class="stat-icon purple"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Total</div>
+                <div class="stat-value">{{ stats.total }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card priority-card">
+            <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="stat-info">
+                <div class="stat-label">Prioritaires</div>
+                <div class="stat-value">{{ stats.negatif|default(0) }}</div>
+                <small>Clients insatisfaits</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="card-header" style="flex-wrap:wrap;gap:10px;">
+        <h5><i class="fas fa-comment-alt mr-2" style="color:var(--primary);"></i>Réclamations 
+            <span class="badge bg-secondary">{{ pagination.totalItemCount }}</span>
+        </h5>
+        
+        <form method="get" action="{{ path('app_admin_reclamations') }}" class="filter-bar" style="display:flex;gap:10px;flex-wrap:wrap;">
+            <select name="status" onchange="this.form.submit()">
+                <option value="all" {{ status == 'all' ? 'selected' : '' }}>Tous les statuts</option>
+                <option value="en_attente" {{ status == 'en_attente' ? 'selected' : '' }}>En attente</option>
+                <option value="en_cours" {{ status == 'en_cours' ? 'selected' : '' }}>En cours</option>
+                <option value="traite" {{ status == 'traite' ? 'selected' : '' }}>Traité</option>
+                <option value="rejete" {{ status == 'rejete' ? 'selected' : '' }}>Rejeté</option>
+            </select>
+            
+            <select name="type" onchange="this.form.submit()">
+                <option value="all" {{ type == 'all' ? 'selected' : '' }}>Tous les types</option>
+                <option value="technique" {{ type == 'technique' ? 'selected' : '' }}>Technique</option>
+                <option value="compte" {{ type == 'compte' ? 'selected' : '' }}>Compte</option>
+                <option value="transaction" {{ type == 'transaction' ? 'selected' : '' }}>Transaction</option>
+                <option value="carte" {{ type == 'carte' ? 'selected' : '' }}>Carte</option>
+                <option value="credit" {{ type == 'credit' ? 'selected' : '' }}>Crédit</option>
+                <option value="autre" {{ type == 'autre' ? 'selected' : '' }}>Autre</option>
+            </select>
+            
+            <select name="sentiment" onchange="this.form.submit()">
+                <option value="all" {{ sentiment == 'all' ? 'selected' : '' }}>Tous les sentiments</option>
+                <option value="positif" {{ sentiment == 'positif' ? 'selected' : '' }}>😊 Positif</option>
+                <option value="negatif" {{ sentiment == 'negatif' ? 'selected' : '' }}>⚠️ Négatif</option>
+                <option value="neutre" {{ sentiment == 'neutre' ? 'selected' : '' }}>😐 Neutre</option>
+            </select>
+            
+            <input type="text" name="q" value="{{ search }}" placeholder="Rechercher..." style="width:200px; padding:8px; border-radius:8px; border:1px solid #E5E7EB;">
+            
+            <select name="limit" onchange="this.form.submit()" style="padding:8px; border-radius:8px; border:1px solid #E5E7EB;">
+                <option value="5" {{ app.request.get('limit', 10) == 5 ? 'selected' : '' }}>5 par page</option>
+                <option value="10" {{ app.request.get('limit', 10) == 10 ? 'selected' : '' }}>10 par page</option>
+                <option value="25" {{ app.request.get('limit', 10) == 25 ? 'selected' : '' }}>25 par page</option>
+                <option value="50" {{ app.request.get('limit', 10) == 50 ? 'selected' : '' }}>50 par page</option>
+            </select>
+            
+            <input type="hidden" name="page" value="1">
+            
+            <button type="submit" class="btn-search">Filtrer</button>
+            
+            {% if status != 'all' or type != 'all' or sentiment != 'all' or search %}
+                <a href="{{ path('app_admin_reclamations') }}" class="btn-admin outline" style="padding:8px 14px;">Reset</a>
+            {% endif %}
+            
+            <a href="{{ path('app_admin_reclamations', {sentiment: 'negatif'}) }}" class="btn-priority">
+                <i class="fas fa-exclamation-triangle"></i> Prioritaires
+            </a>
+            
+            <button type="button" id="toggleAiFilterBtn" class="btn-ai">
+                <i class="fas fa-robot"></i> Filtrer par IA
+            </button>
+            
+            <a href="{{ path('app_admin_reclamations_pdf', {status: status, type: type, sentiment: sentiment, q: search}|filter(v => v != 'all' and v != null)) }}" class="btn-pdf" target="_blank">
+                <i class="fas fa-file-pdf"></i> PDF
+            </a>
+        </form>
+    </div>
+    
+    <div id="aiFilterSection" class="ai-filter-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div style="background: linear-gradient(135deg, #6c5ce7, #5b4bc4); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">
+                <i class="fas fa-robot"></i> Analyse IA des réclamations
+            </div>
+            <button type="button" id="closeAiFilterBtn" style="background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+        </div>
+        
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+            <div>
+                <label style="font-size: 12px; font-weight: 600;">Analyser :</label>
+                <select id="aiAnalyzeType" class="search-select">
+                    <option value="all">Toutes les réclamations</option>
+                    <option value="autre">Uniquement celles marquées "Autre"</option>
+                </select>
+            </div>
+            <div>
+                <button id="startAiAnalysisBtn" class="btn-ai">
+                    <i class="fas fa-play"></i> Lancer l'analyse IA
+                </button>
+            </div>
+        </div>
+        
+        <div id="aiProgress" class="ai-progress">
+            <div class="ai-progress-bar">
+                <div id="aiProgressFill" class="ai-progress-fill"></div>
+            </div>
+            <p id="aiProgressText" style="font-size: 12px; margin-top: 5px;"></p>
+        </div>
+        
+        <div id="aiResults" class="ai-results"></div>
+    </div>
+    
+    <div class="card-body">
+        {% if pagination.totalItemCount > 0 %}
+        <table class="admin-table" id="reclamationsTable">
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Type</th>
+                    <th>Sujet / Description</th>
+                    <th>Sentiment</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th>Réponse</th>
+                    <th>Actions</th>
+                    <th>IA</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in pagination %}
+                <tr id="row-{{ r.id }}" {% if r.sentiment == 'negatif' %}class="priority-row"{% endif %}>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">{{ r.utilisateur.prenom|first }}{{ r.utilisateur.nom|first }}</div>
+                            <div class="user-details">
+                                <div class="user-name">{{ r.utilisateur.prenom }} {{ r.utilisateur.nom }}</div>
+                                <div class="user-email">{{ r.utilisateur.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge-status" style="background:#F0F0F0;color:#666;" id="type-badge-{{ r.id }}">
+                            {% if r.type == 'technique' %}<i class="fas fa-code"></i> Technique
+                            {% elseif r.type == 'compte' %}<i class="fas fa-user"></i> Compte
+                            {% elseif r.type == 'transaction' %}<i class="fas fa-exchange-alt"></i> Transaction
+                            {% elseif r.type == 'carte' %}<i class="fas fa-credit-card"></i> Carte
+                            {% elseif r.type == 'credit' %}<i class="fas fa-hand-holding-usd"></i> Crédit
+                            {% else %}<i class="fas fa-comment"></i> Autre
+                            {% endif %}
+                        </span>
+                        <div id="ai-suggestion-{{ r.id }}" style="margin-top: 5px;"></div>
+                    </td>
+                    <td style="max-width: 250px;">
+                        <div style="font-weight:500;">{{ r.sujet }}</div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 3px;">
+                            {{ r.description|slice(0, 60) }}{% if r.description|length > 60 %}...{% endif %}
+                        </div>
+                        {% if r.imagePath %}
+                            <div style="margin-top: 5px;">
+                                <img src="{{ asset('uploads/reclamations/' ~ r.imagePath) }}" style="max-width: 40px; max-height: 40px; border-radius: 6px;">
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if r.sentiment == 'negatif' %}
+                            <div>
+                                <span class="sentiment-badge sentiment-negatif">
+                                    <i class="fas fa-frown priority-icon"></i> Négatif
+                                </span>
+                                <span class="priority-badge">URGENT</span>
+                            </div>
+                        {% elseif r.sentiment == 'positif' %}
+                            <span class="sentiment-badge sentiment-positif">
+                                <i class="fas fa-smile"></i> Positif
+                            </span>
+                        {% elseif r.sentiment == 'neutre' %}
+                            <span class="sentiment-badge sentiment-neutre">
+                                <i class="fas fa-meh"></i> Neutre
+                            </span>
+                        {% else %}
+                            <span class="sentiment-badge" style="background:#F5F5F5;color:#999;">Non analysé</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge-status {{ r.statut }}">
+                            {% if r.statut == 'en_attente' %}
+                                <i class="fas fa-clock"></i> En attente
+                            {% elseif r.statut == 'en_cours' %}
+                                <i class="fas fa-spinner fa-pulse"></i> En cours
+                            {% elseif r.statut == 'traite' %}
+                                <i class="fas fa-check-circle"></i> Traité
+                            {% else %}
+                                <i class="fas fa-times-circle"></i> Rejeté
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td style="font-size:13px;">{{ r.dateReclamation|date('d/m/Y H:i') }}</td>
+                    <td>
+                        {% if r.reponse %}
+                            <div class="response-preview has-response" title="{{ r.reponse }}">
+                                <i class="fas fa-reply-all"></i> {{ r.reponse|slice(0, 50) }}{% if r.reponse|length > 50 %}...{% endif %}
+                            </div>
+                            <div style="font-size: 11px; color: #4CAF50;">
+                                {{ r.reponseDate|date('d/m/Y H:i') }}
+                            </div>
+                        {% else %}
+                            <span class="response-preview no-response">
+                                <i class="fas fa-hourglass-half"></i> En attente
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td style="white-space:nowrap;">
+                        <a href="{{ path('app_admin_reclamations_show', {id: r.id}) }}" class="btn-action view" title="Voir">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{{ path('app_admin_reclamations_edit', {id: r.id}) }}" class="btn-action" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        {% if r.statut == 'en_attente' or r.statut == 'en_cours' %}
+                            <button type="button" class="btn-action approve" title="Traiter" onclick="if(confirm('Marquer comme traitée ?')) document.getElementById('status-form-{{ r.id }}').submit();">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <form id="status-form-{{ r.id }}" method="post" action="{{ path('app_admin_reclamations_status', {id: r.id}) }}" style="display:none;">
+                                <input type="hidden" name="status" value="traite">
+                            </form>
+                        {% endif %}
+                        {% if r.statut == 'en_attente' %}
+                            <button type="button" class="btn-action reject" title="Rejeter" onclick="$('#rejectModal{{ r.id }}').modal('show')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="ai-predict-btn" data-id="{{ r.id }}" data-description="{{ r.description|e('js') }}">
+                            <i class="fas fa-robot"></i> Prédire
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Modal Rejet -->
+                {% if r.statut == 'en_attente' %}
+                <div class="modal fade modal-admin" id="rejectModal{{ r.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+                        <div class="modal-content">
+                            <div style="background:#dc2626;padding:20px 25px;">
+                                <h5 style="color:#fff;margin:0;"><i class="fas fa-times-circle mr-2"></i>Rejeter la réclamation</h5>
+                            </div>
+                            <form method="post" action="{{ path('app_admin_reclamations_status', {id: r.id}) }}" data-reject-form>
+                                <input type="hidden" name="status" value="rejete">
+                                <div style="padding:25px;">
+                                    <p>Réclamation de <strong>{{ r.utilisateur.prenom }} {{ r.utilisateur.nom }}</strong></p>
+                                    <div class="form-group">
+                                        <label>Motif du rejet <span style="color:#dc2626;">*</span></label>
+                                        <textarea name="reponse" class="form-control" rows="3" required placeholder="Expliquez la raison du rejet..."></textarea>
+                                        <div class="field-error" data-error-for="reponse"></div>
+                                    </div>
+                                </div>
+                                <div style="padding:0 25px 25px;display:flex;gap:12px;justify-content:flex-end;">
+                                    <button type="button" class="btn-admin outline" data-dismiss="modal">Annuler</button>
+                                    <button type="submit" class="btn-admin danger">Rejeter</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Pagination -->
+        {% if pagination.pageCount > 1 %}
+        <div class="pagination-container">
+            <ul class="pagination justify-content-center">
+                {% if pagination.currentPageNumber > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('app_admin_reclamations', {page: 1, status: status, type: type, sentiment: sentiment, q: search, limit: limit}) }}">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="fas fa-angle-double-left"></i></span></li>
+                {% endif %}
+                
+                {% set prevPage = pagination.currentPageNumber - 1 %}
+                {% if prevPage >= 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('app_admin_reclamations', {page: prevPage, status: status, type: type, sentiment: sentiment, q: search, limit: limit}) }}">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="fas fa-angle-left"></i></span></li>
+                {% endif %}
+                
+                {% set startPage = max(1, pagination.currentPageNumber - 2) %}
+                {% set endPage = min(pagination.pageCount, pagination.currentPageNumber + 2) %}
+                {% for page in startPage..endPage %}
+                    {% if page == pagination.currentPageNumber %}
+                        <li class="page-item active"><span class="page-link">{{ page }}</span></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="{{ path('app_admin_reclamations', {page: page, status: status, type: type, sentiment: sentiment, q: search, limit: limit}) }}">{{ page }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% set nextPage = pagination.currentPageNumber + 1 %}
+                {% if nextPage <= pagination.pageCount %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('app_admin_reclamations', {page: nextPage, status: status, type: type, sentiment: sentiment, q: search, limit: limit}) }}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="fas fa-angle-right"></i></span></li>
+                {% endif %}
+                
+                {% if pagination.currentPageNumber < pagination.pageCount %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('app_admin_reclamations', {page: pagination.pageCount, status: status, type: type, sentiment: sentiment, q: search, limit: limit}) }}">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="fas fa-angle-double-right"></i></span></li>
+                {% endif %}
+            </ul>
+            <div class="pagination-info text-center">
+                Page {{ pagination.currentPageNumber }} sur {{ pagination.pageCount }}
+                ({{ pagination.totalItemCount }} réclamation{% if pagination.totalItemCount > 1 %}s{% endif %})
+            </div>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>Aucune réclamation trouvée</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+
+    // Fonction pour échapper les caractères HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+// Gestion des modals de rejet (sécurisé)
+document.addEventListener('DOMContentLoaded', function() {
+    const rejectForms = document.querySelectorAll('form[data-reject-form]');
+    if (rejectForms.length > 0) {
+        rejectForms.forEach(function(form) {
+            var reponseField = form.querySelector('[name="reponse"]');
+            var errorEl = form.querySelector('[data-error-for="reponse"]');
+            
+            if (reponseField && errorEl) {
+                function validateRejectField() {
+                    var isValid = reponseField.value.trim() !== '';
+                    reponseField.classList.toggle('input-error', !isValid);
+                    errorEl.textContent = isValid ? '' : 'Le motif du rejet est obligatoire.';
+                    errorEl.classList.toggle('is-visible', !isValid);
+                    return isValid;
+                }
+
+                reponseField.addEventListener('input', validateRejectField);
+                form.addEventListener('submit', function(event) {
+                    if (!validateRejectField()) {
+                        event.preventDefault();
+                        reponseField.focus();
+                    }
+                });
+            }
+        });
+    }
+});
+
+// ============================================
+// SCRIPT POUR LE FILTRE IA
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Vérification sécurisée des éléments DOM
+    const toggleBtn = document.getElementById('toggleAiFilterBtn');
+    const filterSection = document.getElementById('aiFilterSection');
+    const closeBtn = document.getElementById('closeAiFilterBtn');
+    const startBtn = document.getElementById('startAiAnalysisBtn');
+    
+    // Toggle du panneau IA
+    if (toggleBtn && filterSection) {
+        toggleBtn.addEventListener('click', function() {
+            if (filterSection.classList.contains('show')) {
+                filterSection.classList.remove('show');
+            } else {
+                filterSection.classList.add('show');
+            }
+        });
+    } else {
+        console.log('Toggle button or filter section not found');
+    }
+    
+    // Fermeture du panneau
+    if (closeBtn && filterSection) {
+        closeBtn.addEventListener('click', function() {
+            filterSection.classList.remove('show');
+        });
+    }
+    
+    // Démarrer l'analyse
+    if (startBtn) {
+        startBtn.addEventListener('click', async function() {
+            const aiAnalyzeType = document.getElementById('aiAnalyzeType');
+            const analyzeType = aiAnalyzeType ? aiAnalyzeType.value : 'all';
+            
+            // Récupérer les lignes du tableau
+            const table = document.getElementById('reclamationsTable');
+            if (!table) {
+                alert('Tableau des réclamations non trouvé');
+                return;
+            }
+            
+            const rows = table.querySelectorAll('tbody tr');
+            const claimsToAnalyze = [];
+            
+            rows.forEach(row => {
+                const id = row.id ? row.id.replace('row-', '') : null;
+                if (id) {
+                    const typeBadge = document.getElementById(`type-badge-${id}`);
+                    let currentType = typeBadge ? typeBadge.innerText.trim() : '';
+                    const isOther = currentType.includes('Autre') || currentType === '📝 Autre';
+                    
+                    if (analyzeType === 'autre' && !isOther) return;
+                    if (analyzeType === 'uncategorized' && !isOther) return;
+                    
+                    claimsToAnalyze.push({id: id, row: row});
+                }
+            });
+            
+            if (claimsToAnalyze.length === 0) {
+                alert('Aucune réclamation à analyser');
+                return;
+            }
+            
+            // Afficher la progression
+            const aiProgress = document.getElementById('aiProgress');
+            const aiProgressFill = document.getElementById('aiProgressFill');
+            const aiProgressText = document.getElementById('aiProgressText');
+            const aiResults = document.getElementById('aiResults');
+            
+            if (aiProgress) aiProgress.style.display = 'block';
+            if (aiResults) aiResults.innerHTML = '<div style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Analyse en cours...</div>';
+            
+            let analyzed = 0;
+            const suggestions = [];
+            
+            for (const claim of claimsToAnalyze) {
+                try {
+                    const response = await fetch(`/admin/reclamations/${claim.id}/ml-classify`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.prediction) {
+                        suggestions.push({
+                            id: claim.id,
+                            prediction: data.prediction,
+                            row: claim.row
+                        });
+                    }
+                } catch (error) {
+                    console.error(`Erreur pour ID ${claim.id}:`, error);
+                }
+                
+                analyzed++;
+                const percent = (analyzed / claimsToAnalyze.length) * 100;
+                if (aiProgressFill) aiProgressFill.style.width = `${percent}%`;
+                if (aiProgressText) aiProgressText.innerText = `Analyse ${analyzed}/${claimsToAnalyze.length} réclamations...`;
+            }
+            
+            // Afficher les résultats - Version Carte moderne avec avatar
+            if (aiResults) {
+                if (suggestions.length > 0) {
+                    let resultsHtml = '<div style="background: white; border-radius: 16px; padding: 20px;"><h4 style="margin-bottom: 20px; font-size: 18px; font-weight: 600;">📊 Résultats de l\'analyse IA</h4>';
+                    
+                    for (const sug of suggestions) {
+                        const confidence = sug.prediction.confidence;
+                        const confidenceColor = confidence > 70 ? '#4CAF50' : (confidence > 50 ? '#FF9800' : '#F44336');
+                        
+                        // Récupérer le nom du client depuis la ligne du tableau
+                        const row = sug.row;
+                        let clientName = `#${sug.id}`;
+                        let clientInitial = '?';
+                        let description = '';
+                        let dateReclamation = '';
+                        
+                        if (row) {
+                            const userNameElement = row.querySelector('.user-name');
+                            if (userNameElement) {
+                                clientName = userNameElement.innerText;
+                                // Récupérer la première lettre du prénom ou nom
+                                const nameParts = clientName.split(' ');
+                                if (nameParts.length > 0 && nameParts[0].length > 0) {
+                                    clientInitial = nameParts[0].charAt(0).toUpperCase();
+                                } else if (clientName.length > 0) {
+                                    clientInitial = clientName.charAt(0).toUpperCase();
+                                }
+                            }
+                            
+                            // Récupérer la description (dans la 3ème colonne)
+                            const descriptionCell = row.querySelector('td:nth-child(3)');
+                            if (descriptionCell) {
+                                const descDiv = descriptionCell.querySelector('div[style*="font-size: 11px"]');
+                                if (descDiv) {
+                                    description = descDiv.innerText.trim();
+                                }
+                            }
+                            // Récupérer la date (dans la 6ème colonne)
+                            const dateCell = row.querySelector('td:nth-child(6)');
+                            if (dateCell) {
+                                dateReclamation = dateCell.innerText.trim();
+                            }
+                        }
+                        
+                        resultsHtml += `
+                            <div style="border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 15px; background: white; transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                                    <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #6c5ce7, #5b4bc4); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;">
+                                        ${escapeHtml(clientInitial)}
+                                    </div>
+                                    <div style="flex: 1; min-width: 150px;">
+                                        <div style="font-weight: 700; color: #2d3748; font-size: 15px;">${escapeHtml(clientName)}</div>
+                                        <div style="font-size: 11px; color: #999; margin-top: 2px;">
+                                            <i class="far fa-calendar-alt"></i> ${dateReclamation || 'Date inconnue'}
+                                        </div>
+                                        <div style="font-size: 13px; color: #6c5ce7; margin-top: 4px;">
+                                            <i class="fas fa-tag"></i> ${sug.prediction.category_label}
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 12px; color: #666;">Confiance</div>
+                                        <div style="font-weight: 700; color: ${confidenceColor}; font-size: 18px;">${confidence}%</div>
+                                    </div>
+                                    <button class="ai-apply-btn" onclick="applyCategory(${sug.id}, '${sug.prediction.category}', this)" style="padding: 8px 16px;">
+                                        <i class="fas fa-check"></i> Appliquer
+                                    </button>
+                                </div>
+                                ${description ? `
+                                <div style="margin-top: 12px; background: #f8f4ff; border-radius: 8px; padding: 10px; font-size: 12px; color: #666;">
+                                    <i class="fas fa-quote-left"></i> "${escapeHtml(description)}"
+                                </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }
+                    resultsHtml += '</div>';
+                    aiResults.innerHTML = resultsHtml;
+                } else {
+                    aiResults.innerHTML = '<div style="text-align: center; padding: 40px; background: white; border-radius: 16px;"><i class="fas fa-check-circle" style="font-size: 48px; color: #4CAF50; margin-bottom: 15px;"></i><br><strong>Aucune suggestion IA</strong><br><span style="font-size: 13px; color: #666;">Toutes les réclamations sont déjà catégorisées ou ne correspondent pas aux critères</span></div>';
+                }
+            }
+            
+            if (aiProgress) aiProgress.style.display = 'none';
+        });
+    }
+});
+
+// ============================================
+// PRÉDICTION INDIVIDUELLE
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    const predictBtns = document.querySelectorAll('.ai-predict-btn');
+    
+    if (predictBtns.length > 0) {
+        predictBtns.forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const id = this.dataset.id;
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                this.disabled = true;
+                
+                try {
+                    const response = await fetch(`/admin/reclamations/${id}/ml-classify`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.prediction) {
+                        const suggestionDiv = document.getElementById(`ai-suggestion-${id}`);
+                        const confidence = data.prediction.confidence;
+                        
+                        if (suggestionDiv) {
+                            suggestionDiv.innerHTML = `
+                                <div style="background: linear-gradient(135deg, #6c5ce7, #5b4bc4); color: white; padding: 6px 10px; border-radius: 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 8px; margin-top: 5px;">
+                                    <i class="fas fa-robot"></i> IA: ${data.prediction.category_label}
+                                    <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 10px;">${confidence}%</span>
+                                    <button onclick="applyCategory(${id}, '${data.prediction.category}', this)" style="background: #4CAF50; color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer;">
+                                        <i class="fas fa-check"></i> Appliquer
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        alert('Erreur lors de la prédiction');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la prédiction');
+                } finally {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }
+            });
+        });
+    }
+});
+
+// ============================================
+// APPLIQUER LA CATÉGORIE
+// ============================================
+function applyCategory(id, category, button) {
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    button.disabled = true;
+    
+    fetch(`/admin/reclamations/${id}/apply-ml-category`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({category: category})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mettre à jour l'affichage
+            const typeBadge = document.getElementById(`type-badge-${id}`);
+            const categoryLabels = {
+                'technique': '<i class="fas fa-code"></i> Technique',
+                'compte': '<i class="fas fa-user"></i> Compte',
+                'transaction': '<i class="fas fa-exchange-alt"></i> Transaction',
+                'carte': '<i class="fas fa-credit-card"></i> Carte',
+                'credit': '<i class="fas fa-hand-holding-usd"></i> Crédit'
+            };
+            if (typeBadge && categoryLabels[category]) {
+                typeBadge.innerHTML = categoryLabels[category];
+            }
+            
+            // Cacher la suggestion
+            const suggestionDiv = document.getElementById(`ai-suggestion-${id}`);
+            if (suggestionDiv) {
+                suggestionDiv.innerHTML = '';
+            }
+            
+            button.innerHTML = '<i class="fas fa-check"></i> Appliqué !';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
+        } else {
+            alert('Erreur: ' + (data.error || 'Impossible d\'appliquer'));
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur lors de l\'application');
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+
+// Fonction pour échapper les caractères HTML (protection XSS)
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
+{% endblock %}

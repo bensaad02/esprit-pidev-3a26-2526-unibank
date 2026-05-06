@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvelle réponse - UniBank+</title>
+    <style>
+        @media print {
+            .no-print { display: none; }
+            body { background: white; margin: 0; padding: 0; }
+            .container { box-shadow: none; }
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '💬';
+            position: absolute;
+            font-size: 80px;
+            opacity: 0.1;
+            right: 20px;
+            bottom: -20px;
+        }
+        
+        .header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 10px 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 35px;
+        }
+        
+        .greeting {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .alert-message {
+            background: linear-gradient(135deg, #e3f2fd, #bbdef5);
+            border-left: 4px solid #2196f3;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .message-box {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 16px;
+            margin: 20px 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .message-icon {
+            font-size: 24px;
+        }
+        
+        .message-author {
+            font-weight: 700;
+            color: #1e3c72;
+            font-size: 15px;
+        }
+        
+        .message-date {
+            margin-left: auto;
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .message-content {
+            color: #333;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        
+        .qr-code {
+            text-align: center;
+            margin: 25px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 16px;
+        }
+        
+        .qr-code img {
+            width: 150px;
+            height: 150px;
+            margin: 10px auto;
+            display: block;
+            border-radius: 12px;
+        }
+        
+        .btn-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #1e3c72;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px 0 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-print:hover {
+            background: #2a5298;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30,60,114,0.3);
+        }
+        
+        .info-ref {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .content { padding: 20px; }
+            .message-header { flex-wrap: wrap; }
+            .message-date { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>💬 Nouvelle réponse</h2>
+            <p>Votre réclamation a été mise à jour</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Bonjour <strong>{{ utilisateur.prenom }} {{ utilisateur.nom }}</strong>,
+            </div>
+            
+            <div class="alert-message">
+                Une nouvelle réponse a été ajoutée à votre réclamation <strong>#{{ reclamation.id }}</strong> par <strong>{{ auteur }}</strong>.
+            </div>
+            
+            <div class="message-box">
+                <div class="message-header">
+                    <span class="message-icon">📝</span>
+                    <span class="message-author">{{ auteur }}</span>
+                    <span class="message-date">{{ "now"|date('d/m/Y à H:i') }}</span>
+                </div>
+                <div class="message-content">
+                    {{ reponse|nl2br }}
+                </div>
+            </div>
+            
+            <div class="qr-code">
+                <strong>📱 Suivez votre réclamation en un scan</strong>
+                <img src="{{ qrCodeUrl }}" alt="QR Code">
+                <p style="font-size: 12px; color: #666; margin: 10px 0;">
+                    Scannez ce code avec votre smartphone
+                </p>
+                <p style="font-size: 12px;">
+                    ou cliquez sur :<br>
+                    <a href="{{ suiviUrl }}" style="color: #1e3c72; font-weight: bold; text-decoration: none;">
+                        {{ suiviUrl }}
+                    </a>
+                </p>
+            </div>
+            
+            <div class="info-ref">
+                <strong>Réclamation #{{ reclamation.id }}</strong><br>
+                <span style="font-size: 12px; color: #666;">
+                    Statut : 
+                    {% if reclamation.statut == 'en_attente' %}⏳ En attente
+                    {% elseif reclamation.statut == 'en_cours' %}🔄 En cours
+                    {% elseif reclamation.statut == 'traite' %}✅ Traitée
+                    {% else %}❌ Rejetée
+                    {% endif %}
+                </span>
+            </div>
+            
+            <!-- Bouton d'impression -->
+            <div style="text-align: center;" class="no-print">
+                <button onclick="window.print()" class="btn-print">
+                    🖨️ Imprimer cette page
+                </button>
+                <p style="font-size: 11px; color: #999; margin-top: 10px;">
+                    ou utilisez Ctrl+P (Cmd+P sur Mac)
+                </p>
+            </div>
+            
+            <p style="margin-top: 25px; color: #666;">
+                Connectez-vous à votre espace client UniBank+ pour consulter l'historique complet et répondre à votre conseiller.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p style="margin: 0;">🏦 UniBank+ - Service Client Premium</p>
+            <p style="margin: 5px 0 0; font-size: 11px;">
+                Cet email est automatique, merci de ne pas y répondre.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Désactiver l'impression sur certains éléments si nécessaire
+        document.addEventListener('DOMContentLoaded', function() {
+            // Optionnel: Ajouter une confirmation avant impression
+            const printBtn = document.querySelector('.btn-print');
+            if (printBtn) {
+                printBtn.addEventListener('click', function() {
+                    // Petite animation ou confirmation
+                    console.log('Impression lancée');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

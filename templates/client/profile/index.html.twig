@@ -1,0 +1,279 @@
+{% extends 'client/base.html.twig' %}
+{% block title %}Mon Profil - UniBank+{% endblock %}
+{% block page_title %}Mon Profil{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ── Layout ── */
+.profile-layout { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+
+/* ── Avatar hero ── */
+.profile-hero {
+    background: linear-gradient(135deg, #1a2f6b 0%, #2259d6 55%, #4338ca 100%);
+    border-radius: 20px;
+    padding: 28px 30px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+}
+.profile-hero::before { content:''; position:absolute; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,0.05); top:-60px; right:-50px; }
+.profile-hero::after  { content:''; position:absolute; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,0.04); bottom:-40px; right:120px; }
+.profile-avatar-big {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: 3px solid rgba(255,255,255,0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 900; color: #fff;
+    flex-shrink: 0; z-index: 1;
+    backdrop-filter: blur(4px);
+}
+.profile-hero-info { z-index: 1; }
+.profile-hero-name { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.profile-hero-email { font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+.profile-hero-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.profile-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px; padding: 4px 12px;
+    font-size: 11px; font-weight: 600;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* ── Cards ── */
+.p-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #f0f2f5;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+    margin-bottom: 18px;
+}
+.p-card:last-child { margin-bottom: 0; }
+.p-card-header {
+    padding: 16px 22px;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex; align-items: center; gap: 10px;
+    background: #fafbff;
+}
+.p-card-icon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.p-card-title { font-size: 14px; font-weight: 800; color: #111827; }
+.p-card-body { padding: 22px; }
+
+/* ── Form fields ── */
+.p-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.p-field-label { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 7px; display: block; }
+.p-input {
+    width: 100%;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 11px;
+    padding: 11px 14px;
+    font-size: 14px; font-family: inherit; color: #111827;
+    background: #fff;
+    transition: border-color .2s, box-shadow .2s;
+}
+.p-input:focus { outline: none; border-color: #2259d6; box-shadow: 0 0 0 3px rgba(34,89,214,0.08); }
+.p-input:disabled { background: #f8fafc; color: #9ca3af; cursor: not-allowed; }
+.p-input-locked { position: relative; }
+.p-lock-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #fef9c3; color: #ca8a04;
+    border-radius: 6px; padding: 2px 8px;
+    font-size: 10px; font-weight: 700;
+    margin-top: 5px;
+}
+textarea.p-input { resize: vertical; min-height: 80px; }
+.p-save-btn {
+    background: linear-gradient(135deg, #2259d6, #4338ca);
+    color: #fff; border: none; border-radius: 11px;
+    padding: 12px 24px; font-size: 14px; font-weight: 800;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+    transition: box-shadow .2s, transform .15s;
+    margin-top: 4px;
+}
+.p-save-btn:hover { box-shadow: 0 6px 20px rgba(34,89,214,0.3); transform: translateY(-1px); }
+
+/* ── Password section ── */
+.pwd-strength { height: 5px; border-radius: 3px; margin-top: 6px; transition: all .3s; background: #e5e7eb; overflow: hidden; }
+.pwd-strength-fill { height: 100%; border-radius: 3px; transition: width .4s, background .4s; }
+
+/* ── Account info ── */
+.info-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 11px 0; border-bottom: 1px solid #f3f4f6;
+}
+.info-row:last-child { border-bottom: none; }
+.info-label { font-size: 12px; color: #9ca3af; }
+.info-val { font-size: 13px; font-weight: 700; color: #111827; text-align: right; }
+
+@media(max-width:1000px) { .profile-layout { grid-template-columns: 1fr; } }
+@media(max-width:600px) { .p-grid-2 { grid-template-columns: 1fr; } .profile-hero { flex-direction: column; text-align: center; } .profile-hero-badges { justify-content: center; } }
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ── PROFILE HERO ── #}
+<div class="profile-hero">
+    <div class="profile-avatar-big">
+        {{ app.user.prenom|first|upper }}{{ app.user.nom|first|upper }}
+    </div>
+    <div class="profile-hero-info">
+        <div class="profile-hero-name">{{ app.user.prenom }} {{ app.user.nom }}</div>
+        <div class="profile-hero-email"><i class="fas fa-envelope mr-1"></i>{{ app.user.email }}</div>
+        <div class="profile-hero-badges">
+            <span class="profile-badge"><i class="fas fa-check-circle"></i> Client UniBank+</span>
+            <span class="profile-badge"><i class="fas fa-calendar-alt"></i> Membre depuis {{ app.user.dateCreation|date('d/m/Y') }}</span>
+            {% if app.user.selectedOffer %}<span class="profile-badge"><i class="fas fa-star"></i> {{ app.user.selectedOffer }}</span>{% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="profile-layout">
+
+    {# ── LEFT: Personal info ── #}
+    <div>
+        <div class="p-card">
+            <div class="p-card-header">
+                <div class="p-card-icon" style="background:#dbeafe;color:#2259d6;"><i class="fas fa-user-edit"></i></div>
+                <div class="p-card-title">Informations personnelles</div>
+            </div>
+            <div class="p-card-body">
+                <form method="post" action="{{ path('app_client_profile') }}">
+                    <div class="p-grid-2">
+                        <div>
+                            <label class="p-field-label">Prénom</label>
+                            <input type="text" name="prenom" value="{{ app.user.prenom }}" class="p-input" required minlength="2">
+                        </div>
+                        <div>
+                            <label class="p-field-label">Nom</label>
+                            <input type="text" name="nom" value="{{ app.user.nom }}" class="p-input" required minlength="2">
+                        </div>
+                    </div>
+                    <div class="p-grid-2">
+                        <div>
+                            <label class="p-field-label">Email</label>
+                            <input type="email" value="{{ app.user.email }}" class="p-input" disabled>
+                            <div class="p-lock-badge"><i class="fas fa-lock"></i> Non modifiable</div>
+                        </div>
+                        <div>
+                            <label class="p-field-label">Téléphone</label>
+                            <input type="text" name="telephone" value="{{ app.user.telephone }}" class="p-input" required minlength="8">
+                        </div>
+                    </div>
+                    <div class="p-grid-2" style="margin-bottom:16px;">
+                        <div>
+                            <label class="p-field-label">CIN</label>
+                            <input type="text" value="{{ app.user.cin }}" class="p-input" disabled>
+                            <div class="p-lock-badge"><i class="fas fa-lock"></i> Non modifiable</div>
+                        </div>
+                        <div>
+                            <label class="p-field-label">Date de naissance</label>
+                            <input type="text" value="{{ app.user.dateNaissance|date('d/m/Y') }}" class="p-input" disabled>
+                            <div class="p-lock-badge"><i class="fas fa-lock"></i> Non modifiable</div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <label class="p-field-label">Adresse</label>
+                        <textarea name="adresse" class="p-input" rows="2" required minlength="5">{{ app.user.adresse }}</textarea>
+                    </div>
+                    <button type="submit" class="p-save-btn">
+                        <i class="fas fa-save"></i> Enregistrer les modifications
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {# ── RIGHT: Password + account info ── #}
+    <div>
+        {# Password card #}
+        <div class="p-card">
+            <div class="p-card-header">
+                <div class="p-card-icon" style="background:#fef9c3;color:#d97706;"><i class="fas fa-lock"></i></div>
+                <div class="p-card-title">Changer le mot de passe</div>
+            </div>
+            <div class="p-card-body">
+                <form method="post" action="{{ path('app_client_password') }}">
+                    <div style="margin-bottom:14px;">
+                        <label class="p-field-label">Mot de passe actuel</label>
+                        <input type="password" name="current_password" class="p-input" required placeholder="••••••••">
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label class="p-field-label">Nouveau mot de passe</label>
+                        <input type="password" name="new_password" id="newPwd" class="p-input" required minlength="8" placeholder="Min. 8 caractères" oninput="updateStrength(this.value)">
+                        <div class="pwd-strength"><div class="pwd-strength-fill" id="pwdBar"></div></div>
+                        <div id="pwdHint" style="font-size:10px;color:#9ca3af;margin-top:4px;"></div>
+                    </div>
+                    <div style="margin-bottom:18px;">
+                        <label class="p-field-label">Confirmer le nouveau mot de passe</label>
+                        <input type="password" name="confirm_password" class="p-input" required minlength="8" placeholder="••••••••">
+                    </div>
+                    <button type="submit" style="width:100%;background:linear-gradient(135deg,#d97706,#ea580c);color:#fff;border:none;border-radius:11px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:box-shadow .2s,transform .15s;" onmouseover="this.style.boxShadow='0 6px 18px rgba(234,88,12,0.3)';this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
+                        <i class="fas fa-key"></i> Changer le mot de passe
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {# Account info card #}
+        <div class="p-card">
+            <div class="p-card-header">
+                <div class="p-card-icon" style="background:#dcfce7;color:#16a34a;"><i class="fas fa-id-card"></i></div>
+                <div class="p-card-title">Informations du compte</div>
+            </div>
+            <div class="p-card-body" style="padding:16px 22px;">
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-circle mr-2" style="font-size:8px;color:#16a34a;"></i>Statut</span>
+                    <span style="background:#dcfce7;color:#16a34a;border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700;">Approuvé</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-calendar-alt mr-2" style="color:#9ca3af;"></i>Membre depuis</span>
+                    <span class="info-val">{{ app.user.dateCreation|date('d/m/Y') }}</span>
+                </div>
+                {% if app.user.selectedOffer %}
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-star mr-2" style="color:#9ca3af;"></i>Offre souscrite</span>
+                    <span class="info-val" style="color:#2259d6;">{{ app.user.selectedOffer }}</span>
+                </div>
+                {% endif %}
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-map-marker-alt mr-2" style="color:#9ca3af;"></i>Adresse</span>
+                    <span class="info-val" style="max-width:160px;text-align:right;font-weight:500;font-size:12px;color:#6b7280;">{{ app.user.adresse }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function updateStrength(pwd) {
+    var bar = document.getElementById('pwdBar');
+    var hint = document.getElementById('pwdHint');
+    var score = 0;
+    if (pwd.length >= 8) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+    var levels = [
+        { w:'0%', bg:'#e5e7eb', text:'' },
+        { w:'25%', bg:'#dc2626', text:'Très faible' },
+        { w:'50%', bg:'#f59e0b', text:'Faible' },
+        { w:'75%', bg:'#3b82f6', text:'Bon' },
+        { w:'100%', bg:'#16a34a', text:'Excellent' }
+    ];
+    var l = levels[score];
+    bar.style.width = l.w;
+    bar.style.background = l.bg;
+    hint.textContent = l.text;
+    hint.style.color = l.bg;
+}
+</script>
+{% endblock %}

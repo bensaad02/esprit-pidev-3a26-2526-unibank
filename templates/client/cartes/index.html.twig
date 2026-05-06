@@ -1,0 +1,366 @@
+{% extends 'client/base.html.twig' %}
+
+{% block page_title %}Mes Cartes{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        
+        <div>
+            <h4 class="fw-bold mb-0">Mes Cartes 💳</h4>
+            <small class="text-muted">Gérez vos cartes bancaires</small>
+        </div>
+
+        <div class="d-flex gap-2">
+<a href="{{ path('app_finance_news') }}" class="btn btn-info">
+    📰 News
+</a>        
+
+            <!-- SEARCH -->
+            <form method="get" class="d-flex gap-2">
+                <input type="text" name="search" value="{{ search }}" 
+                       class="form-control" placeholder="Rechercher...">
+                <button class="btn btn-primary">🔍</button>
+            </form>
+
+            <!-- GLOBAL HISTORY -->
+            <a href="{{ path('client_all_transactions') }}" class="btn btn-dark">📊</a>
+            <a href="{{ path('app_carte_dashboard') }}" class="btn btn-dark">
+    📊 Carte Dashboard</a>
+            <a href="{{ path('app_client_cartes_pdf') }}" class="btn btn-danger">📄</a>
+            <a href="{{ path('app_client_cartes_add') }}" class="btn btn-primary">➕</a>
+
+        </div>
+
+    </div>
+
+    <!-- CARDS -->
+    <div class="row">
+
+        {% for carte in cartes %}
+        <div class="col-md-6 mb-4">
+
+    <div class="visa-card-glass p-4 text-white" data-type="{{ carte.typeCarte }}">
+
+        <!-- TOP -->
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-uppercase">{{ carte.typeCarte }}</span>
+            <span class="visa-logo">VISA</span>
+        </div>
+
+        <!-- CHIP -->
+        <div class="chip mt-3"></div>
+
+        <!-- NUMBER -->
+        <div class="card-number mt-4">
+            **** **** **** {{ carte.cardNumber|slice(-4) }}
+        </div>
+
+        <!-- INFO -->
+        <div class="d-flex justify-content-between mt-4 small">
+
+            <div>
+                <span class="label">Card Holder</span><br>
+                <strong>{{ carte.nom }} {{ carte.prenom }}</strong>
+            </div>
+
+            <div>
+                <span class="label">Expires</span><br>
+                <strong>{{ carte.expirationDate }}</strong>
+            </div>
+
+        </div>
+
+        <!-- BALANCE -->
+        <div class="mt-3">
+            <span class="label">Balance</span><br>
+            <strong class="fs-5">{{ carte.solde }} DT</strong>
+        </div>
+
+        <!-- SHINE EFFECT -->
+        <div class="shine"></div>
+
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions-bar mt-3">
+
+    <a href="{{ path('carte_payer', {id: carte.id}) }}" class="action-item">
+        <div class="icon">💳</div>
+        <span>Payer</span>
+    </a>
+
+    <a href="{{ path('carte_transfer', {id: carte.id}) }}" class="action-item">
+        <div class="icon">🔁</div>
+        <span>Transfer</span>
+    </a>
+
+    <a href="{{ path('carte_convert', {id: carte.id}) }}" class="action-item">
+        <div class="icon">💱</div>
+        <span>Convert</span>
+    </a>
+
+    <a href="{{ path('carte_transactions', {id: carte.id}) }}" class="action-item">
+        <div class="icon">📊</div>
+        <span>History</span>
+    </a>
+
+    <a href="{{ path('ai_carte', {id: carte.id}) }}" class="action-item ai">
+        <div class="icon">🤖</div>
+        <span>AI</span>
+    </a>
+
+</div>
+
+<!-- SECONDARY -->
+<div class="actions-secondary mt-2">
+
+    <a href="{{ path('carte_alimenter', {id: carte.id}) }}" class="link-success">
+        💰 Alimenter
+    </a>
+
+    {% if carte.status == 'EN_ATTENTE' %}
+        <a href="{{ path('app_client_cartes_edit', {id: carte.id}) }}">
+            ⚙ Paramètres
+        </a>
+    {% endif %}
+
+    <form method="post" action="{{ path('app_client_cartes_delete', {id: carte.id}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ carte.id) }}">
+        <button class="delete-btn">🗑</button>
+    </form>
+
+</div>
+
+</div>
+        {% endfor %}
+
+    </div>
+
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+
+
+ .visa-card-glass {
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+
+    background: linear-gradient(135deg, rgba(30,60,114,0.9), rgba(42,82,152,0.9));
+    backdrop-filter: blur(12px);
+
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    transition: all 0.4s ease;
+}
+
+/* GOLD */
+.visa-card-glass[data-type="GOLD"] {
+    background: linear-gradient(135deg, rgba(199,144,47,0.9), rgba(255,215,0,0.9));
+}
+
+/* PLATINUM */
+.visa-card-glass[data-type="PLATINUM"] {
+    background: linear-gradient(135deg, rgba(117,127,154,0.9), rgba(215,221,232,0.9));
+}
+
+/* HOVER ANIMATION */
+.visa-card-glass:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.35);
+}
+
+/* CARD NUMBER */
+.card-number {
+    font-size: 22px;
+    letter-spacing: 3px;
+    font-weight: 600;
+}
+
+/* LABEL */
+.label {
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+/* VISA LOGO */
+.visa-logo {
+    font-weight: bold;
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+
+/* CHIP */
+.chip {
+    width: 40px;
+    height: 25px;
+    background: linear-gradient(135deg, #ccc, #999);
+    border-radius: 5px;
+}
+
+/* SHINE EFFECT */
+.shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.4),
+        transparent
+    );
+    transform: skewX(-25deg);
+}
+
+.visa-card-glass:hover .shine {
+    left: 120%;
+    transition: 0.8s;
+}
+
+/* ACTION BUTTONS */
+.action-btn {
+    text-decoration: none;
+    color: #444;
+    font-size: 12px;
+    transition: 0.2s;
+}
+
+.action-btn:hover {
+    color: #000;
+}
+.clean-card {
+    border-radius: 14px;
+    background: #ffffff;
+    transition: 0.3s;
+}
+
+.clean-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+.news-card img {
+    height: 160px;
+    object-fit: cover;
+}
+
+.news-card {
+    border-radius: 12px;
+    transition: 0.3s;
+}
+.crypto-card {
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.crypto-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+.news-card:hover {
+    transform: translateY(-5px);
+}
+.card-number-clean {
+    font-size: 20px;
+    letter-spacing: 3px;
+    font-weight: 600;
+}
+
+.action-btn {
+    text-decoration: none;
+    color: #444;
+    font-size: 13px;
+    padding: 10px;
+    border-radius: 10px;
+    width: 100%;
+    transition: 0.2s;
+}
+
+.action-btn:hover {
+    background: #f5f7fa;
+    color: #000;
+}
+
+.news-card img {
+    height: 160px;
+    object-fit: cover;
+}
+
+.news-card {
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+}
+
+.actions-bar {
+    display: flex;
+    justify-content: space-between;
+    background: #f7f9fc;
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.action-item {
+    text-align: center;
+    text-decoration: none;
+    color: #444;
+    font-size: 12px;
+    flex: 1;
+    transition: 0.2s;
+}
+
+.action-item .icon {
+    width: 38px;
+    height: 38px;
+    margin: auto;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    transition: 0.3s;
+}
+
+/* HOVER */
+.action-item:hover .icon {
+    transform: translateY(-3px);
+    background: #eaf1ff;
+}
+
+.action-item:hover {
+    color: #000;
+}
+
+/* AI special */
+.action-item.ai .icon {
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: white;
+}
+
+/* SECONDARY */
+.actions-secondary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding: 8px 5px;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+} 
+</style>
+{% endblock %}

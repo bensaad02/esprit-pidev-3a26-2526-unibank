@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réclamation traitée - UniBank+</title>
+    <style>
+        @media print {
+            .no-print { display: none; }
+            body { background: white; margin: 0; padding: 0; }
+            .container { box-shadow: none; margin: 0; }
+        }
+        
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '🏦';
+            position: absolute;
+            font-size: 80px;
+            opacity: 0.1;
+            right: 20px;
+            bottom: -20px;
+        }
+        
+        .header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 10px 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 35px;
+        }
+        
+        .greeting {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .alert-box {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-left: 4px solid #4caf50;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .info-title {
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 12px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .info-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .info-label {
+            width: 100px;
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 13px;
+        }
+        
+        .info-value {
+            flex: 1;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .response-box {
+            background: #f0f7ff;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #0284c7;
+        }
+        
+        .qr-code {
+            text-align: center;
+            margin: 25px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 16px;
+        }
+        
+        .qr-code img {
+            width: 150px;
+            height: 150px;
+            margin: 10px auto;
+            display: block;
+            border-radius: 12px;
+        }
+        
+        .btn-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #1e3c72;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 20px 0 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-print:hover {
+            background: #2a5298;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30,60,114,0.3);
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .content { padding: 20px; }
+            .info-row { flex-direction: column; }
+            .info-label { width: auto; margin-bottom: 5px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>✅ Réclamation traitée</h2>
+            <p>Votre demande a été prise en compte</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Bonjour <strong>{{ utilisateur.prenom }} {{ utilisateur.nom }}</strong>,
+            </div>
+            
+            <div class="alert-box">
+                ✨ Nous vous informons que votre réclamation <strong>#{{ reclamation.id }}</strong> a été traitée avec succès.
+            </div>
+            
+            <div class="info-box">
+                <div class="info-title">📋 Récapitulatif de votre demande</div>
+                <div class="info-row">
+                    <div class="info-label">N° dossier</div>
+                    <div class="info-value">#{{ reclamation.id }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Sujet</div>
+                    <div class="info-value">{{ reclamation.sujet }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Type</div>
+                    <div class="info-value">
+                        {% if reclamation.type == 'technique' %}💻 Problème technique
+                        {% elseif reclamation.type == 'compte' %}👤 Gestion de compte
+                        {% elseif reclamation.type == 'transaction' %}💰 Transaction bancaire
+                        {% elseif reclamation.type == 'carte' %}💳 Carte bancaire
+                        {% elseif reclamation.type == 'credit' %}🏦 Crédit / Prêt
+                        {% else %}📝 Autre demande
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Date</div>
+                    <div class="info-value">{{ reclamation.dateReclamation|date('d/m/Y à H:i') }}</div>
+                </div>
+            </div>
+            
+            {% if reclamation.reponse %}
+            <div class="response-box">
+                <strong>💬 Réponse du service client :</strong><br><br>
+                {{ reclamation.reponse|nl2br }}
+            </div>
+            {% endif %}
+            
+            <div class="qr-code">
+                <strong>📱 Accédez à votre justificatif</strong>
+                <img src="{{ qrCodeUrl }}" alt="QR Code">
+                <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                    Scannez ce code pour télécharger l'accusé de traitement
+                </p>
+            </div>
+            
+            <!-- Bouton d'impression -->
+            <div style="text-align: center;" class="no-print">
+                <button onclick="window.print()" class="btn-print">
+                    🖨️ Imprimer cette page
+                </button>
+                <p style="font-size: 11px; color: #999; margin-top: 10px;">
+                    ou utilisez Ctrl+P (Cmd+P sur Mac)
+                </p>
+            </div>
+            
+            <p style="margin-top: 25px; color: #666;">
+                Connectez-vous à votre espace client UniBank+ pour plus de détails et suivre l'historique de vos réclamations.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p style="margin: 0;">🏦 UniBank+ - Service Client Premium</p>
+            <p style="margin: 5px 0 0; font-size: 11px;">
+                Cet email est automatique, merci de ne pas y répondre.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

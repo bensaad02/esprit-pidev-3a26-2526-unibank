@@ -1,0 +1,336 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Gestion Credits - Admin UniBank+{% endblock %}
+{% block page_title %}Gestion Credits{% endblock %}
+
+{% block stylesheets %}
+<style>
+.field-error {
+    display: none;
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 600;
+}
+
+.field-error.is-visible {
+    display: block;
+}
+
+.form-control.input-error,
+textarea.input-error,
+select.input-error {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 0.12rem rgba(220, 38, 38, 0.12);
+}
+
+.credit-stats-modal-layout {
+    display: grid;
+    grid-template-columns: minmax(220px, 250px) 1fr;
+    gap: 18px;
+    align-items: center;
+}
+
+.credit-stats-donut {
+    width: 210px;
+    height: 210px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: conic-gradient({{ statsChartGradient }});
+    position: relative;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.12);
+}
+
+.credit-stats-donut::after {
+    content: "";
+    position: absolute;
+    width: 58%;
+    height: 58%;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px #e5e7eb;
+}
+
+.credit-stats-center {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.credit-stats-center strong {
+    display: block;
+    font-size: 34px;
+    line-height: 1;
+    color: #0f172a;
+}
+
+.credit-stats-center span {
+    display: block;
+    margin-top: 6px;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.credit-stats-legend {
+    display: grid;
+    gap: 9px;
+}
+
+.credit-stats-legend-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+}
+
+.credit-stats-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.credit-stats-name {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 13px;
+}
+
+.credit-stats-count {
+    font-weight: 800;
+    color: #0f172a;
+    font-size: 13px;
+}
+
+.credit-stats-percent {
+    min-width: 48px;
+    text-align: right;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+@media (max-width: 767px) {
+    .credit-stats-modal-layout {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="row mb-4" style="display:flex;gap:15px;flex-wrap:wrap;">
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-clock"></i></div><div class="stat-info"><div class="stat-label">En attente</div><div class="stat-value">{{ stats.pending }}</div></div></div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-list"></i></div><div class="stat-info"><div class="stat-label">Total credits</div><div class="stat-value">{{ stats.total }}</div></div></div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-coins"></i></div><div class="stat-info"><div class="stat-label">Montant approuve</div><div class="stat-value" style="font-size:16px;">{{ stats.totalAmount|number_format(2, ',', ' ') }} DT</div></div></div>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="card-header" style="flex-wrap:wrap;gap:10px;">
+        <h5><i class="fas fa-hand-holding-usd mr-2" style="color:var(--primary);"></i>Credits ({{ credits|length }})</h5>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end;">
+            <button type="button" class="btn-admin primary" style="padding:8px 14px;font-size:13px;" onclick="$('#creditStatsModal').modal('show')">
+                <i class="fas fa-chart-pie mr-1"></i> Statistiques
+            </button>
+            <form method="get" action="{{ path('app_admin_credits') }}" class="filter-bar">
+                <select name="status" onchange="this.form.submit()">
+                    <option value="all" {{ status == 'all' ? 'selected' : '' }}>Tous les statuts</option>
+                    <option value="PENDING" {{ status == 'PENDING' ? 'selected' : '' }}>En attente</option>
+                    <option value="APPROVED" {{ status == 'APPROVED' ? 'selected' : '' }}>Approuve</option>
+                    <option value="CONTRACT_PENDING" {{ status == 'CONTRACT_PENDING' ? 'selected' : '' }}>Contrat en attente</option>
+                    <option value="REJECTED" {{ status == 'REJECTED' ? 'selected' : '' }}>Rejete</option>
+                    <option value="ACTIVE" {{ status == 'ACTIVE' ? 'selected' : '' }}>Actif</option>
+                    <option value="COMPLETED" {{ status == 'COMPLETED' ? 'selected' : '' }}>Termine</option>
+                    <option value="CANCELLED" {{ status == 'CANCELLED' ? 'selected' : '' }}>Annule</option>
+                </select>
+                <input type="text" name="q" value="{{ search }}" placeholder="Rechercher client, montant..." oninput="clearTimeout(this.t);this.t=setTimeout(()=>this.form.submit(),400)" style="width:200px;">
+                {% if status != 'all' or search %}
+                    <a href="{{ path('app_admin_credits') }}" class="btn-admin outline" style="padding:8px 14px;font-size:13px;">Reset</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if credits|length > 0 %}
+        <table class="admin-table">
+            <thead>
+                <tr><th>Client</th><th>Montant</th><th>Duree</th><th>Mensualite</th><th>Salaire</th><th>Statut</th><th>Date</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for c in credits %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">{{ c.client.prenom|first }}{{ c.client.nom|first }}</div>
+                            <div class="user-details">
+                                <div class="user-name">{{ c.client.prenom }} {{ c.client.nom }}</div>
+                                <div class="user-email">{{ c.client.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight:700;">{{ c.montant|number_format(2, ',', ' ') }} DT</td>
+                    <td>{{ c.dureeEnMois }} mois</td>
+                    <td style="color:var(--success);font-weight:600;">{{ c.mensualite ? c.mensualite|number_format(2, ',', ' ') : '-' }} DT</td>
+                    <td>{{ c.salaireMensuel ? c.salaireMensuel|number_format(2, ',', ' ') : '-' }} DT</td>
+                    <td>
+                        {% if c.statut.value == 'PENDING' %}
+                            <span class="badge-status pending">En attente</span>
+                        {% elseif c.statut.value == 'APPROVED' %}
+                            <span class="badge-status approved">Approuve</span>
+                        {% elseif c.statut.value == 'CONTRACT_PENDING' %}
+                            <span class="badge-status" style="background:#E7EDFF;color:var(--primary);">Contrat en cours</span>
+                        {% elseif c.statut.value == 'REJECTED' %}
+                            <span class="badge-status rejected">Rejete</span>
+                        {% elseif c.statut.value == 'ACTIVE' %}
+                            <span class="badge-status active">Actif</span>
+                        {% elseif c.statut.value == 'COMPLETED' %}
+                            <span class="badge-status" style="background:#E0F8EF;color:#1A9E6E;">Termine</span>
+                        {% else %}
+                            <span class="badge-status suspended">{{ c.statut.value }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size:13px;">{{ c.dateCreation|date('d/m/Y') }}</td>
+                    <td style="white-space:nowrap;">
+                        {% if c.statut.value == 'PENDING' %}
+                            <button type="button" class="btn-action approve" title="Approuver" onclick="confirmSubmit('{{ path('app_admin_credit_approve', {id: c.idCredit}) }}', {type:'approve', title:'Approuver le credit', message:'Approuver le credit de {{ c.montant|number_format(2, ',', ' ') }} DT pour {{ c.client.prenom|e('js') }} {{ c.client.nom|e('js') }} ?', btnText:'Approuver'})">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button type="button" class="btn-action reject" title="Rejeter" onclick="$('#rejectModal{{ c.idCredit }}').modal('show')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        {% elseif c.statut.value == 'CONTRACT_PENDING' %}
+                            <button type="button" class="btn-action approve" title="Finaliser contrat" onclick="confirmSubmit('{{ path('app_admin_credit_finalize', {id: c.idCredit}) }}', {type:'approve', title:'Finaliser le contrat', message:'Generer le contrat et activer le credit ?', btnText:'Finaliser'})">
+                                <i class="fas fa-file-contract"></i>
+                            </button>
+                        {% elseif c.statut.value == 'ACTIVE' %}
+                            <a href="{{ path('app_admin_credit_pdf', {id: c.idCredit}) }}" class="btn-action" title="Telecharger contrat PDF" style="color:var(--primary);" target="_blank">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>Aucun credit trouve</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% for c in credits %}
+{% if c.statut.value == 'PENDING' %}
+<div class="modal fade modal-admin" id="rejectModal{{ c.idCredit }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;">
+            <div style="background:#dc2626;padding:20px 25px;">
+                <h5 style="color:#fff;font-weight:700;margin:0;"><i class="fas fa-times-circle mr-2"></i>Rejeter le credit</h5>
+            </div>
+            <form method="post" action="{{ path('app_admin_credit_reject', {id: c.idCredit}) }}" novalidate data-reject-form>
+                <div style="padding:25px;">
+                    <p style="color:var(--text-secondary);font-size:14px;">Credit de <strong>{{ c.montant|number_format(2, ',', ' ') }} DT</strong> pour {{ c.client.prenom }} {{ c.client.nom }}</p>
+                    <div class="form-group">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Motif du rejet (obligatoire)</label>
+                        <textarea name="motif" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" rows="3" required placeholder="Expliquez la raison du rejet..."></textarea>
+                        <div class="field-error" data-error-for="motif"></div>
+                    </div>
+                </div>
+                <div style="padding:0 25px 25px;display:flex;gap:12px;justify-content:flex-end;">
+                    <button type="button" class="btn-admin outline" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn-admin danger">Rejeter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<div class="modal fade modal-admin" id="creditStatsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:700px;">
+        <div class="modal-content" style="border:none;border-radius:20px;overflow:hidden;">
+            <div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);padding:18px 22px;">
+                <h5 style="color:#fff;font-weight:800;margin:0;">
+                    <i class="fas fa-chart-pie mr-2"></i>Credits par mois
+                </h5>
+            </div>
+            <div style="padding:20px 22px;">
+                <div class="credit-stats-modal-layout">
+                    <div class="credit-stats-donut">
+                        <div class="credit-stats-center">
+                            <strong>{{ statsTotalCredits }}</strong>
+                            <span>sur les 6 derniers mois</span>
+                        </div>
+                    </div>
+
+                    <div class="credit-stats-legend">
+                        {% for item in statsLegend %}
+                            <div class="credit-stats-legend-item">
+                                <span class="credit-stats-dot" style="background:{{ item.color }};"></span>
+                                <span class="credit-stats-name">{{ item.label }}</span>
+                                <span class="credit-stats-count">{{ item.count }}</span>
+                                <span class="credit-stats-percent">{{ item.percentage|number_format(1, ',', ' ') }}%</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div style="padding:0 22px 20px;display:flex;justify-content:flex-end;">
+                <button type="button" class="btn-admin outline" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.querySelectorAll('form[data-reject-form]').forEach(function(form) {
+    var motifField = form.querySelector('[name="motif"]');
+    var errorEl = form.querySelector('[data-error-for="motif"]');
+
+    function validateRejectField() {
+        var isValid = motifField.checkValidity();
+        var message = '';
+
+        if (!isValid) {
+            if (motifField.validity.valueMissing) {
+                message = 'Le motif du rejet est obligatoire.';
+            } else {
+                message = 'Le motif saisi est invalide.';
+            }
+        }
+
+        motifField.classList.toggle('input-error', !isValid);
+        errorEl.textContent = message;
+        errorEl.classList.toggle('is-visible', !isValid);
+
+        return isValid;
+    }
+
+    motifField.addEventListener('input', validateRejectField);
+
+    form.addEventListener('submit', function(event) {
+        if (!validateRejectField()) {
+            event.preventDefault();
+            motifField.focus();
+        }
+    });
+});
+</script>
+{% endblock %}

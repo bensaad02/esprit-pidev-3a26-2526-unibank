@@ -1,0 +1,64 @@
+{% extends 'client/base.html.twig' %}
+
+{% block page_title %}Conversion{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="mb-3">
+        <h4 class="mb-0">💱 Conversion du solde</h4>
+        <small class="text-muted">Visualisez votre solde en devises étrangères</small>
+    </div>
+
+    <!-- CARD -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <!-- SOLDE -->
+            <div class="text-center mb-4">
+                <h5 class="text-muted">Solde actuel</h5>
+                <span class="badge bg-primary fs-5 px-4 py-2">
+                    {{ carte.solde }} DT
+                </span>
+            </div>
+
+            <hr>
+
+            <!-- CONVERSIONS -->
+            <div class="row text-center">
+
+                <!-- EUR -->
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 rounded bg-light shadow-sm">
+                        <h6 class="text-muted">🇪🇺 Euro</h6>
+                        <h4 class="text-success">
+                            {{ eur|number_format(2) }} €
+                        </h4>
+                    </div>
+                </div>
+
+                <!-- USD -->
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 rounded bg-light shadow-sm">
+                        <h6 class="text-muted">🇺🇸 Dollar</h6>
+                        <h4 class="text-success">
+                            {{ usd|number_format(2) }} $
+                        </h4>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BUTTON -->
+            <div class="text-center mt-4">
+                <a href="{{ path('app_client_cartes') }}" class="btn btn-secondary px-4">
+                    ⬅ Retour
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'client/base.html.twig' %}
+
+{% block body %}
+
+<div class="container mt-5">
+
+    <h2 class="mb-4 fw-bold text-primary">
+        📊 Historique des transactions
+    </h2>
+
+    <!-- CARD INFO -->
+    <div class="card shadow-sm mb-4 p-3">
+        <p class="mb-1"><strong>💳 Carte:</strong> {{ carte.cardNumber }}</p>
+        <p class="mb-0"><strong>💰 Solde:</strong> {{ carte.solde }} DT</p>
+    </div>
+
+    {% if transactions is empty %}
+        <div class="alert alert-info">
+            Aucune transaction trouvée.
+        </div>
+    {% else %}
+
+        {% for t in transactions %}
+
+            <div class="card shadow-sm mb-3 p-3">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <strong class="fs-5">
+                            {% if t.type == 'RECHARGE' %}
+                                📱 Recharge téléphone
+                            {% elseif t.type == 'FACTURE' %}
+                                🧾 Facture
+                            {% elseif t.type == 'INTERNET' %}
+                                🌐 Internet
+                            {% else %}
+                                💳 Paiement
+                            {% endif %}
+                        </strong>
+
+                        <br>
+                        <small class="text-muted">
+                            {{ t.date|date('d/m/Y H:i') }}
+                        </small>
+                    </div>
+
+                    <div>
+                        <span class="fw-bold text-danger fs-5">
+                            - {{ t.montant|number_format(2) }} DT
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ path('app_client_cartes') }}" class="btn btn-primary">
+            ⬅ Retour
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

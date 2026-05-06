@@ -1,0 +1,35 @@
+{% extends 'client/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-4">
+
+    <div class="card shadow-sm p-4">
+
+        <h4 class="mb-3">💰 Alimenter la carte</h4>
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+
+        <form method="POST">
+
+            <div class="mb-3">
+                <label>Montant</label>
+                <input type="number" name="amount" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label>PIN reçu par SMS</label>
+                <input type="text" name="pin" class="form-control" required>
+            </div>
+
+            <button class="btn btn-success w-100">
+                💰 Confirmer
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+{% endblock %}

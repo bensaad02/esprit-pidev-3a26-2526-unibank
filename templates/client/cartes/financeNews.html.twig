@@ -1,0 +1,85 @@
+{% extends 'client/base.html.twig' %}
+
+{% block page_title %}Finance News{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+
+    <h4 class="mb-4">📰 Finance & Crypto News</h4>
+
+    <div class="row">
+
+    {% for article in articles %}
+        <div class="col-md-4 mb-3">
+            <div class="card news-card h-100 shadow-sm">
+
+                <img src="{{ article.image ?: 'https://via.placeholder.com/300x160' }}" class="card-img-top">
+
+                <div class="card-body">
+                    <h6 class="fw-bold">{{ article.title|slice(0, 80) }}...</h6>
+
+                    <p class="text-muted small">
+                        {{ article.description ? article.description|slice(0, 100) ~ '...' : 'No description available' }}
+                    </p>
+
+                    <a href="{{ article.url }}" target="_blank" class="btn btn-sm btn-primary">
+                        Lire →
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    {% endfor %}
+
+    </div>
+
+    <hr class="mt-5">
+
+    <h4 class="mb-3">🪙 Crypto Market</h4>
+
+    <div class="row">
+
+    {% for coin in cryptos %}
+        <div class="col-md-4 mb-3">
+            <div class="card crypto-card p-3 shadow-sm">
+
+                <div class="d-flex align-items-center gap-2">
+                    <img src="{{ coin.image }}" width="25">
+                    <strong>{{ coin.name }}</strong>
+                </div>
+
+                <div class="mt-2 fw-bold">
+                    💲 {{ coin.current_price }} USD
+                </div>
+
+                <div class="{% if coin.price_change_percentage_24h > 0 %}text-success{% else %}text-danger{% endif %}">
+                    {{ coin.price_change_percentage_24h|number_format(2) }} %
+                </div>
+
+            </div>
+        </div>
+    {% endfor %}
+
+    </div>
+
+    <a href="{{ path('app_client_cartes') }}" class="btn btn-secondary mt-4">
+        ⬅ Back
+    </a>
+
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+
+<style>
+.crypto-card {
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.crypto-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">🛠 Admin Dashboard</h3>
+    </div>
+
+    <!-- ===================== -->
+    <!-- 💳 KPI CARDS -->
+    <!-- ===================== -->
+    <div class="row mb-4">
+
+        <div class="col-md-3">
+            <div class="card kpi-card text-center p-3">
+                <small>Total Cartes</small>
+                <h3>{{ totalCartes }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card kpi-card text-center p-3">
+                <small>Active</small>
+                <h3 class="text-success">{{ activeCartes }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card kpi-card text-center p-3">
+                <small>Pending</small>
+                <h3 class="text-warning">{{ pendingCartes }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card kpi-card text-center p-3">
+                <small>Blocked</small>
+                <h3 class="text-danger">{{ blockedCartes }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- 💸 TRANSACTION KPIs -->
+    <!-- ===================== -->
+    <div class="row mb-4">
+
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm text-center">
+                <small>Total Transactions</small>
+                <h3>{{ totalTransactions }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm text-center">
+                <small>Total Volume</small>
+                <h3>{{ totalAmount }} DT</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- 📊 CHARTS -->
+    <!-- ===================== -->
+    <div class="row mb-4">
+
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm">
+                <h6>📈 Transactions Trend</h6>
+                {{ render_chart(transactionChart) }}
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-4 shadow-sm">
+                <h6>🧠 Categories</h6>
+                {{ render_chart(categoryChart) }}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- 🚨 FRAUD DETECTION -->
+    <!-- ===================== -->
+    <div class="card p-4 shadow-sm mb-4">
+
+        <h5 class="mb-3 text-danger">🚨 Fraud Alerts</h5>
+
+        {% if suspiciousTransactions is empty %}
+            <div class="alert alert-success">
+                No suspicious activity detected ✅
+            </div>
+        {% else %}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Montant</th>
+                        <th>Date</th>
+                        <th>Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in suspiciousTransactions %}
+                        <tr>
+                            <td>{{ t.type }}</td>
+                            <td>{{ t.montant }} DT</td>
+                            <td>{{ t.date|date('d/m/Y H:i') }}</td>
+                            <td>
+                                <span class="badge bg-danger">High</span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- 📋 RECENT -->
+    <!-- ===================== -->
+    <div class="card p-4 shadow-sm">
+
+        <h5 class="mb-3">📋 Recent Transactions</h5>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Montant</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in recentTransactions %}
+                    <tr>
+                        <td>{{ t.type }}</td>
+                        <td>{{ t.montant }} DT</td>
+                        <td>{{ t.date|date('d/m/Y H:i') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+
+.kpi-card {
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f9fafb, #f1f5f9);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.card {
+    border-radius: 14px;
+}
+
+</style>
+{% endblock %}

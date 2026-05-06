@@ -1,0 +1,69 @@
+{% extends 'client/base.html.twig' %}
+
+{% block page_title %}Analyse AI{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+
+    <h4 class="mb-4">🤖 Analyse intelligente</h4>
+
+    <!-- CARD INFO -->
+    <div class="card p-3 shadow-sm mb-3">
+        <strong>Carte:</strong> **** {{ carte.cardNumber|slice(-4) }} <br>
+        <strong>Total dépensé:</strong> 
+        <span class="text-danger fw-bold">{{ total }} DT</span>
+    </div>
+
+    <!-- AI RESULT -->
+    <div class="card p-3 shadow-sm mb-3">
+
+    <h5>🤖 Analyse</h5>
+
+    {% if sentiment == 'positif' %}
+        <div class="alert alert-success">
+            🙂 Activité positive
+        </div>
+    {% elseif sentiment == 'negatif' %}
+        <div class="alert alert-danger">
+            ⚠️ Activité négative
+        </div>
+    {% else %}
+        <div class="alert alert-secondary">
+            😐 Activité neutre
+        </div>
+    {% endif %}
+
+    <hr>
+
+    <strong>💡 Conseil:</strong>
+    <p class="mb-0">{{ advice }}</p>
+
+</div>
+    <!-- TRANSACTIONS -->
+    <div class="card shadow-sm">
+
+        {% for t in transactions %}
+            <div class="d-flex justify-content-between border-bottom p-3">
+                <div>
+                    {{ t.type }}<br>
+                    <small class="text-muted">
+                        {{ t.date|date('d/m/Y H:i') }}
+                    </small>
+                </div>
+
+                <div class="text-danger">
+                    - {{ t.montant }} DT
+                </div>
+            </div>
+        {% else %}
+            <div class="p-3 text-muted">Aucune transaction</div>
+        {% endfor %}
+
+    </div>
+
+    <a href="{{ path('app_client_cartes') }}" class="btn btn-primary mt-3">
+        ⬅ Retour
+    </a>
+
+</div>
+{% endblock %}

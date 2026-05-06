@@ -1,0 +1,149 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block page_title %}Gestion Cartes{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="mb-0">Gestion des Cartes 💳</h4>
+            <small class="text-muted">Validation et gestion des cartes bancaires</small>
+        </div>
+
+        <!-- RIGHT ACTIONS -->
+        <div class="d-flex gap-2">
+
+            <!-- SEARCH + SORT -->
+            <form method="get" class="d-flex gap-2">
+
+                <input type="text" name="search" value="{{ search }}" 
+                       class="form-control" placeholder="Rechercher...">
+
+                <select name="sort" class="form-control">
+                    <option value="id">ID</option>
+                    <option value="nom">Nom</option>
+                    <option value="typeCarte">Type</option>
+                    <option value="solde">Montant</option>
+                </select>
+
+                <select name="direction" class="form-control">
+                    <option value="ASC">Asc</option>
+                    <option value="DESC">Desc</option>
+                </select>
+
+                <button class="btn btn-primary">🔍</button>
+            </form>
+
+            <!-- PDF BUTTON -->
+            <a href="{{ path('admin_cartes_pdf') }}" class="btn btn-danger">
+                📄 PDF
+            </a>
+
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Type</th>
+                        <th>Montant</th>
+                        <th>Adresse</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for carte in cartes %}
+                    <tr>
+                        <td><strong>{{ carte.nom }} {{ carte.prenom }}</strong></td>
+                        <td>{{ carte.typeCarte }}</td>
+                        <td>{{ carte.solde }} DT</td>
+                        <td>{{ carte.adresse }}</td>
+
+                        <td>
+                            <span class="badge 
+                                {% if carte.status == 'ACTIVE' %}
+                                    badge-success
+                                {% elseif carte.status == 'REFUSE' %}
+                                    badge-danger
+                                {% elseif carte.status == 'BLOCKED' %}
+                                    badge-dark
+                                {% else %}
+                                    badge-warning
+                                {% endif %}
+                            ">
+                                {{ carte.status }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if carte.status == 'EN_ATTENTE' %}
+
+                                <button class="btn btn-success btn-sm"
+                                    onclick="confirmSubmit('{{ path('admin_carte_valider', {id: carte.id}) }}', {
+                                        type: 'approve',
+                                        title: 'Valider carte',
+                                        message: 'Confirmer la validation ?',
+                                        btnText: 'Valider'
+                                    })">
+                                    ✔
+                                </button>
+
+                                <button class="btn btn-danger btn-sm"
+                                    onclick="confirmSubmit('{{ path('admin_carte_refuser', {id: carte.id}) }}', {
+                                        type: 'reject',
+                                        title: 'Refuser carte',
+                                        message: 'Confirmer le refus ?',
+                                        btnText: 'Refuser'
+                                    })">
+                                    ✖
+                                </button>
+
+                            {% elseif carte.status == 'ACTIVE' %}
+
+                                <button class="btn btn-warning btn-sm"
+                                    onclick="confirmSubmit('{{ path('admin_carte_block', {id: carte.id}) }}', {
+                                        type: 'ban',
+                                        title: 'Bloquer carte',
+                                        message: 'Voulez-vous bloquer ?',
+                                        btnText: 'Bloquer'
+                                    })">
+                                    Bloquer
+                                </button>
+
+                            {% elseif carte.status == 'BLOCKED' %}
+
+                                <button class="btn btn-success btn-sm"
+                                    onclick="confirmSubmit('{{ path('admin_carte_valider', {id: carte.id}) }}', {
+                                        type: 'unban',
+                                        title: 'Débloquer carte',
+                                        message: 'Voulez-vous débloquer ?',
+                                        btnText: 'Débloquer'
+                                    })">
+                                    Débloquer
+                                </button>
+
+                            {% else %}
+                                <span class="text-muted">Traité</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

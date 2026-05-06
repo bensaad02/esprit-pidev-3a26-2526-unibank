@@ -1,0 +1,129 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Transactions - Admin UniBank+{% endblock %}
+{% block page_title %}Gestion Transactions{% endblock %}
+
+{% block body %}
+<div class="row mb-4" style="display:flex;gap:15px;flex-wrap:wrap;">
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-list"></i></div><div class="stat-info"><div class="stat-label">Total</div><div class="stat-value">{{ stats.total }}</div></div></div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-exchange-alt"></i></div><div class="stat-info"><div class="stat-label">Virements</div><div class="stat-value">{{ stats.virements }}</div></div></div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card"><div class="stat-icon red"><i class="fas fa-arrow-up"></i></div><div class="stat-info"><div class="stat-label">Retraits</div><div class="stat-value">{{ stats.retraits }}</div></div></div>
+    </div>
+    <div class="col" style="flex:1;min-width:160px;">
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-arrow-down"></i></div><div class="stat-info"><div class="stat-label">Depots</div><div class="stat-value">{{ stats.depots }}</div></div></div>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="card-header" style="flex-wrap:wrap;gap:10px;">
+        <h5><i class="fas fa-exchange-alt mr-2" style="color:var(--primary);"></i>Toutes les transactions ({{ transactions|length }})</h5>
+        <a href="{{ path('app_admin_transactions_pdf', {type: type, q: search, client: clientFilter, account: accountFilter}) }}"
+           class="btn-admin" style="padding:8px 16px;font-size:13px;background:linear-gradient(135deg,#2259d6,#4338ca);color:#fff;border-radius:10px;display:inline-flex;align-items:center;gap:6px;text-decoration:none;"
+           target="_blank">
+            <i class="fas fa-file-pdf"></i> Exporter PDF
+        </a>
+        <form method="get" action="{{ path('app_admin_transactions') }}" id="filterForm" class="filter-bar">
+            <select name="type" onchange="this.form.submit()">
+                <option value="all" {{ type == 'all' ? 'selected' : '' }}>Tous les types</option>
+                <option value="VIREMENT" {{ type == 'VIREMENT' ? 'selected' : '' }}>Virements</option>
+                <option value="RETRAIT" {{ type == 'RETRAIT' ? 'selected' : '' }}>Retraits</option>
+                <option value="DEPOT" {{ type == 'DEPOT' ? 'selected' : '' }}>Depots</option>
+            </select>
+            <input type="text" name="client" value="{{ clientFilter }}" placeholder="Nom client..." oninput="clearTimeout(this.t);this.t=setTimeout(()=>this.form.submit(),400)" style="width:150px;">
+            <input type="text" name="account" value="{{ accountFilter }}" placeholder="N compte..." oninput="clearTimeout(this.t);this.t=setTimeout(()=>this.form.submit(),400)" style="width:140px;">
+            <input type="text" name="q" value="{{ search }}" placeholder="Rechercher..." oninput="clearTimeout(this.t);this.t=setTimeout(()=>this.form.submit(),400)" style="width:170px;">
+            {% if type != 'all' or search or clientFilter or accountFilter %}
+                <a href="{{ path('app_admin_transactions') }}" class="btn-admin outline" style="padding:8px 14px;font-size:13px;">Reset</a>
+            {% endif %}
+        </form>
+    </div>
+    <div class="card-body">
+        {% if transactions|length > 0 %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Source</th>
+                    <th>Destination</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th style="text-align:right;">Montant</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center" style="gap:8px;">
+                            <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;
+                                {% if t.type.value == 'VIREMENT' %}background:#E7EDFF;color:var(--primary);
+                                {% elseif t.type.value == 'RETRAIT' %}background:#FFE8EB;color:#dc2626;
+                                {% else %}background:#E0F8EF;color:#16a34a;{% endif %}">
+                                {% if t.type.value == 'VIREMENT' %}<i class="fas fa-exchange-alt"></i>
+                                {% elseif t.type.value == 'RETRAIT' %}<i class="fas fa-arrow-up"></i>
+                                {% else %}<i class="fas fa-arrow-down"></i>{% endif %}
+                            </div>
+                            <span style="font-weight:600;font-size:13px;">{{ t.type.value }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        {% if t.compteSource %}
+                            <div style="font-size:13px;font-weight:600;">{{ t.compteSource.utilisateur.prenom }} {{ t.compteSource.utilisateur.nom }}</div>
+                            <div style="font-size:11px;color:var(--text-secondary);">{{ t.compteSource.numeroCompte }}</div>
+                        {% else %}-{% endif %}
+                    </td>
+                    <td>
+                        {% if t.compteDestination %}
+                            <div style="font-size:13px;font-weight:600;">{{ t.compteDestination.utilisateur.prenom }} {{ t.compteDestination.utilisateur.nom }}</div>
+                            <div style="font-size:11px;color:var(--text-secondary);">{{ t.compteDestination.numeroCompte }}</div>
+                        {% else %}<span style="color:var(--text-secondary);">-</span>{% endif %}
+                    </td>
+                    <td style="color:var(--text-secondary);font-size:13px;max-width:200px;">{{ t.description ?? '-' }}</td>
+                    <td style="font-size:13px;white-space:nowrap;">{{ t.dateCreation|date('d/m/Y') }}<br><small style="color:var(--text-secondary);">{{ t.dateCreation|date('H:i') }}</small></td>
+                    <td style="text-align:right;font-weight:700;font-size:14px;color:var(--primary-dark);">
+                        {{ t.montant|number_format(2, ',', ' ') }} DT
+                    </td>
+                    <td style="white-space:nowrap;">
+                        <button
+                            type="button"
+                            class="btn-action delete js-transaction-delete"
+                            title="Supprimer"
+                            data-delete-url="{{ path('app_admin_transaction_delete', {id: t.idTransaction}) }}"
+                            data-delete-message="Cette action supprimera la transaction et tentera d'annuler son effet sur les soldes. Continuer ?"
+                        >
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>Aucune transaction trouvee</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.querySelectorAll('.js-transaction-delete').forEach(function(button) {
+    button.addEventListener('click', function() {
+        confirmSubmit(button.dataset.deleteUrl, {
+            type: 'delete',
+            title: 'Supprimer la transaction',
+            message: button.dataset.deleteMessage,
+            btnText: 'Supprimer'
+        });
+    });
+});
+</script>
+{% endblock %}

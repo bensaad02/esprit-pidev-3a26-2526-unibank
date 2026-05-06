@@ -1,0 +1,166 @@
+{% extends 'client/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-4">
+
+    <!-- 🔥 HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">💳 Carte Dashboard</h3>
+        <a href="{{ path('app_client_cartes') }}" class="btn btn-outline-secondary btn-sm">
+            ⬅ Back
+        </a>
+    </div>
+
+    <!-- 🧠 SCORE + KPIs -->
+    <div class="row mb-4">
+
+        <!-- SCORE -->
+        <div class="col-md-3">
+            <div class="card p-4 shadow-sm text-center h-100">
+                <h6 class="text-muted">Health Score</h6>
+
+                <div class="score-circle mt-2">
+                    {{ score }}
+                </div>
+
+                {% if score > 80 %}
+                    <small class="text-success mt-2">Excellent</small>
+                {% elseif score > 50 %}
+                    <small class="text-warning mt-2">Moderate</small>
+                {% else %}
+                    <small class="text-danger mt-2">Risky</small>
+                {% endif %}
+            </div>
+        </div>
+<div class="card p-4 mb-4 shadow-sm">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0">🤖 AI Insights</h6>
+        <span class="badge bg-dark">AI</span>
+    </div>
+
+    {% for insight in insights %}
+        <div class="ai-item">
+            {{ insight }}
+        </div>
+    {% endfor %}
+
+</div>
+        <!-- TOTAL CARDS -->
+        <div class="col-md-3">
+            <div class="card p-4 shadow-sm text-center h-100">
+                <h6 class="text-muted">Total Cards</h6>
+                <h3 class="fw-bold">{{ cartes|length }}</h3>
+            </div>
+        </div>
+
+        <!-- TOTAL TRANSACTIONS -->
+        <div class="col-md-3">
+            <div class="card p-4 shadow-sm text-center h-100">
+                <h6 class="text-muted">Transactions</h6>
+                <h3 class="fw-bold">{{ transactionChart.data.datasets[0].data|length }}</h3>
+            </div>
+        </div>
+
+        <!-- TOTAL SPENT -->
+        <div class="col-md-3">
+            <div class="card p-4 shadow-sm text-center h-100">
+                <h6 class="text-muted">Total Spent</h6>
+                <h3 class="fw-bold">
+                    {{ transactionChart.data.datasets[0].data|reduce((a,b)=>a+b, 0) }} DT
+                </h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 💳 CARDS -->
+    <div class="row mb-4">
+        {% for carte in cartes %}
+            <div class="col-md-4 mb-3">
+                <div class="card p-3 shadow-sm h-100">
+
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ carte.typeCarte }}</strong>
+                        <span class="badge bg-light text-dark">Active</span>
+                    </div>
+
+                    <div class="mt-2 text-muted small">
+                        **** {{ carte.cardNumber|slice(-4) }}
+                    </div>
+
+                    <div class="mt-3 text-primary fw-bold fs-5">
+                        {{ carte.solde }} DT
+                    </div>
+
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- 📊 CHARTS -->
+    <div class="row">
+
+        <!-- TRANSACTIONS -->
+        <div class="col-md-6 mb-4">
+            <div class="card p-4 shadow-sm h-100">
+                <h6 class="mb-3">📈 Transactions</h6>
+                {{ render_chart(transactionChart) }}
+            </div>
+        </div>
+
+        <!-- CATEGORY -->
+        <div class="col-md-6 mb-4">
+            <div class="card p-4 shadow-sm h-100">
+                <h6 class="mb-3">🧠 Spending Types</h6>
+                {{ render_chart(categoryChart) }}
+            </div>
+        </div>
+
+        <!-- CRYPTO -->
+        <div class="col-md-12">
+            <div class="card p-4 shadow-sm">
+                <h6 class="mb-3">🪙 Crypto Market</h6>
+                {{ render_chart(cryptoChart) }}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+
+.score-circle {
+    width: 80px;
+    height: 80px;
+    margin: auto;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f46e5, #22c55e);
+    color: white;
+    font-size: 26px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.card {
+    border-radius: 14px;
+}
+
+.ai-item {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+</style>
+{{ importmap() }}
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends 'client/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-4">
+
+    <div class="card shadow-sm p-4">
+
+        <h4 class="mb-4">💳 Paiement</h4>
+
+        <!-- 🔥 SERVICE SELECTION -->
+        <div class="row mb-4 text-center">
+
+            <div class="col">
+                <div class="pay-card" onclick="selectType('RECHARGE')">
+                    📱<br>Recharge
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="pay-card" onclick="selectType('INTERNET')">
+                    🌐<br>Internet
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="pay-card" onclick="selectType('FACTURE')">
+                    💡<br>Facture
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="pay-card" onclick="selectType('SERVICE')">
+                    🛠<br>Service
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FORM -->
+        <form method="POST">
+
+            <input type="hidden" name="type" id="typeInput">
+
+            <!-- 📱 PHONE -->
+            <div class="mb-3 d-none" id="phoneField">
+                <label>Numéro téléphone</label>
+                <input type="text" name="phone" class="form-control">
+            </div>
+
+            <!-- 🏢 PROVIDER -->
+            <div class="mb-3 d-none" id="providerField">
+                <label>Fournisseur</label>
+                <input type="text" name="provider" class="form-control">
+            </div>
+
+            <!-- 💰 AMOUNT -->
+            <div class="mb-3">
+                <label>Montant</label>
+                <input type="number" name="amount" class="form-control" required>
+            </div>
+
+            <!-- 🔐 PIN -->
+            <div class="mb-3">
+                <label>PIN</label>
+                <input type="text" name="pin" class="form-control" required>
+            </div>
+
+            <button class="btn btn-primary w-100">
+                💳 Payer
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- 🔥 STYLE -->
+<style>
+.pay-card {
+    background: #f8f9fc;
+    padding: 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+.pay-card:hover {
+    background: #4e73df;
+    color: white;
+    transform: translateY(-3px);
+}
+
+.pay-card.active {
+    background: #4e73df;
+    color: white;
+}
+</style>
+
+<!-- 🔥 SCRIPT -->
+<script>
+function selectType(type) {
+
+    // store type
+    document.getElementById('typeInput').value = type;
+
+    // reset fields
+    document.getElementById('phoneField').classList.add('d-none');
+    document.getElementById('providerField').classList.add('d-none');
+
+    // remove active class
+    document.querySelectorAll('.pay-card').forEach(el => el.classList.remove('active'));
+
+    // activate clicked
+    event.currentTarget.classList.add('active');
+
+    // show fields
+    if (type === 'RECHARGE') {
+        document.getElementById('phoneField').classList.remove('d-none');
+    }
+
+    if (type === 'INTERNET' || type === 'FACTURE') {
+        document.getElementById('providerField').classList.remove('d-none');
+    }
+}
+</script>
+
+{% endblock %}

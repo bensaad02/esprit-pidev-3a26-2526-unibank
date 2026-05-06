@@ -1,0 +1,1593 @@
+{# templates/client/reclamation/index.html.twig #}
+{% extends 'client/base.html.twig' %}
+{% block title %}Mes Réclamations - UniBank+{% endblock %}
+{% block page_title %}Mes Réclamations{% endblock %}
+
+{% block stylesheets %}
+<style>
+.field-error {
+    display: none;
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 600;
+}
+
+.field-error.is-visible {
+    display: block;
+}
+
+.form-control.input-error,
+textarea.input-error,
+select.input-error {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 0.12rem rgba(220, 38, 38, 0.12);
+}
+
+.form-control.input-success,
+textarea.input-success,
+select.input-success {
+    border-color: #4CAF50 !important;
+    box-shadow: 0 0 0 0.12rem rgba(76, 175, 80, 0.15);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card-mini {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.stat-card-mini:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon-mini {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.stat-icon-mini.orange { background: #FFF3E0; color: #FF9800; }
+.stat-icon-mini.blue { background: #E3F2FD; color: #2196F3; }
+.stat-icon-mini.green { background: #E8F5E9; color: #4CAF50; }
+.stat-icon-mini.red { background: #FFEBEE; color: #F44336; }
+
+.stat-info-mini {
+    flex: 1;
+}
+
+.stat-label-mini {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 3px;
+}
+
+.stat-value-mini {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.badge-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-status.en_attente { background: #FFF3E0; color: #FF9800; }
+.badge-status.en_cours { background: #E3F2FD; color: #2196F3; }
+.badge-status.traite { background: #E8F5E9; color: #4CAF50; }
+.badge-status.rejete { background: #FFEBEE; color: #F44336; }
+
+.sentiment-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.sentiment-positif { background: #E8F5E9; color: #4CAF50; }
+.sentiment-negatif { background: #FFEBEE; color: #F44336; }
+.sentiment-neutre { background: #F5F5F5; color: #757575; }
+
+.response-preview {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.has-response {
+    color: #4CAF50;
+}
+
+.no-response {
+    color: #FF9800;
+}
+
+.image-preview {
+    max-width: 50px;
+    max-height: 50px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.image-preview:hover {
+    transform: scale(1.05);
+}
+
+.reclamation-detail {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.reclamation-response {
+    background: #E8F5E9;
+    border-left: 4px solid #4CAF50;
+}
+
+.btn-action {
+    background: transparent;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+}
+
+.btn-action:hover {
+    background: #f0f0f0;
+}
+
+.btn-action.edit:hover { color: #FF9800; background: #FFF3E0; }
+.btn-action.delete:hover { color: #F44336; background: #FFEBEE; }
+.btn-action.view:hover { color: #2196F3; background: #E3F2FD; }
+
+/* Barre de recherche pro */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+/* Input group */
+.search-input-group {
+    position: relative;
+    flex: 1;
+    max-width: 350px;
+}
+
+/* Icône */
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+    font-size: 14px;
+}
+
+/* Input */
+.search-input {
+    width: 100%;
+    padding: 10px 15px 10px 38px;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #F9FAFB;
+}
+
+/* Focus effet premium */
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(76, 73, 237, 0.08);
+}
+
+/* Bouton principal */
+.btn-search {
+    background: linear-gradient(135deg, var(--primary), #4C49ED);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Hover bouton */
+.btn-search:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 73, 237, 0.2);
+}
+
+/* Reset */
+.btn-reset {
+    background: #F3F4F6;
+    color: #374151;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-reset:hover {
+    background: #E5E7EB;
+}
+
+.search-select {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    background: #F9FAFB;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.search-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(76, 73, 237, 0.08);
+}
+
+/* ============================================
+   STYLES POUR NOTIFICATIONS ANIMÉES
+============================================ */
+
+/* Conteneur des notifications */
+#response-notifications {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+/* Style de base de la notification */
+.notification-toast {
+    pointer-events: auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    min-width: 320px;
+    max-width: 400px;
+    opacity: 0;
+    transform: translateX(100px) scale(0.9);
+    animation: notificationSlideIn 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+    position: relative;
+}
+
+/* Animation d'entrée */
+@keyframes notificationSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100px) scale(0.8);
+    }
+    60% {
+        opacity: 1;
+        transform: translateX(-10px) scale(1.02);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* Animation de sortie */
+.notification-toast.hide {
+    animation: notificationSlideOut 0.4s ease-in forwards;
+}
+
+@keyframes notificationSlideOut {
+    0% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(100px) scale(0.8);
+        display: none;
+    }
+}
+
+/* Barre de progression */
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4CAF50, #66BB6A);
+    width: 100%;
+    animation: progressBar 5s linear forwards;
+}
+
+@keyframes progressBar {
+    0% { width: 100%; }
+    100% { width: 0%; }
+}
+
+/* En-tête de notification */
+.notification-header {
+    padding: 14px 16px 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    animation: iconPulse 0.6s ease-out;
+}
+
+@keyframes iconPulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.notification-title {
+    flex: 1;
+}
+
+.notification-title h4 {
+    color: white;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.notification-title p {
+    color: rgba(255,255,255,0.9);
+    margin: 2px 0 0;
+    font-size: 11px;
+}
+
+.notification-close {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: white;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.notification-close:hover {
+    background: rgba(255,255,255,0.4);
+    transform: rotate(90deg);
+}
+
+/* Corps de notification */
+.notification-body {
+    padding: 16px;
+    background: white;
+}
+
+.notification-subject {
+    font-weight: 700;
+    color: #1a202c;
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.notification-message {
+    color: #4a5568;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.notification-time {
+    font-size: 11px;
+    color: #a0aec0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Animation de bounce pour nouvelle notification */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.notification-toast.new {
+    animation: notificationSlideIn 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) forwards, bounce 0.5s ease 0.3s;
+}
+
+/* Confettis animation */
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.confetti {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+/* Sonnerie */
+@keyframes ring {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(15deg); }
+    50% { transform: rotate(-15deg); }
+    75% { transform: rotate(5deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.bell-ring {
+    animation: ring 0.5s ease-in-out;
+}
+
+/* Badge compteur de notifications */
+.notification-badge {
+    position: relative;
+}
+
+.notification-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #F44336;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 20px;
+    min-width: 18px;
+    text-align: center;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* ============================================
+   STYLES POUR LA PAGINATION
+============================================ */
+.pagination-container {
+    margin-top: 25px;
+    animation: fadeIn 0.3s ease;
+}
+
+.pagination {
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.page-link {
+    border-radius: 10px !important;
+    border: none;
+    padding: 8px 14px;
+    color: var(--primary-dark);
+    background: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.page-link:hover {
+    background: linear-gradient(135deg, var(--primary), #4C49ED);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 73, 237, 0.25);
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(135deg, var(--primary), #4C49ED);
+    color: white;
+    box-shadow: 0 4px 12px rgba(76, 73, 237, 0.3);
+}
+
+.page-item.disabled .page-link {
+    background: #f5f5f5;
+    color: #aaa;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 15px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Formulaire de nouvelle réclamation -->
+<div class="admin-card mb-4">
+
+    <div id="response-notifications"></div>
+
+    <!-- Script de notification avec animations -->
+    <script>
+    // Queue des notifications pour éviter les surcharges
+    let notificationQueue = [];
+    let isShowingNotification = false;
+    
+    // Fonction pour afficher une notification avec animation
+    function showNotification(notificationData) {
+        notificationQueue.push(notificationData);
+        processNotificationQueue();
+    }
+    
+    function processNotificationQueue() {
+        if (isShowingNotification || notificationQueue.length === 0) return;
+        
+        isShowingNotification = true;
+        const data = notificationQueue.shift();
+        
+        const container = document.getElementById('response-notifications');
+        if (!container) {
+            isShowingNotification = false;
+            return;
+        }
+        
+        // Créer l'élément de notification
+        const toast = document.createElement('div');
+        toast.className = 'notification-toast new';
+        
+        toast.innerHTML = `
+            <div class="notification-header">
+                <div class="notification-icon">
+                    ${data.icon || '📬'}
+                </div>
+                <div class="notification-title">
+                    <h4>${data.title}</h4>
+                    <p>${data.subtitle || 'Nouvelle réponse'}</p>
+                </div>
+                <button class="notification-close" onclick="closeNotification(this.parentElement.parentElement)">×</button>
+            </div>
+            <div class="notification-body">
+                <div class="notification-subject">
+                    <span>📌</span>
+                    <span>${escapeHtml(data.subject)}</span>
+                </div>
+                <div class="notification-message">
+                    ${escapeHtml(data.message)}
+                </div>
+                <div class="notification-time">
+                    <span>🕐</span>
+                    <span>${data.time}</span>
+                </div>
+            </div>
+            <div class="notification-progress"></div>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Animation de sonnerie (optionnelle)
+        playNotificationSound();
+        
+        // Confettis pour les réponses importantes
+        if (data.isImportant) {
+            createConfetti();
+        }
+        
+        // Auto-suppression après 5 secondes
+        const timeout = setTimeout(() => {
+            closeNotification(toast);
+        }, 5000);
+        
+        // Stocker le timeout pour l'annuler si nécessaire
+        toast.dataset.timeout = timeout;
+    }
+    
+    function closeNotification(element) {
+        const timeout = element.dataset.timeout;
+        if (timeout) clearTimeout(parseInt(timeout));
+        
+        element.classList.add('hide');
+        
+        setTimeout(() => {
+            if (element.parentElement) {
+                element.remove();
+            }
+            isShowingNotification = false;
+            processNotificationQueue();
+        }, 400);
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function playNotificationSound() {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 880;
+            gainNode.gain.value = 0.15;
+            
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+            oscillator.stop(audioContext.currentTime + 0.5);
+            
+            audioContext.resume();
+        } catch(e) {
+            // Fallback silencieux
+        }
+    }
+    
+    function createConfetti() {
+        const colors = ['#4CAF50', '#2196F3', '#FF9800', '#F44336', '#9C27B0'];
+        
+        for (let i = 0; i < 30; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.position = 'fixed';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.top = '-20px';
+            confetti.style.width = Math.random() * 8 + 4 + 'px';
+            confetti.style.height = Math.random() * 8 + 4 + 'px';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            confetti.style.opacity = Math.random() * 0.7 + 0.3;
+            confetti.style.animation = `confettiFall ${Math.random() * 2 + 2}s linear forwards`;
+            
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 3000);
+        }
+    }
+    
+    // Compteur de notifications
+    let notificationCount = 0;
+    
+    function updateNotificationBadge(count) {
+        notificationCount += count;
+        
+        let badge = document.querySelector('.notification-badge .notification-count');
+        if (!badge && notificationCount > 0) {
+            const title = document.querySelector('title');
+            const badgeContainer = document.createElement('div');
+            badgeContainer.className = 'notification-badge';
+            badgeContainer.style.position = 'fixed';
+            badgeContainer.style.top = '10px';
+            badgeContainer.style.right = '10px';
+            badgeContainer.style.zIndex = '10000';
+            
+            badge = document.createElement('div');
+            badge.className = 'notification-count';
+            badgeContainer.appendChild(badge);
+            document.body.appendChild(badgeContainer);
+        }
+        
+        if (badge) {
+            if (notificationCount > 0) {
+                badge.textContent = notificationCount > 99 ? '99+' : notificationCount;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        // Mettre à jour le titre de la page
+        if (notificationCount > 0) {
+            document.title = `(${notificationCount}) ${document.title.replace(/^\(\d+\)\s/, '')}`;
+        } else {
+            document.title = document.title.replace(/^\(\d+\)\s/, '');
+        }
+    }
+    
+    // Stockage des notifications déjà affichées
+    let displayedNotifications = new Set();
+    </script>
+    
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let notifications = [];
+
+        {% for r in pagination %}
+            {% if r.reponses|length > 0 %}
+                {% set rep = r.reponses|sort((a, b) => a.dateReponse <=> b.dateReponse)|last %}
+                notifications.push({
+                    id: "{{ rep.id }}",
+                    subject: "{{ r.sujet|e('js') }}",
+                    message: "{{ rep.contenu|slice(0,150)|e('js') }}",
+                    time: "{{ rep.dateReponse|date('d/m/Y H:i') }}",
+                    timestamp: {{ rep.dateReponse.timestamp }}
+                });
+            {% endif %}
+        {% endfor %}
+
+        notifications.sort((a, b) => b.timestamp - a.timestamp);
+
+        let seen = JSON.parse(localStorage.getItem("seen_notifications") || "[]");
+
+        notifications.forEach((n, index) => {
+            if (seen.includes(n.id)) return;
+            updateNotificationBadge(1);
+            setTimeout(() => {
+                showNotification({
+                    title: "📬 Nouvelle réponse",
+                    subtitle: "Réponse non lue",
+                    subject: n.subject,
+                    message: n.message,
+                    time: n.time,
+                    icon: "💬",
+                    isImportant: true
+                });
+                seen.push(n.id);
+                localStorage.setItem("seen_notifications", JSON.stringify(seen));
+                setTimeout(() => updateNotificationBadge(-1), 6000);
+            }, index * 400);
+        });
+    });
+    </script>
+
+   <div class="card-header">
+    <h5><i class="fas fa-comment-alt mr-2" style="color:var(--primary);"></i>Nouvelle réclamation</h5>
+</div>
+<div class="card-body" style="padding:25px;">
+    {# Affichage des messages d'erreur #}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+    
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle mr-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+    
+    <form method="post" action="{{ path('app_client_reclamation_new') }}" enctype="multipart/form-data" id="reclamationForm" novalidate>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">
+                    Type de réclamation <span style="color:#dc2626;">*</span>
+                </label>
+                <select name="type" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;">
+                    <option value="">Sélectionnez un type</option>
+                    <option value="technique" {% if form_data.type == 'technique' %}selected{% endif %}>💻 Problème technique</option>
+                    <option value="compte" {% if form_data.type == 'compte' %}selected{% endif %}>👤 Problème de compte</option>
+                    <option value="transaction" {% if form_data.type == 'transaction' %}selected{% endif %}>💰 Transaction</option>
+                    <option value="carte" {% if form_data.type == 'carte' %}selected{% endif %}>💳 Carte bancaire</option>
+                    <option value="credit" {% if form_data.type == 'credit' %}selected{% endif %}>🏦 Crédit</option>
+                    <option value="autre" {% if form_data.type == 'autre' %}selected{% endif %}>📝 Autre</option>
+                </select>
+                <div class="field-error" data-error-for="type"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">
+                    Sujet <span style="color:#dc2626;">*</span>
+                </label>
+                <input type="text" name="sujet" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" 
+                       value="{{ form_data.sujet|default('') }}" 
+                       placeholder="Ex: Problème de virement">
+                <div class="field-error" data-error-for="sujet"></div>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">
+                Description <span style="color:#dc2626;">*</span>
+            </label>
+            <textarea name="description" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" 
+                      rows="4" placeholder="Décrivez votre problème en détail...">{{ form_data.description|default('') }}</textarea>
+            <div class="field-error" data-error-for="description"></div>
+        </div>
+        
+        <div class="mb-3">
+            <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">
+                Pièce jointe (image)
+            </label>
+            <input type="file" name="image" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" 
+                   accept="image/jpeg,image/png,image/jpg,image/gif">
+            <small style="font-size:11px;color:var(--text-secondary);">
+                Formats acceptés: JPG, PNG, GIF. Max 5MB. Seuls les justificatifs financiers sont acceptés.
+            </small>
+            <div class="field-error" data-error-for="image"></div>
+            
+            {# Preview de l'image #}
+            <div id="imagePreviewContainer" style="display:none; margin-top:10px;">
+                <img id="imagePreview" style="max-width:150px; max-height:150px; border-radius:8px;">
+            </div>
+        </div>
+        
+        <button type="submit" class="btn-admin primary">
+            <i class="fas fa-paper-plane mr-2"></i>Envoyer la réclamation
+        </button>
+    </form>
+</div>
+
+<script>
+// Prévisualisation de l'image
+document.getElementById('image')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    const previewImg = document.getElementById('imagePreview');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewContainer.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        previewContainer.style.display = 'none';
+    }
+});
+</script>
+
+</div>
+
+<!-- Statistiques -->
+{% if pagination.totalItemCount > 0 %}
+<div class="stats-grid">
+    <div class="stat-card-mini">
+        <div class="stat-icon-mini orange"><i class="fas fa-clock"></i></div>
+        <div class="stat-info-mini">
+            <div class="stat-label-mini">En attente</div>
+            <div class="stat-value-mini">{{ stats.en_attente }}</div>
+        </div>
+    </div>
+    <div class="stat-card-mini">
+        <div class="stat-icon-mini blue"><i class="fas fa-spinner"></i></div>
+        <div class="stat-info-mini">
+            <div class="stat-label-mini">En cours</div>
+            <div class="stat-value-mini">{{ stats.en_cours }}</div>
+        </div>
+    </div>
+    <div class="stat-card-mini">
+        <div class="stat-icon-mini green"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-info-mini">
+            <div class="stat-label-mini">Traitées</div>
+            <div class="stat-value-mini">{{ stats.traite }}</div>
+        </div>
+    </div>
+    <div class="stat-card-mini">
+        <div class="stat-icon-mini red"><i class="fas fa-times-circle"></i></div>
+        <div class="stat-info-mini">
+            <div class="stat-label-mini">Rejetées</div>
+            <div class="stat-value-mini">{{ stats.rejete }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des réclamations -->
+<div class="admin-card">
+    <div class="card-header">
+        <h5><i class="fas fa-list mr-2" style="color:var(--primary);"></i>Mes réclamations 
+            <span class="badge bg-secondary">{{ pagination.totalItemCount }}</span>
+        </h5>
+    </div>
+    <div class="card-body">
+      
+<form method="get" action="{{ path('app_client_reclamations') }}" class="search-bar">
+    <div class="search-input-group">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text"
+               name="search"
+               value="{{ app.request.get('search') }}"
+               placeholder="Rechercher une réclamation..."
+               class="search-input">
+    </div>
+<select name="sort" class="search-select">
+    <option value="date_desc" {{ sort == 'date_desc' ? 'selected' : '' }}>Plus récentes</option>
+    <option value="date_asc" {{ sort == 'date_asc' ? 'selected' : '' }}>Plus anciennes</option>
+    <option value="statut" {{ sort == 'statut' ? 'selected' : '' }}>Statut</option>
+    <option value="type" {{ sort == 'type' ? 'selected' : '' }}>Type</option>
+</select>
+    
+    <!-- Sélecteur du nombre d'éléments par page -->
+    <select name="limit" class="search-select" onchange="this.form.submit()">
+        <option value="5" {{ app.request.get('limit', 10) == 5 ? 'selected' : '' }}>5 par page</option>
+        <option value="10" {{ app.request.get('limit', 10) == 10 ? 'selected' : '' }}>10 par page</option>
+        <option value="25" {{ app.request.get('limit', 10) == 25 ? 'selected' : '' }}>25 par page</option>
+        <option value="50" {{ app.request.get('limit', 10) == 50 ? 'selected' : '' }}>50 par page</option>
+    </select>
+    
+    <button type="submit" class="btn-search">Appliquer</button>
+    {% if app.request.get('search') or sort != 'date_desc' or app.request.get('limit', 10) != 10 %}
+        <a href="{{ path('app_client_reclamations') }}" class="btn-reset">Réinitialiser</a>
+    {% endif %}
+</form>
+
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Sujet</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th>Réponse</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in pagination %}
+                <tr>
+                    <td>
+                        <span class="badge-status" style="background:#F0F0F0;color:#666;">
+                            {% if r.type == 'technique' %}<i class="fas fa-code"></i> Technique
+                            {% elseif r.type == 'compte' %}<i class="fas fa-user"></i> Compte
+                            {% elseif r.type == 'transaction' %}<i class="fas fa-exchange-alt"></i> Transaction
+                            {% elseif r.type == 'carte' %}<i class="fas fa-credit-card"></i> Carte
+                            {% elseif r.type == 'credit' %}<i class="fas fa-hand-holding-usd"></i> Crédit
+                            {% else %}<i class="fas fa-comment"></i> Autre
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="font-weight:500;">{{ r.sujet }}</div>
+                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 3px;">
+                            {{ r.description|slice(0, 60) }}{% if r.description|length > 60 %}...{% endif %}
+                        </div>
+                        {% if r.sentiment %}
+                            <div style="margin-top: 5px;">
+                                <span class="sentiment-badge sentiment-{{ r.sentiment }}">
+                                    {% if r.sentiment == 'positif' %}
+                                        <i class="fas fa-smile"></i> Analyse positive
+                                    {% elseif r.sentiment == 'negatif' %}
+                                        <i class="fas fa-frown"></i> Analyse négative
+                                    {% else %}
+                                        <i class="fas fa-meh"></i> Analyse neutre
+                                    {% endif %}
+                                </span>
+                            </div>
+                        {% endif %}
+                        {% if r.imagePath %}
+                            <div style="margin-top: 8px;">
+                                <img src="{{ asset('uploads/reclamations/' ~ r.imagePath) }}" class="image-preview" alt="Image jointe" onclick="window.open(this.src)">
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge-status {{ r.statut }}">
+                            {% if r.statut == 'en_attente' %}
+                                <i class="fas fa-clock"></i> En attente
+                            {% elseif r.statut == 'en_cours' %}
+                                <i class="fas fa-spinner fa-pulse"></i> En cours
+                            {% elseif r.statut == 'traite' %}
+                                <i class="fas fa-check-circle"></i> Traité
+                            {% else %}
+                                <i class="fas fa-times-circle"></i> Rejeté
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td style="font-size:13px;">
+                        {{ r.dateReclamation|date('d/m/Y H:i') }}
+                    </td>
+                    <td>
+                        {% if r.reponses|length > 0 %}
+                            {% set rep = r.reponses|sort((a, b) => a.dateReponse <=> b.dateReponse)|last %}
+                            <div class="response-preview has-response" title="{{ rep.contenu }}">
+                                <i class="fas fa-reply-all"></i> 
+                                {{ rep.contenu|slice(0, 50) }}{% if rep.contenu|length > 50 %}...{% endif %}
+                            </div>
+                            <div style="font-size: 11px; color: #4CAF50;">
+                                <i class="fas fa-calendar-alt"></i> 
+                                {{ rep.dateReponse|date('d/m/Y H:i') }}
+                            </div>
+                        {% else %}
+                            <span class="response-preview no-response">
+                                <i class="fas fa-hourglass-half"></i> En attente de réponse
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td style="white-space:nowrap;">
+                        <button type="button" class="btn-action view" title="Voir détails" onclick="$('#detailModal{{ r.id }}').modal('show')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        {% if r.statut == 'en_attente' %}
+                            <button type="button" class="btn-action edit" title="Modifier" onclick="openEditModal({{ r.id }}, '{{ r.sujet|e('js') }}', '{{ r.description|e('js') }}', '{{ r.type|e('js') }}')">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <form method="post" action="{{ path('app_client_reclamation_delete', {id: r.id}) }}" style="display:inline;" onsubmit="return confirmDelete(event, this)">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ r.id) }}">
+                                <button type="submit" class="btn-action delete" title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <!-- Modal Détails -->
+                <div class="modal fade modal-admin" id="detailModal{{ r.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;">
+                            <div style="background:linear-gradient(135deg,var(--primary),#4C49ED);padding:20px 25px;">
+                                <h5 style="color:#fff;font-weight:700;margin:0;">
+                                    <i class="fas fa-comment-alt mr-2"></i>Détail de la réclamation
+                                </h5>
+                                <small style="color:rgba(255,255,255,0.8);">#{{ r.id }} - {{ r.dateReclamation|date('d/m/Y H:i') }}</small>
+                            </div>
+                            <div style="padding:25px;">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="text-muted" style="font-size:12px;">Type</label>
+                                        <div><strong>{% if r.type == 'technique' %}💻 Problème technique{% elseif r.type == 'compte' %}👤 Problème de compte{% elseif r.type == 'transaction' %}💰 Transaction{% elseif r.type == 'carte' %}💳 Carte bancaire{% elseif r.type == 'credit' %}🏦 Crédit{% else %}📝 Autre{% endif %}</strong></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="text-muted" style="font-size:12px;">Statut</label>
+                                        <div><span class="badge-status {{ r.statut }}">{% if r.statut == 'en_attente' %}⏳ En attente{% elseif r.statut == 'en_cours' %}🔄 En cours{% elseif r.statut == 'traite' %}✅ Traité{% else %}❌ Rejeté{% endif %}</span></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="text-muted" style="font-size:12px;">Sujet</label>
+                                    <div><strong>{{ r.sujet }}</strong></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="text-muted" style="font-size:12px;">Description</label>
+                                    <div class="reclamation-detail">{{ r.description|nl2br }}</div>
+                                </div>
+                                {% if r.imagePath %}
+                                <div class="mb-3">
+                                    <label class="text-muted" style="font-size:12px;">Image jointe</label>
+                                    <div><img src="{{ asset('uploads/reclamations/' ~ r.imagePath) }}" style="max-width:100%;max-height:300px;border-radius:8px;" onclick="window.open(this.src)"></div>
+                                </div>
+                                {% endif %}
+                                {% if r.sentiment %}
+                                <div class="mb-3">
+                                    <label class="text-muted" style="font-size:12px;">Analyse automatique</label>
+                                    <div><span class="sentiment-badge sentiment-{{ r.sentiment }}">{% if r.sentiment == 'positif' %}😊 Sentiment positif{% elseif r.sentiment == 'negatif' %}😞 Sentiment négatif{% else %}😐 Sentiment neutre{% endif %}</span></div>
+                                </div>
+                                {% endif %}
+                                {% if r.reponse %}
+                                <div class="mb-3">
+                                    <label class="text-muted" style="font-size:12px;">Réponse de l'administration</label>
+                                    <div class="reclamation-detail reclamation-response">
+                                        <div style="margin-bottom:8px;"><strong>{{ r.reponsePar ? r.reponsePar.prenom ~ ' ' ~ r.reponsePar.nom : 'Administration' }}</strong> - {{ r.reponseDate|date('d/m/Y H:i') }}</div>
+                                        {{ r.reponse|nl2br }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div style="padding:0 25px 25px;display:flex;gap:12px;justify-content:flex-end;">
+                                <button type="button" class="btn-admin outline" data-dismiss="modal">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        <i class="fas fa-inbox" style="font-size: 48px; color: #ccc;"></i>
+                        <p class="mt-2 text-muted">Aucune réclamation trouvée</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- ============================================ -->
+        <!-- PAGINATION AVEC STYLES PERSONNALISÉS -->
+        <!-- ============================================ -->
+  <!-- ============================================ -->
+<!-- PAGINATION AVEC STYLES PERSONNALISÉS -->
+<!-- ============================================ -->
+{% if pagination.pageCount > 1 %}
+<div class="pagination-container">
+    <nav aria-label="Pagination des réclamations">
+        <ul class="pagination justify-content-center">
+            <!-- Première page -->
+            {% if pagination.currentPageNumber > 1 %}
+            <li class="page-item">
+                <a class="page-link" href="{{ path('app_client_reclamations', {page: 1, search: app.request.get('search'), sort: sort, limit: app.request.get('limit', 10)}) }}">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link"><i class="fas fa-angle-double-left"></i></span>
+            </li>
+            {% endif %}
+            
+            <!-- Page précédente -->
+            {% set previousPage = pagination.getCustomParameter('previousPage') %}
+            {% if previousPage %}
+            <li class="page-item">
+                <a class="page-link" href="{{ path('app_client_reclamations', {page: previousPage, search: app.request.get('search'), sort: sort, limit: app.request.get('limit', 10)}) }}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link"><i class="fas fa-angle-left"></i></span>
+            </li>
+            {% endif %}
+            
+            <!-- Pages numérotées -->
+            {% set currentPage = pagination.currentPageNumber %}
+            {% set pageCount = pagination.pageCount %}
+            {% set startPage = max(1, currentPage - 2) %}
+            {% set endPage = min(pageCount, currentPage + 2) %}
+            
+            {% for page in startPage..endPage %}
+                {% if page == currentPage %}
+                    <li class="page-item active">
+                        <span class="page-link">
+                            {{ page }}
+                        </span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ path('app_client_reclamations', {page: page, search: app.request.get('search'), sort: sort, limit: app.request.get('limit', 10)}) }}">
+                            {{ page }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Page suivante -->
+            {% set nextPage = pagination.getCustomParameter('nextPage') %}
+            {% if nextPage %}
+            <li class="page-item">
+                <a class="page-link" href="{{ path('app_client_reclamations', {page: nextPage, search: app.request.get('search'), sort: sort, limit: app.request.get('limit', 10)}) }}">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link"><i class="fas fa-angle-right"></i></span>
+            </li>
+            {% endif %}
+            
+            <!-- Dernière page -->
+            {% if pagination.currentPageNumber < pagination.pageCount %}
+            <li class="page-item">
+                <a class="page-link" href="{{ path('app_client_reclamations', {page: pagination.pageCount, search: app.request.get('search'), sort: sort, limit: app.request.get('limit', 10)}) }}">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link"><i class="fas fa-angle-double-right"></i></span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    
+    <!-- Informations de pagination -->
+    <div class="pagination-info text-center">
+        <i class="fas fa-chart-line"></i> Page {{ pagination.currentPageNumber }} sur {{ pagination.pageCount }}
+        ({{ pagination.totalItemCount }} réclamation{% if pagination.totalItemCount > 1 %}s{% endif %})
+    </div>
+</div>
+{% endif %}
+
+        
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal Modification -->
+<div class="modal fade modal-admin" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:600px;">
+        <div class="modal-content" style="border:none;border-radius:16px;overflow:hidden;">
+            <div style="background:linear-gradient(135deg,var(--primary),#4C49ED);padding:20px 25px;">
+                <h5 style="color:#fff;font-weight:700;margin:0;"><i class="fas fa-pen mr-2"></i>Modifier la réclamation</h5>
+            </div>
+            <form id="editForm" method="post" enctype="multipart/form-data" novalidate>
+                <div style="padding:25px;">
+                    <div class="mb-3">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Type <span style="color:#dc2626;">*</span></label>
+                        <select name="type" id="edit_type" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;">
+                            <option value="technique">💻 Problème technique</option>
+                            <option value="compte">👤 Problème de compte</option>
+                            <option value="transaction">💰 Transaction</option>
+                            <option value="carte">💳 Carte bancaire</option>
+                            <option value="credit">🏦 Crédit</option>
+                            <option value="autre">📝 Autre</option>
+                        </select>
+                        <div class="field-error" data-error-for="type"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Sujet <span style="color:#dc2626;">*</span></label>
+                        <input type="text" name="sujet" id="edit_sujet" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;">
+                        <div class="field-error" data-error-for="sujet"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Description <span style="color:#dc2626;">*</span></label>
+                        <textarea name="description" id="edit_description" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" rows="4"></textarea>
+                        <div class="field-error" data-error-for="description"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label style="font-size:13px;font-weight:600;color:var(--primary-dark);display:block;margin-bottom:6px;">Nouvelle image (optionnel)</label>
+                        <input type="file" name="image" class="form-control" style="border-radius:10px;border:1px solid var(--border);padding:10px 15px;" accept="image/*">
+                        <small style="font-size:11px;color:var(--text-secondary);">Laissez vide pour conserver l'image actuelle</small>
+                        <div class="field-error" data-error-for="image"></div>
+                    </div>
+                </div>
+                <div style="padding:0 25px 25px;display:flex;gap:12px;justify-content:flex-end;">
+                    <button type="button" class="btn-admin outline" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn-admin primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// Fonction pour ouvrir le modal d'édition
+function openEditModal(id, sujet, description, type) {
+    document.getElementById('editForm').action = '/client/reclamations/' + id + '/edit';
+    document.getElementById('edit_sujet').value = sujet;
+    document.getElementById('edit_description').value = description;
+    document.getElementById('edit_type').value = type;
+    $('#editModal').modal('show');
+}
+
+// Fonction de confirmation de suppression
+function confirmDelete(event, form) {
+    event.preventDefault();
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ? Cette action est irréversible.')) {
+        form.submit();
+    }
+    return false;
+}
+
+// ============================================
+// VALIDATION 100% JAVASCRIPT (sans HTML5)
+// ============================================
+
+// Fonction de validation pour un champ
+function getFieldValidationMessage(field, value) {
+    const name = field.getAttribute('name');
+    
+    // Type - sélection obligatoire
+    if (name === 'type') {
+        if (!value) return 'Veuillez sélectionner un type de réclamation.';
+    }
+    
+    // Sujet
+    if (name === 'sujet') {
+        if (!value) return 'Le sujet est obligatoire.';
+        if (value.length < 5) return 'Le sujet doit contenir au moins 5 caractères.';
+        if (value.length > 255) return 'Le sujet ne peut pas dépasser 255 caractères.';
+        // Vérification des caractères autorisés (lettres, chiffres, espaces, ponctuation basique)
+        if (!/^[a-zA-Z0-9À-ÿ\s\-\'?!.,]+$/.test(value)) {
+            return 'Le sujet contient des caractères non autorisés.';
+        }
+    }
+    
+    // Description
+    if (name === 'description') {
+        if (!value) return 'La description est obligatoire.';
+        if (value.length < 10) return 'La description doit contenir au moins 10 caractères.';
+        if (value.length > 2000) return 'La description ne peut pas dépasser 2000 caractères.';
+    }
+    
+    // Image
+    if (name === 'image' && field.files && field.files.length > 0) {
+        const file = field.files[0];
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+        if (!allowedTypes.includes(file.type)) {
+            return 'Format de fichier non autorisé. Utilisez JPG, PNG ou GIF.';
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            return 'L\'image ne doit pas dépasser 5 Mo.';
+        }
+    }
+    
+    return '';
+}
+
+// Fonction de validation d'un champ avec affichage d'erreur
+function validateField(field, form) {
+    const value = field.value ? field.value.trim() : '';
+    const errorMessage = getFieldValidationMessage(field, value);
+    const errorDiv = form.querySelector(`[data-error-for="${field.getAttribute('name')}"]`);
+    
+    const isValid = errorMessage === '';
+    
+    if (errorDiv) {
+        if (!isValid) {
+            errorDiv.textContent = errorMessage;
+            errorDiv.classList.add('is-visible');
+            field.classList.add('input-error');
+            field.classList.remove('input-success');
+        } else {
+            errorDiv.textContent = '';
+            errorDiv.classList.remove('is-visible');
+            field.classList.remove('input-error');
+            if (value !== '') {
+                field.classList.add('input-success');
+            } else {
+                field.classList.remove('input-success');
+            }
+        }
+    }
+    
+    return isValid;
+}
+
+// Fonction pour prévisualiser et vérifier l'image
+function setupImagePreviewWithModeration(fileInput, previewContainer, statusContainer) {
+    if (!fileInput) return;
+    
+    fileInput.addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        
+        if (!file) {
+            if (previewContainer) previewContainer.style.display = 'none';
+            if (statusContainer) statusContainer.innerHTML = '';
+            return;
+        }
+        
+        // Vérifier la taille
+        if (file.size > 5 * 1024 * 1024) {
+            if (statusContainer) {
+                statusContainer.innerHTML = '<div class="alert alert-danger mt-2"><i class="fas fa-times-circle me-2"></i>❌ Fichier trop volumineux (max 5MB)</div>';
+            }
+            fileInput.value = '';
+            return;
+        }
+        
+        // Vérifier le type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            if (statusContainer) {
+                statusContainer.innerHTML = '<div class="alert alert-danger mt-2"><i class="fas fa-times-circle me-2"></i>❌ Format non supporté. Utilisez JPG, PNG ou GIF.</div>';
+            }
+            fileInput.value = '';
+            return;
+        }
+        
+        // Afficher l'aperçu
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (previewContainer) {
+                const img = previewContainer.querySelector('img');
+                if (img) {
+                    img.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                }
+            }
+        };
+        reader.readAsDataURL(file);
+        
+        // Afficher le statut de vérification
+        if (statusContainer) {
+            statusContainer.innerHTML = '<div class="alert alert-info mt-2"><i class="fas fa-spinner fa-spin me-2"></i>🔍 Vérification de l\'image en cours...</div>';
+        }
+        
+        // Simuler une vérification (le serveur fera la vraie vérification)
+        // Cette partie est juste pour le feedback utilisateur
+        setTimeout(() => {
+            // Vérification basique côté client (optionnelle)
+            const suspiciousWords = ['porn', 'xxx', 'nude', 'sexy', 'violence', 'gore'];
+            const fileName = file.name.toLowerCase();
+            let isSuspicious = false;
+            
+            for (const word of suspiciousWords) {
+                if (fileName.includes(word)) {
+                    isSuspicious = true;
+                    break;
+                }
+            }
+            
+            if (isSuspicious) {
+                if (statusContainer) {
+                    statusContainer.innerHTML = '<div class="alert alert-warning mt-2"><i class="fas fa-exclamation-triangle me-2"></i>⚠️ Cette image semble suspecte. Si elle est inappropriée, elle sera refusée.</div>';
+                }
+            } else {
+                if (statusContainer) {
+                    statusContainer.innerHTML = '<div class="alert alert-success mt-2"><i class="fas fa-check-circle me-2"></i>✅ Image acceptée - Format valide</div>';
+                }
+            }
+        }, 1000);
+    });
+}
+
+// Initialiser la prévisualisation d'image sur le formulaire
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.querySelector('input[name="image"]');
+    if (imageInput) {
+        // Créer les conteneurs de preview s'ils n'existent pas
+        let previewContainer = document.getElementById('imagePreviewContainer');
+        let statusContainer = document.getElementById('imageStatusContainer');
+        
+        if (!previewContainer) {
+            previewContainer = document.createElement('div');
+            previewContainer.id = 'imagePreviewContainer';
+            previewContainer.style.display = 'none';
+            previewContainer.style.marginTop = '15px';
+            previewContainer.innerHTML = '<img id="imagePreview" style="max-width:200px;max-height:200px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);">';
+            imageInput.parentNode.appendChild(previewContainer);
+        }
+        
+        if (!statusContainer) {
+            statusContainer = document.createElement('div');
+            statusContainer.id = 'imageStatusContainer';
+            imageInput.parentNode.appendChild(statusContainer);
+        }
+        
+        setupImagePreviewWithModeration(imageInput, previewContainer, statusContainer);
+    }
+});
+
+
+// Configuration de la validation pour un formulaire
+function setupFormValidation(form) {
+    if (!form) return;
+    
+    // Récupérer tous les champs à valider
+    const fields = form.querySelectorAll('input[name], textarea[name], select[name]');
+    
+    // Ajouter les événements de validation en temps réel
+    fields.forEach(field => {
+        // Validation à chaque saisie
+        field.addEventListener('input', function() {
+            validateField(field, form);
+        });
+        
+        // Validation à la perte de focus
+        field.addEventListener('blur', function() {
+            validateField(field, form);
+        });
+        
+        // Pour les select, validation au changement
+        if (field.tagName === 'SELECT') {
+            field.addEventListener('change', function() {
+                validateField(field, form);
+            });
+        }
+        
+        // Pour les fichiers, validation au changement
+        if (field.type === 'file') {
+            field.addEventListener('change', function() {
+                validateField(field, form);
+            });
+        }
+    });
+    
+    // Validation avant soumission
+    form.addEventListener('submit', function(event) {
+        let isValid = true;
+        let firstInvalidField = null;
+        
+        fields.forEach(field => {
+            const fieldIsValid = validateField(field, form);
+            if (!fieldIsValid) {
+                isValid = false;
+                if (!firstInvalidField) {
+                    firstInvalidField = field;
+                }
+            }
+        });
+        
+        if (!isValid) {
+            event.preventDefault();
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            // Afficher une notification d'erreur
+            const errorSummary = document.createElement('div');
+            errorSummary.className = 'alert alert-danger';
+            errorSummary.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;background:#dc2626;color:white;padding:12px 20px;border-radius:10px;font-size:14px;animation:slideIn 0.3s ease;';
+            errorSummary.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i> Veuillez corriger les erreurs dans le formulaire.';
+            document.body.appendChild(errorSummary);
+            setTimeout(() => errorSummary.remove(), 3000);
+        }
+    });
+}
+
+// Initialiser la validation pour tous les formulaires au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    // Formulaire de nouvelle réclamation
+    const reclamationForm = document.getElementById('reclamationForm');
+    if (reclamationForm) {
+        setupFormValidation(reclamationForm);
+    }
+    
+    // Formulaire d'édition dans le modal
+    const editForm = document.getElementById('editForm');
+    if (editForm) {
+        setupFormValidation(editForm);
+    }
+});
+
+// Animation pour les messages d'erreur
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    .alert-danger {
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

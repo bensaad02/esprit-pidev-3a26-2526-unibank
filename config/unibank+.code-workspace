@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "unibank+",
+			"path": ".."
+		},
+		{
+			"name": "ml_service",
+			"path": "../../../../../../ml_service"
+		}
+	],
+	"settings": {}
+}

@@ -1,0 +1,87 @@
+{% extends 'client/base.html.twig' %}
+
+{% block page_title %}Transactions{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h4>📊 Transactions</h4>
+
+        <form method="get" class="d-flex gap-2">
+
+            <input type="text" name="search" value="{{ search }}" 
+                   class="form-control" placeholder="Recherche...">
+
+            <select name="type" class="form-control">
+                <option value="">Tous</option>
+                <option value="RECHARGE" {% if type == 'RECHARGE' %}selected{% endif %}>Recharge</option>
+                <option value="INTERNET" {% if type == 'INTERNET' %}selected{% endif %}>Internet</option>
+                <option value="TRANSFER" {% if type == 'TRANSFER' %}selected{% endif %}>Transfer</option>
+            </select>
+
+            <button class="btn btn-primary">🔍</button>
+
+        </form>
+
+    </div>
+
+    <!-- TOTAL -->
+    <div class="card p-3 mb-3 shadow-sm">
+        <strong>Total dépensé:</strong>
+        <span class="text-danger fw-bold">{{ total }} DT</span>
+    </div>
+
+    <!-- LIST -->
+    <div class="card shadow-sm">
+
+        {% for t in transactions %}
+            <div class="transaction-item d-flex justify-content-between align-items-center">
+
+                <div>
+                    <strong>{{ t.type }}</strong><br>
+
+                    <small class="text-muted">
+                        {{ t.date|date('d/m/Y H:i') }}
+                    </small>
+
+                    {% if t.description %}
+                        <br><small>{{ t.description }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="text-danger fw-bold">
+                    - {{ t.montant }} DT
+                </div>
+
+            </div>
+        {% else %}
+            <div class="p-3 text-muted">Aucune transaction</div>
+        {% endfor %}
+
+    </div>
+
+    <a href="{{ path('app_client_cartes') }}" class="btn btn-secondary mt-3">
+        ⬅ Retour
+    </a>
+
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+
+.transaction-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    transition: 0.2s;
+}
+
+.transaction-item:hover {
+    background: #f8f9fa;
+}
+
+</style>
+{% endblock %}
